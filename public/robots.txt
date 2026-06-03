@@ -1,0 +1,28 @@
+# https://pileperde.com.tr/robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://pileperde.com.tr/sitemap.xml
+
+# Disallow admin or sensitive areas
+Disallow: /api/
+Disallow: /_next/static/
+Disallow: /*.json$
+
+# Allow important crawling
+Allow: /urunler/
+Allow: /model-perdeler/
+Allow: /kurumsal-urunler/
+Allow: /hakkimizda
+Allow: /iletisim
+
+# Crawl-delay for specific bots (optional)
+User-agent: Googlebot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
+User-agent: Yandex
+Allow: /

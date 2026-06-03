@@ -1,0 +1,516 @@
+'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { getPublicProductGallery } from '@/lib/productGalleryContent'
+
+const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-model-perdeler-balon-perde'
+
+const productImages = [
+  { id: 1, src: '/api/public/media/images/0d960ab5-7767-41f7-86e2-674315fa8cfd/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 1' },
+  { id: 2, src: '/api/public/media/images/db1df766-470c-4606-943b-4a42b862c0e8/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 2' },
+  { id: 3, src: '/api/public/media/images/6d75c47d-35df-4afe-a8ec-d6a6e635ca85/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 3' },
+  { id: 4, src: '/api/public/media/images/afa9b71d-da9d-471d-a414-e8fd83c215bd/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 4' },
+  { id: 5, src: '/api/public/media/images/9c35f249-f5d1-451d-a67a-89cbe8388fde/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 5' },
+  { id: 6, src: '/api/public/media/images/f57ba073-b2a9-4ce1-98b1-2d1c3c3fe832/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 6' },
+  { id: 7, src: '/api/public/media/images/03bd6509-2674-4c1a-81bc-014d86687bab/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 7' },
+  { id: 8, src: '/api/public/media/images/52bed66c-846f-4607-8d46-d92f510ad49d/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 8' },
+  { id: 9, src: '/api/public/media/images/917becbd-5f35-467d-bdc7-e764fb44956c/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 9' },
+  { id: 10, src: '/api/public/media/images/55eee81f-6743-4501-b734-0aed13b80e15/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 10' },
+  { id: 11, src: '/api/public/media/images/a044fc78-10be-4868-ad48-ddc7c140df2b/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 11' },
+  { id: 12, src: '/api/public/media/images/26d8bfdf-4b8e-494f-a0c5-5d9694be3989/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 12' },
+  { id: 13, src: '/api/public/media/images/56228863-f0ec-4668-9a8c-1f3628100d75/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 13' },
+  { id: 14, src: '/api/public/media/images/1ea63f2e-729a-425b-a023-0948f3ad5a3b/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 14' },
+  { id: 15, src: '/api/public/media/images/29f64c36-0eb2-43a6-a6d3-da2903b6948f/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 15' },
+  { id: 16, src: '/api/public/media/images/b7f089c2-756f-4cfa-a628-a414e83c6781/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 16' },
+  { id: 17, src: '/api/public/media/images/4cf63c24-b8d7-4e83-a366-c9c84a6667b9/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 17' },
+  { id: 18, src: '/api/public/media/images/334714b1-2710-417d-844f-82d8ba2c45ce/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 18' },
+  { id: 19, src: '/api/public/media/images/510a563f-71dd-439d-8f70-94215be8b42c/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 19' },
+  { id: 20, src: '/api/public/media/images/d6267bd5-75df-4efc-8384-d216d6653bcd/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 20' },
+  { id: 21, src: '/api/public/media/images/e13e1c01-d18d-4552-a506-5dde7b25c51f/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 21' },
+  { id: 22, src: '/api/public/media/images/ce1388d3-3ba5-49c5-9c92-fb87930becc6/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 22' },
+  { id: 23, src: '/api/public/media/images/c14d8ac9-d002-49d4-a3a5-3041385b55c7/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 23' },
+  { id: 24, src: '/api/public/media/images/3be21a4c-1940-4c09-926f-77102b4c57f6/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 24' },
+  { id: 25, src: '/api/public/media/images/cfe87cd3-75b7-45a1-b949-e572d38b4d73/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 25' },
+  { id: 26, src: '/api/public/media/images/a48a3b4f-9767-4b8a-957e-3cb78546f9f0/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 26' },
+  { id: 27, src: '/api/public/media/images/45970ba1-cb7f-4a28-a54c-73fa5045dd50/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 27' },
+  { id: 28, src: '/api/public/media/images/bc1591c3-fa23-4d65-b9a4-13882822221d/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 28' },
+  { id: 29, src: '/api/public/media/images/6fd47049-9d6c-48ff-b2dc-43077c4cac0b/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 29' },
+  { id: 30, src: '/api/public/media/images/d1218dfc-1b1c-4ee9-8414-7bc3f0d4ace9/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 30' },
+  { id: 31, src: '/api/public/media/images/b7d05154-34f7-4bf0-b451-42143cee10ea/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 31' },
+  { id: 32, src: '/api/public/media/images/9a36b317-4016-42a8-87d3-e2816db0ad46/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 32' },
+  { id: 33, src: '/api/public/media/images/766a7c5c-4474-43c1-8dc1-ec1ce75cdc80/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 33' },
+  { id: 34, src: '/api/public/media/images/3bb884e2-5929-45cd-b263-12eb3ccbecba/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 34' },
+  { id: 35, src: '/api/public/media/images/faca658d-44e4-440d-88a8-32c8642157a9/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 35' },
+  { id: 36, src: '/api/public/media/images/9c17b3e4-2fb8-43bf-8fcf-dd409dabdaba/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 36' },
+  { id: 37, src: '/api/public/media/images/1a1133d9-4ea1-4172-8bab-4f57511414c6/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 37' },
+  { id: 38, src: '/api/public/media/images/22ddb918-4fc9-452b-b326-7e5b094f5411/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 38' },
+  { id: 39, src: '/api/public/media/images/3f837984-78ca-4a4e-872e-c5264958822d/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 39' },
+  { id: 40, src: '/api/public/media/images/865dd43e-cf2b-4a98-9ec0-4b2afa5c31fe/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 40' },
+  { id: 41, src: '/api/public/media/images/3e63cbad-73f9-45dc-80d8-6e57715d31c0/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 41' },
+  { id: 42, src: '/api/public/media/images/e5a491c1-6906-4e9c-9358-986d2cd0fad5/file', alt: 'Balon perde modelleri Ankara', title: 'Balon Perde 42' }
+]
+
+const productAdvantages = [
+  'Manzaranız kapanmaz, camın yarısı açık kalır',
+  'Mekanizmalı sistemleri kullanarak dilediğiniz boyda ayarlama yapabilirsiniz',
+  'İpli sistem sayesinde perdeye dokunmadan açma-kapama yapabilirsiniz',
+  'Organze tül ile şık ve estetik görünüm',
+  'Yükseklik ayarını dilediğiniz boyda ayarlayabilirsiniz'
+]
+
+const usageAreas = [
+  'Otel lobi ve balo salonları',
+  'Nikah düğün salonları',
+  'Restoran ve kafeler',
+  'Yazlık müstakil evler',
+  'Bahçeli evler',
+  'Manzaralı pencereler',
+  'Salon ve yatak odaları',
+  'Etrafı açık olan evler'
+]
+
+// Animation variants
+const fadeInVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+}
+
+const fadeInUpVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 }
+}
+
+const slideInLeftVariants = {
+  hidden: { opacity: 0, x: -30 },
+  visible: { opacity: 1, x: 0 }
+}
+
+const slideInRightVariants = {
+  hidden: { opacity: 0, x: 30 },
+  visible: { opacity: 1, x: 0 }
+}
+
+const scaleInVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1 }
+}
+
+const staggerContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+}
+
+export default function ModernPerdePage() {
+  const [galleryImages, setGalleryImages] = useState(productImages)
+  const [selectedImage, setSelectedImage] = useState(productImages[0])
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  const currentImageIndex = galleryImages.findIndex(img => img.id === selectedImage.id)
+
+  useEffect(() => {
+    let mounted = true
+
+    getPublicProductGallery(PRODUCT_GALLERY_PAGE_KEY, productImages).then((images) => {
+      if (!mounted) {
+        return
+      }
+
+      setGalleryImages(images)
+      setSelectedImage((current) => images.find((image) => image.id === current.id) || images[0] || current)
+    })
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const goToPrevious = () => {
+    const prevIndex = currentImageIndex > 0 ? currentImageIndex - 1 : galleryImages.length - 1
+    setSelectedImage(galleryImages[prevIndex])
+  }
+
+  const goToNext = () => {
+    const nextIndex = currentImageIndex < galleryImages.length - 1 ? currentImageIndex + 1 : 0
+    setSelectedImage(galleryImages[nextIndex])
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setLightboxOpen(false)
+      }
+      if (lightboxOpen) {
+        if (e.key === 'ArrowLeft') {
+          goToPrevious()
+        }
+        if (e.key === 'ArrowRight') {
+          goToNext()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxOpen, currentImageIndex])
+
+  return (
+    <>
+      <main className="bg-black">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
+      <div className="absolute inset-0 bg-grid-white/[0.02]" />
+
+      <section className="relative overflow-hidden py-20">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <Link href="/perde-modelleri" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+                Perde Modelleri
+              </Link>
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              <span className="text-sm text-gray-400">Balon Perde</span>
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
+              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Model Perde Koleksiyonu</span>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight text-white mb-6">
+              Balon
+              <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
+                Perde Modelleri
+              </span>
+            </h1>
+
+            <p className="text-lg text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
+              Balon perde; tül perdelere ek olarak dikilen ve iki kanattan meydana gelen ve bunun yanında 
+              mekanizmalı ya da mekanizmasız çekilen ipleri ile büzüşerek estetik bir görünüm ortaya koyan 
+              perde çeşidi olarak tanımlanır. Bu modelin arkasında güneşlik olarak daha çok stor perde çeşitleri kullanılır.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-16 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-8">
+
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-white/10">
+              <h2 className="text-xl font-light text-white mb-4 flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-gray-500/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                Ürün Özellikleri
+              </h2>
+
+              <div className="space-y-4">
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Salonlarda, yatak odalarında ve oturma odalarında genelde çok yaygın olarak tercih edilen balon perdelerin 
+                  mekanizmalı balon perdeler, mekanizmasız balon perdeler, yalancı balon perdeler şeklinde üç farklı modeli vardır.
+                </p>
+
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Mekanizmalı balon perde modellerinde seçmiş olduğunuz tül, düz tül olarak veya dilimli olarak dikilir ve 
+                  kornişe asılan bir makara mekanizması ile istenildiğinde ipi çekilerek büzüşen bir perde modelidir.
+                </p>
+
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Balon perde modelleri kullanıldıkları yere zarafet kazandıran, estetik olarak göz kamaştırıcı dekorasyonlara 
+                  imza atmanızı sağlayan perde modelleridir. Mobilyalar ile uyumlu renklerde seçilen balon perde modelleri hem 
+                  evinizin daha zarif olmasını sağlar hem de balon perdenin ışıltısını evinize yansıtır.
+                </p>
+
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Kullanışlı balon perdeler, istenilen ölçülere göre dikilebilir. Tül perde üzerinde çok şık ve estetik durur. 
+                  Balon perde modelleri, düz tül perdeler için de kullanılabilecek özelliktedir. Özellikle Fransız tül perdeler 
+                  ya da güpür tül perdeler ile rahatlıkla kullanılabilir.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-4">
+                {['Kruvaze', 'Mekanizmalı', 'Mekanizmasız', 'Yalancı Kruvaze', 'İki Kanat', 'Estetik', 'Zarif', 'Pratik'].map((feature) => (
+                  <span
+                    key={feature}
+                    className="px-2 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-400 backdrop-blur-sm"
+                  >
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 backdrop-blur-md border border-blue-500/20">
+              <h3 className="text-xl font-light text-white mb-4 flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                </div>
+                Fiyat Bilgisi
+              </h3>
+
+              <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                Balon perde temizliği; çamaşır makinanızın yıkama kapasitesine göre yapılabilir. Örneğin; 5-6 kg kapasiteli 
+                çamaşır makinesinde balon perde yıkanmaz. Minimum 8-10 kg arası olması gerekir. Balon perde fiyatları, 
+                model türüne, kumaş kalitesine ve metreye göre değişiklik göstermektedir.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="tel:+903122417272"
+                  className="group relative inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-black overflow-hidden transition-all duration-300 hover:gap-3 rounded-lg text-sm"
+                >
+                  <span className="relative z-10 font-medium">Hemen Arayın</span>
+                  <svg className="relative z-10 w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
+                </Link>
+
+                <Link
+                  href="https://wa.me/905325034424"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-all duration-300 rounded-lg text-sm"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  <span className="font-medium">WhatsApp</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
+            <h2 className="text-3xl md:text-4xl font-extralight text-white">
+              Balon Perde Modelleri
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryImages.map((image, index) => (
+              <div
+                key={image.id}
+                className="group"
+              >
+                <div
+                  className="relative h-[400px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer"
+                  onClick={() => {
+                    setSelectedImage(image)
+                    setLightboxOpen(true)
+                  }}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-110 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <div className="flex items-end justify-between">
+                      <div></div>
+                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300 flex-shrink-0 ml-4">
+                        <svg
+                          className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300 group-hover:translate-x-0.5 transition-transform"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full filter blur-3xl" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-12">
+
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-md border border-green-500/20">
+              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                Ürünün Avantajları
+              </h3>
+
+              <ul className="space-y-4">
+                {productAdvantages.map((advantage, index) => (
+                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    </div>
+                    {advantage}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-md border border-purple-500/20">
+              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                Kullanım Alanları
+              </h3>
+
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                Yalancı balon perde; balon perdelerin bir başka modeli de yalan balon perdelerdir. Bu perdelerde tül ile 
+                dikim yer almaz. Ayrıca satılır ve bunun yanında kornişe bağlı olan balon perde özelliği taşır. Balon perdelere 
+                benziyor olsa da bu perde modelleri içerik olarak balon perde değildir.
+              </p>
+
+              <ul className="space-y-4">
+                {usageAreas.map((area, index) => (
+                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    </div>
+                    {area}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6 text-center">
+          <div>
+            <h3 className="text-2xl md:text-3xl font-extralight text-white mb-4">
+              Balon Perde Modelleri Hakkında Sorularınız mı var?
+            </h3>
+            <p className="text-gray-400 mb-8 max-w-2xl mx-auto font-light">
+              Dilerseniz hemen <strong>0312 241 72 72</strong> no&apos;lu telefondan bize ulaşarak ihtiyacınıza
+              uygun rustik perde modelleri hakkında bilgi alabilir ve sipariş verebilirsiniz.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link
+                href="tel:+903122417272"
+                className="group relative inline-flex items-center gap-2 px-8 py-4 bg-white text-black overflow-hidden transition-all duration-300 hover:gap-4 rounded-xl"
+              >
+                <span className="relative z-10 font-medium">0312 241 72 72</span>
+                <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
+              </Link>
+              <Link
+                href="https://wa.me/905325034424"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 px-8 py-4 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-all duration-300 rounded-xl"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+                <span className="font-medium">WhatsApp ile İletişim</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <AnimatePresence>
+        {lightboxOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
+            onClick={() => setLightboxOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+          <motion.div
+            className="relative max-w-6xl max-h-[90vh] w-full"
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+          >
+              <button
+                onClick={() => setLightboxOpen(false)}
+                className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <button
+                onClick={goToPrevious}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              <button
+                onClick={goToNext}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              <div className="relative h-[80vh] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10">
+                <Image
+                  src={selectedImage.src}
+                  alt={selectedImage.alt}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent rounded-b-2xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">
+                    {currentImageIndex + 1} / {galleryImages.length}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </main>
+    </>
+  )
+}

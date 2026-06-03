@@ -1,0 +1,10 @@
+.next
+.npm-cache
+node_modules
+npm-debug.log*
+.next-dev*.log
+tsconfig.tsbuildinfo
+.env*
+!.env.production
+Dockerfile
+.dockerignore

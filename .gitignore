@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+.npm-cache/
+
+# next
+.next/
+out/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# production
+*.log
+.next-dev*.log
+
+# env
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# os/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

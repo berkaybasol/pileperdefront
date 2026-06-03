@@ -1,0 +1,29 @@
+<div class="gallery_widget_attached_images"><ul class="gallery_widget_attached_images_list ui-sortable">
+			<li class="added ui-sortable-handle">
+				<img rel="15035" src="http://www.pileperde.com.tr/wp-content/uploads/2019/10/otel-perde-fiyatları-150x150.jpg">
+				<a href="javascript:;" class="vc_icon-remove"><i class="vc-composer-icon vc-c-icon-close"></i></a>
+			</li>
+			<li class="added ui-sortable-handle">
+				<img rel="15034" src="http://www.pileperde.com.tr/wp-content/uploads/2019/10/kalın-otel-perdesi-150x150.jpg">
+				<a href="javascript:;" class="vc_icon-remove"><i class="vc-composer-icon vc-c-icon-close"></i></a>
+			</li>
+			<li class="added ui-sortable-handle">
+				<img rel="15033" src="http://www.pileperde.com.tr/wp-content/uploads/2019/10/otel-perdeleri-150x150.jpg">
+				<a href="javascript:;" class="vc_icon-remove"><i class="vc-composer-icon vc-c-icon-close"></i></a>
+			</li>
+			<li class="added ui-sortable-handle">
+				<img rel="21999" src="http://www.pileperde.com.tr/wp-content/uploads/2019/11/otel-oda-perde-150x150.jpg">
+				<a href="javascript:;" class="vc_icon-remove"><i class="vc-composer-icon vc-c-icon-close"></i></a>
+			</li>
+			<li class="added ui-sortable-handle">
+				<img rel="15031" src="http://www.pileperde.com.tr/wp-content/uploads/2019/10/otel-perde-150x150.jpg">
+				<a href="javascript:;" class="vc_icon-remove"><i class="vc-composer-icon vc-c-icon-close"></i></a>
+			</li>
+			<li class="added ui-sortable-handle">
+				<img rel="15032" src="http://www.pileperde.com.tr/wp-content/uploads/2019/10/suit-oda-perde-150x150.jpg">
+				<a href="javascript:;" class="vc_icon-remove"><i class="vc-composer-icon vc-c-icon-close"></i></a>
+			</li>
+			<li class="added ui-sortable-handle">
+				<img rel="15036" src="http://www.pileperde.com.tr/wp-content/uploads/2019/10/otel-perdeleri-çeşitleri-150x150.jpg">
+				<a href="javascript:;" class="vc_icon-remove"><i class="vc-composer-icon vc-c-icon-close"></i></a>
+			</li></ul></div>
