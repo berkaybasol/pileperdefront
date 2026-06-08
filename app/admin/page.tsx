@@ -120,6 +120,12 @@ type HeroSlideForm = {
   enabled: boolean
 }
 
+type HeroStatForm = {
+  number: string
+  label: string
+  suffix: string
+}
+
 type AboutTabForm = {
   key: string
   title: string
@@ -505,6 +511,12 @@ const defaultHeroSlides: HeroSlideForm[] = [
   },
 ]
 
+const defaultHeroStats: HeroStatForm[] = [
+  { number: '500', suffix: '+', label: 'Proje' },
+  { number: '15', suffix: '+', label: 'Yıl Deneyim' },
+  { number: '100', suffix: '%', label: 'Memnuniyet' },
+]
+
 const defaultAboutForm: AboutForm = {
   heroEyebrow: 'KURUMSAL',
   heroTitle: 'Hakkımızda',
@@ -572,7 +584,31 @@ const parseHeroSlides = (contentJson: string) => {
   }
 }
 
-const buildHeroContentJson = (slides: HeroSlideForm[]) => JSON.stringify({ slides }, null, 2)
+const parseHeroStats = (contentJson: string) => {
+  if (!contentJson) {
+    return defaultHeroStats
+  }
+
+  try {
+    const parsed = JSON.parse(contentJson) as { stats?: HeroStatForm[] }
+    if (!Array.isArray(parsed.stats) || parsed.stats.length === 0) {
+      return defaultHeroStats
+    }
+
+    return defaultHeroStats.map((fallback, index) => {
+      const stat = parsed.stats?.[index]
+      return {
+        number: stat?.number || fallback.number,
+        suffix: stat?.suffix ?? fallback.suffix,
+        label: stat?.label || fallback.label,
+      }
+    })
+  } catch {
+    return defaultHeroStats
+  }
+}
+
+const buildHeroContentJson = (slides: HeroSlideForm[], stats: HeroStatForm[]) => JSON.stringify({ slides, stats }, null, 2)
 
 const parseAboutForm = (section: CmsSection | null): AboutForm => {
   if (!section) {
@@ -702,6 +738,7 @@ const AdminPage = () => {
     status: 'DRAFT' as CmsPageStatus,
   })
   const [heroSlides, setHeroSlides] = useState<HeroSlideForm[]>(defaultHeroSlides)
+  const [heroStats, setHeroStats] = useState<HeroStatForm[]>(defaultHeroStats)
   const [productItems, setProductItems] = useState<CatalogItem[]>(defaultProductItems)
   const [modelItems, setModelItems] = useState<CatalogItem[]>(defaultModelItems)
   const [corporateItems, setCorporateItems] = useState<CatalogItem[]>(defaultCorporateItems)
@@ -967,6 +1004,7 @@ const AdminPage = () => {
 
       if (heroSection) {
         setHeroSlides(parseHeroSlides(heroSection.contentJson || ''))
+        setHeroStats(parseHeroStats(heroSection.contentJson || ''))
       }
       if (aboutSection) {
         setAboutForm(parseAboutForm(aboutSection))
@@ -1427,7 +1465,7 @@ const AdminPage = () => {
           title: heroSection.title || '',
           subtitle: heroSection.subtitle || '',
           body: heroSection.body || '',
-          contentJson: buildHeroContentJson(heroSlides),
+          contentJson: buildHeroContentJson(heroSlides, heroStats),
           sortOrder: heroSection.sortOrder,
           enabled: heroSection.enabled,
         })
@@ -1889,6 +1927,12 @@ const AdminPage = () => {
     }))
   }
 
+  const updateHeroStat = (index: number, updates: Partial<HeroStatForm>) => {
+    setHeroStats((current) =>
+      current.map((stat, statIndex) => statIndex === index ? { ...stat, ...updates } : stat)
+    )
+  }
+
   const updateAboutService = (index: number, value: string) => {
     setAboutForm((current) => ({
       ...current,
@@ -2081,6 +2125,47 @@ const AdminPage = () => {
     </div>
   )
 
+  const renderHeroStatsEditor = () => (
+    <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+      <h2 className="text-lg font-semibold">Ana sayfa istatistikleri</h2>
+      <p className="mt-1 text-sm text-[#6f6960]">
+        Ana sayfanın üst bölümünde görünen proje, deneyim ve memnuniyet değerleri.
+      </p>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
+        {heroStats.slice(0, 3).map((stat, index) => (
+          <div key={index} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
+            <label className="text-sm font-medium text-[#3a342c]">
+              Sayı
+              <input
+                value={stat.number}
+                onChange={(event) => updateHeroStat(index, { number: event.target.value })}
+                className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+              />
+            </label>
+            <label className="mt-3 block text-sm font-medium text-[#3a342c]">
+              Ek
+              <input
+                value={stat.suffix}
+                onChange={(event) => updateHeroStat(index, { suffix: event.target.value })}
+                placeholder="+, %, K+"
+                className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+              />
+            </label>
+            <label className="mt-3 block text-sm font-medium text-[#3a342c]">
+              Açıklama
+              <input
+                value={stat.label}
+                onChange={(event) => updateHeroStat(index, { label: event.target.value })}
+                className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+              />
+            </label>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
   const renderHomePanel = () => (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -2098,6 +2183,7 @@ const AdminPage = () => {
         </button>
       </div>
       {renderPageSearchFields()}
+      {renderHeroStatsEditor()}
       {renderHeroSlideEditor()}
     </div>
   )

@@ -32,7 +32,14 @@ type HeroCmsContent = {
   subtitle?: string
   description?: string
   primaryCtaHref?: string
+  stats?: HeroStat[]
   slides?: HeroSlide[]
+}
+
+type HeroStat = {
+  number: string
+  label: string
+  suffix: string
 }
 
 type HeroSlide = {
@@ -44,6 +51,12 @@ type HeroSlide = {
   link: string
   enabled?: boolean
 }
+
+const fallbackStats: HeroStat[] = [
+  { number: '500', suffix: '+', label: 'Proje' },
+  { number: '15', suffix: '+', label: 'Yıl Deneyim' },
+  { number: '100', suffix: '%', label: 'Memnuniyet' },
+]
 
 const Hero = () => {
   const [heroContent, setHeroContent] = useState<HeroCmsContent | null>(null)
@@ -66,7 +79,7 @@ const Hero = () => {
           return
         }
 
-        let contentJson: { primaryCtaHref?: string; slides?: HeroSlide[] } = {}
+        let contentJson: { primaryCtaHref?: string; stats?: HeroStat[]; slides?: HeroSlide[] } = {}
         if (heroSection.contentJson) {
           try {
             contentJson = JSON.parse(heroSection.contentJson)
@@ -80,6 +93,9 @@ const Hero = () => {
           subtitle: heroSection.subtitle || undefined,
           description: heroSection.body || undefined,
           primaryCtaHref: contentJson.primaryCtaHref,
+          stats: Array.isArray(contentJson.stats) && contentJson.stats.length > 0
+            ? contentJson.stats
+            : undefined,
           slides: Array.isArray(contentJson.slides)
             ? contentJson.slides.filter((slide) => slide.enabled !== false)
             : undefined,
@@ -128,6 +144,7 @@ const Hero = () => {
   ], [heroContent])
 
   const slides = heroContent?.slides?.length ? heroContent.slides : fallbackSlides
+  const stats = heroContent?.stats?.length ? heroContent.stats : fallbackStats
 
   return (
     <>
@@ -215,18 +232,15 @@ const Hero = () => {
 
                       {/* Stats */}
                       <div className="grid grid-cols-3 gap-8 pt-8">
-                        <div className="group">
-                          <div className="text-3xl font-extralight text-white group-hover:text-gray-400 transition-colors duration-300">500+</div>
-                          <div className="text-xs uppercase tracking-[0.2em] text-gray-500 mt-2 font-light">Proje</div>
-                        </div>
-                        <div className="group">
-                          <div className="text-3xl font-extralight text-white group-hover:text-gray-400 transition-colors duration-300">15+</div>
-                          <div className="text-xs uppercase tracking-[0.2em] text-gray-500 mt-2 font-light">Yıl Deneyim</div>
-                        </div>
-                        <div className="group">
-                          <div className="text-3xl font-extralight text-white group-hover:text-gray-400 transition-colors duration-300">100%</div>
-                          <div className="text-xs uppercase tracking-[0.2em] text-gray-500 mt-2 font-light">Memnuniyet</div>
-                        </div>
+                        {stats.slice(0, 3).map((stat, index) => (
+                          <div key={`${stat.label}-${index}`} className="group">
+                            <div className="text-3xl font-extralight text-white group-hover:text-gray-400 transition-colors duration-300">
+                              {stat.number}
+                              {stat.suffix}
+                            </div>
+                            <div className="text-xs uppercase tracking-[0.2em] text-gray-500 mt-2 font-light">{stat.label}</div>
+                          </div>
+                        ))}
                       </div>
                     </motion.div>
 
@@ -366,18 +380,15 @@ const Hero = () => {
 
                       {/* Stats */}
                       <div className="grid grid-cols-3 gap-2 pt-3">
-                        <div>
-                          <div className="text-lg font-extralight text-white">500+</div>
-                          <div className="text-[10px] uppercase tracking-[0.15em] text-gray-500 mt-0.5 font-light">Proje</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-extralight text-white">15+</div>
-                          <div className="text-[10px] uppercase tracking-[0.15em] text-gray-500 mt-0.5 font-light">Yıl Deneyim</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-extralight text-white">100%</div>
-                          <div className="text-[10px] uppercase tracking-[0.15em] text-gray-500 mt-0.5 font-light">Memnuniyet</div>
-                        </div>
+                        {stats.slice(0, 3).map((stat, index) => (
+                          <div key={`${stat.label}-${index}`}>
+                            <div className="text-lg font-extralight text-white">
+                              {stat.number}
+                              {stat.suffix}
+                            </div>
+                            <div className="text-[10px] uppercase tracking-[0.15em] text-gray-500 mt-0.5 font-light">{stat.label}</div>
+                          </div>
+                        ))}
                       </div>
                     </motion.div>
                   </div>
