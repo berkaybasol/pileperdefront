@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
 
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
 const pageKey = 'product-gallery-urunler-metal-zincir-perde-pro-collection'
 
 const fallbackImages: ProductGalleryImage[] = [
@@ -13,10 +15,12 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: 'Pro Collection Galerisi - Pile Perde',
   description: 'Metal zincir perde Pro Collection uygulama görselleri.',
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-metal-zincir-perde-pro-collection', fallbackMetadata)
 
 export default function ProCollectionPage() {
   return (

@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
 
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
 const pageKey = 'product-gallery-urunler-dosemelik-kumas-desenli-kumas'
 
 const fallbackImages: ProductGalleryImage[] = [
@@ -13,10 +15,12 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: 'Desenli Kumaş Galerisi - Pile Perde',
   description: 'Desenli döşemelik kumaş modelleri ve uygulama görselleri.',
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-dosemelik-kumas-desenli-kumas', fallbackMetadata)
 
 export default function DesenliKumasPage() {
   return (

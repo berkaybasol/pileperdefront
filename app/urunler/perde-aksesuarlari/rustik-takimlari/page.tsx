@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
 
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
 const pageKey = 'product-gallery-urunler-perde-aksesuarlari-rustik-takimlari'
 
 const fallbackImages: ProductGalleryImage[] = [
@@ -13,10 +15,12 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: 'Rustik Takımları Galerisi - Pile Perde',
   description: 'Rustik perde aksesuarları ve uygulama görselleri.',
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-perde-aksesuarlari-rustik-takimlari', fallbackMetadata)
 
 export default function RustikTakimlariPage() {
   return (

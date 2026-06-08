@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 
-export const metadata: Metadata = {
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
+const fallbackMetadata: Metadata = {
   title: 'Tül Stor Perde - İnce Tül Kumaş ile Zarif Stor Perde Modelleri ',
   description: 'Tül stor perde modelleri ve fiyatları Ankara\'da. Işık geçirgen, şeffaf tasarım. Gündüz mahremiyeti sağlar. Ücretsiz montaj için arayın.',
   keywords: 'tül stor perde, tül perde, stor perde, tül stor modelleri, ince stor perde, dekoratif stor perde, şeffaf stor perde, modern tül perde, zarif stor perde, ışık geçiren perde, tül stor ankara, pile perde, mekanizmalı tül perde',
@@ -13,6 +15,8 @@ export const metadata: Metadata = {
     images: ['/api/public/media/images/f7e4e8a9-159e-40ab-a96d-11c0ffbc9119/file'],
   }
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-mekanizmali-perdeler-stor-perde-tul-stor-perde', fallbackMetadata)
 
 export default function TulStorPerdeLayout({
   children,

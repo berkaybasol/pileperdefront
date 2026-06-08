@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 
-export const metadata: Metadata = {
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
+const fallbackMetadata: Metadata = {
   title: 'Dikey Perde - PVC ve Kumaş Dikey Perde Sistemleri ',
   description: 'Dikey perde sistemleri Ankara\'da. Geniş cam cepheler ve ofisler için pratik çözüm. Kumaş ve PVC seçenekleri. Ücretsiz keşif ve montaj.',
   keywords: 'dikey perde, pvc dikey perde, kumaş dikey perde, ofis perdesi, büro perdesi, dikey perde ankara, motorlu dikey perde, screen dikey perde, blackout dikey perde, pile perde',
@@ -13,6 +15,8 @@ export const metadata: Metadata = {
     images: ['/api/public/media/images/0ba47af9-08c5-4fb0-8073-9734db255f80/file'],
   }
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-mekanizmali-perdeler-dikey-perde', fallbackMetadata)
 
 export default function DikeyPerdeLayout({
   children,

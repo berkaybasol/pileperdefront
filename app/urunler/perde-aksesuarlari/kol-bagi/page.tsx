@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
 
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
 const pageKey = 'product-gallery-urunler-perde-aksesuarlari-kol-bagi'
 
 const fallbackImages: ProductGalleryImage[] = [
@@ -13,10 +15,12 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: 'Kol Bağı Galerisi - Pile Perde',
   description: 'Perde kol bağı aksesuarları ve uygulama görselleri.',
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-perde-aksesuarlari-kol-bagi', fallbackMetadata)
 
 export default function KolBagiPage() {
   return (

@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 
-export const metadata: Metadata = {
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
+const fallbackMetadata: Metadata = {
   title: 'Zebra Perde - Modern Zebra Stor Perde Modelleri ',
   description: 'Zebra perde modelleri ile ışık kontrolünde özgürlük. Şeffaf ve mat şeritler. Ankara\'da uygun fiyat, ücretsiz montaj hizmeti.',
   keywords: 'zebra perde, zebra stor perde, bambu zebra perde, pileli zebra perde, screen zebra perde, desenli zebra perde, zebra perde ankara, ekonomik perde, pile perde, motorlu zebra perde',
@@ -13,6 +15,8 @@ export const metadata: Metadata = {
     images: ['/api/public/media/images/c4d60335-5722-40f0-92c7-24f193d8b287/file'],
   }
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-mekanizmali-perdeler-zebra-perde', fallbackMetadata)
 
 export default function ZebraPerdeLayout({
   children,

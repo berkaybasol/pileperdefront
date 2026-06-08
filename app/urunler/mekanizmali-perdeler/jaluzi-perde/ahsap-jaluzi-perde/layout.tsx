@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
+const fallbackMetadata: Metadata = {
   title: 'Ahşap Jaluzi Perde | 60 Renk Seçeneği | Doğal Ahşap Jaluzi ',
   description: 'Doğal ahşap jaluzi perde çeşitleri Ankara\'da. Şık, zarif görünüm. Yatak odası ve salon için mükemmel. Ücretsiz ölçüm ve profesyonel montaj.',
   keywords: 'ahşap jaluzi perde, doğal ahşap jaluzi, beyaz ahşap jaluzi, ceviz jaluzi, ahşap jaluzi fiyatları, ankara ahşap jaluzi, amerikan ahşap jaluzi',
@@ -13,6 +15,8 @@ export const metadata: Metadata = {
     images: ['/api/public/media/images/e1446473-f10c-449c-8e90-98f44fa11966/file'],
   },
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-mekanizmali-perdeler-jaluzi-perde-ahsap-jaluzi-perde', fallbackMetadata)
 
 export default function AhsapJaluziPerdeLayout({
   children,

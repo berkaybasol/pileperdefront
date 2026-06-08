@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
+const fallbackMetadata: Metadata = {
   title: 'Cam Balkon Perdeleri - Ankara ',
   description: 'Cam balkon perdesi ile kışın sıcak, yazın serin balkonlar. Rüzgar ve yağmur koruması. PVC ve kristal seçenekleri. Ankara\'da ücretsiz montaj.',
   keywords: 'cam balkon perdesi, ankara cam balkon perdesi, plise cam balkon perdesi, balkon perdesi, cam balkon plise perde, pile perde ankara',
@@ -13,6 +15,8 @@ export const metadata: Metadata = {
     images: ['/api/public/media/images/dd5aaa7b-04cd-40d1-bc5a-ff06715ba2f9/file']
   }
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-mekanizmali-perdeler-cam-balkon-perdeleri', fallbackMetadata)
 
 export default function CamBalkonPerdeleriLayout({
   children,

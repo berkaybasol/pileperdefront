@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 
-export const metadata: Metadata = {
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
+const fallbackMetadata: Metadata = {
   title: 'Screen Perde - Sun Screen ve PES Screen Stor Perde Modelleri ',
   description: 'Screen stor perde ile güneş kontrolü ve enerji tasarrufu. Işığı kontrol eder, sıcağı azaltır. Ankara\'da ücretsiz ölçüm ve montaj.',
   keywords: 'screen perde, sun screen perde, pes screen perde, stor perde, screen perde modelleri, motorlu screen perde, screen stor perde, büro perdeleri, ofis perdeleri, güneş filtresi perde, uv korumalı perde, ısı yalıtımlı perde, cam elyaf perde, polyester stor perde, screen perde ankara',
@@ -13,6 +15,8 @@ export const metadata: Metadata = {
     images: ['/api/public/media/images/e2a6e278-c000-4a7b-be76-b5e7e9cae1e3/file'],
   }
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-mekanizmali-perdeler-stor-perde-screen-perde', fallbackMetadata)
 
 export default function ScreenPerdeLayout({
   children,

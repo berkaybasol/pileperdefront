@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
+import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+
+const fallbackMetadata: Metadata = {
   title: 'Plise Perde Modelleri - Ankara ',
   description: 'Plise perde çeşitleri ile modern ve şık mekanlar. Tavan pencereleri için ideal. Renk seçenekleri. Ankara\'da ücretsiz ölçüm ve montaj.',
   keywords: 'plise perde, ankara plise perde, çatı perdesi, tavan perdesi, eğik pencere perdesi, kış bahçesi perdesi, balkon plise perde, pile perde ankara',
@@ -13,6 +15,8 @@ export const metadata: Metadata = {
     images: ['/api/public/media/images/bf718b82-6626-4ffd-b4c5-109b496c9c34/file']
   }
 }
+
+export const generateMetadata = () => getCmsPageMetadata('product-gallery-urunler-mekanizmali-perdeler-plise-perde', fallbackMetadata)
 
 export default function PlisePerdeLayout({
   children,
