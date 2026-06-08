@@ -757,6 +757,7 @@ const AdminPage = () => {
   const [settings, setSettings] = useState<SiteSetting[]>([])
   const [settingsForm, setSettingsForm] = useState<Record<string, string>>({})
   const [uploadingSlideId, setUploadingSlideId] = useState<number | null>(null)
+  const [isAboutImageUploading, setIsAboutImageUploading] = useState(false)
   const [uploadingBlogPostId, setUploadingBlogPostId] = useState<number | null>(null)
   const [uploadingGalleryImageId, setUploadingGalleryImageId] = useState<number | null>(null)
   const [isGalleryBulkUploading, setIsGalleryBulkUploading] = useState(false)
@@ -1116,6 +1117,48 @@ const AdminPage = () => {
       setErrorMessage(error instanceof Error ? error.message : 'Gorsel yuklenemedi')
     } finally {
       setUploadingSlideId(null)
+    }
+  }
+
+  const uploadAboutImage = async (file: File | null) => {
+    if (!file || !authHeader) {
+      return
+    }
+
+    setIsAboutImageUploading(true)
+    setStatusMessage(null)
+    setErrorMessage(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('title', file.name)
+      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+        },
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Gorsel yuklenemedi'))
+      }
+
+      const body = await response.json() as ApiResponse<MediaAsset>
+      setAboutForm((current) => ({
+        ...current,
+        image: body.data.publicUrl,
+        imageAlt: current.imageAlt || body.data.altText || body.data.fileName,
+      }))
+      await loadMediaAssets()
+      setStatusMessage('Hakkimizda gorseli yuklendi')
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Hakkimizda gorseli yuklenemedi')
+    } finally {
+      setIsAboutImageUploading(false)
     }
   }
 
@@ -3417,14 +3460,6 @@ const AdminPage = () => {
             />
           </label>
           <label className="text-sm font-medium text-[#3a342c]">
-            Görsel
-            <input
-              value={aboutForm.image}
-              onChange={(event) => setAboutForm({ ...aboutForm, image: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-          <label className="text-sm font-medium text-[#3a342c]">
             Görsel açıklaması
             <input
               value={aboutForm.imageAlt}
@@ -3432,6 +3467,77 @@ const AdminPage = () => {
               className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
             />
           </label>
+          <div className="md:col-span-2">
+            <div className="grid gap-3 md:grid-cols-[180px_1fr]">
+              <div className="overflow-hidden rounded-md border border-[#d8d0c3] bg-white">
+                <Image
+                  src={aboutForm.image}
+                  alt={aboutForm.imageAlt || 'Hakkımızda görseli'}
+                  width={360}
+                  height={224}
+                  className="h-32 w-full object-cover"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-[#3a342c]">
+                  Görsel URL
+                  <input
+                    value={aboutForm.image}
+                    onChange={(event) => setAboutForm({ ...aboutForm, image: event.target.value })}
+                    className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                  />
+                </label>
+
+                <label className="block text-sm font-medium text-[#3a342c]">
+                  Bilgisayardan yükle
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    disabled={isAboutImageUploading}
+                    onChange={(event) => {
+                      void uploadAboutImage(event.target.files?.[0] || null)
+                      event.currentTarget.value = ''
+                    }}
+                    className="mt-2 block w-full text-sm text-[#6f6960] file:mr-3 file:rounded-md file:border-0 file:bg-[#191714] file:px-3 file:py-2 file:text-sm file:font-medium file:text-white"
+                  />
+                </label>
+
+                {mediaAssets.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
+                      Yüklenenlerden seç
+                    </p>
+                    <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
+                      {mediaAssets.slice(0, 16).map((asset) => (
+                        <button
+                          type="button"
+                          key={asset.id}
+                          onClick={() => setAboutForm((current) => ({
+                            ...current,
+                            image: asset.publicUrl,
+                            imageAlt: current.imageAlt || asset.altText || asset.fileName,
+                          }))}
+                          className={`overflow-hidden rounded-md border bg-white transition hover:border-[#9d7b46] ${
+                            aboutForm.image === asset.publicUrl ? 'border-[#191714]' : 'border-[#d8d0c3]'
+                          }`}
+                          title={asset.fileName}
+                        >
+                          <Image
+                            src={getPreviewImageUrl(asset.publicUrl, asset.id)}
+                            alt={asset.altText || asset.fileName}
+                            width={112}
+                            height={56}
+                            className="h-14 w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
