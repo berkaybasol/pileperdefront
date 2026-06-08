@@ -1617,6 +1617,7 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      await savePageBasics()
       const gallerySection = selectedPage.sections.find((section) => section.sectionKey === 'product.gallery')
       if (gallerySection) {
         await saveSection('product.gallery', {
