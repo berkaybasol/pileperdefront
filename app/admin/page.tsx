@@ -4,13 +4,10 @@ import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
 import {
   buildCatalogContentJson,
-  defaultModelCatalogText,
-  defaultProductCatalogText,
   defaultCorporateItems,
   defaultModelItems,
   defaultProductItems,
   parseCatalogItems,
-  type CatalogTextFallback,
   type CatalogItem,
 } from '@/lib/catalogContent'
 import {
@@ -28,9 +25,8 @@ import {
 } from '@/lib/blogContent'
 import {
   buildProductGalleryContentJson,
-  parseProductGalleryContent,
+  parseProductGalleryImages,
   type ProductGalleryImage,
-  type ProductGalleryPageContent,
 } from '@/lib/productGalleryContent'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
@@ -476,23 +472,6 @@ const productDetailCategoryGalleryPages: Record<string, Record<string, string>> 
   },
 }
 
-const getDefaultProductGalleryPageContent = (
-  pageKey: string,
-  label = productGalleryAdminPages.find((item) => item.pageKey === pageKey)?.label || 'Ürün',
-): ProductGalleryPageContent => {
-  const isModelPage = pageKey.startsWith('product-gallery-model-perdeler-')
-
-  return {
-    eyebrow: isModelPage ? 'Model Perde Koleksiyonu' : `${label} Koleksiyonu`,
-    title: label,
-    highlight: isModelPage ? 'Perde Modelleri' : '',
-    description: `${label} ürün ve uygulama görsellerini inceleyin.`,
-    galleryEyebrow: 'Ürün Galerisi',
-    galleryTitle: `${label} Modelleri`,
-    images: [],
-  }
-}
-
 const defaultHeroSlides: HeroSlideForm[] = [
   {
     id: 1,
@@ -760,17 +739,12 @@ const AdminPage = () => {
   })
   const [heroSlides, setHeroSlides] = useState<HeroSlideForm[]>(defaultHeroSlides)
   const [heroStats, setHeroStats] = useState<HeroStatForm[]>(defaultHeroStats)
-  const [productCatalogIntro, setProductCatalogIntro] = useState<CatalogTextFallback>(defaultProductCatalogText)
-  const [modelCatalogIntro, setModelCatalogIntro] = useState<CatalogTextFallback>(defaultModelCatalogText)
   const [productItems, setProductItems] = useState<CatalogItem[]>(defaultProductItems)
   const [modelItems, setModelItems] = useState<CatalogItem[]>(defaultModelItems)
   const [corporateItems, setCorporateItems] = useState<CatalogItem[]>(defaultCorporateItems)
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(defaultBlogPosts)
   const [mechanizedForm, setMechanizedForm] = useState<ProductDetailContent>(defaultMekanizmaliPerdelerContent)
   const [selectedProductGalleryPageKey, setSelectedProductGalleryPageKey] = useState<string>(productGalleryAdminPages[0].pageKey)
-  const [productGalleryPageContent, setProductGalleryPageContent] = useState<ProductGalleryPageContent>(
-    getDefaultProductGalleryPageContent(productGalleryAdminPages[0].pageKey, productGalleryAdminPages[0].label)
-  )
   const [productGalleryImages, setProductGalleryImages] = useState<ProductGalleryImage[]>([])
   const [aboutForm, setAboutForm] = useState<AboutForm>(defaultAboutForm)
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([])
@@ -1037,19 +1011,9 @@ const AdminPage = () => {
         setAboutForm(parseAboutForm(aboutSection))
       }
       if (productsSection) {
-        setProductCatalogIntro({
-          eyebrow: productsSection.subtitle || defaultProductCatalogText.eyebrow,
-          title: productsSection.title || defaultProductCatalogText.title,
-          description: productsSection.body || defaultProductCatalogText.description,
-        })
         setProductItems(parseCatalogItems(productsSection.contentJson))
       }
       if (modelsSection) {
-        setModelCatalogIntro({
-          eyebrow: modelsSection.subtitle || defaultModelCatalogText.eyebrow,
-          title: modelsSection.title || defaultModelCatalogText.title,
-          description: modelsSection.body || defaultModelCatalogText.description,
-        })
         setModelItems(parseCatalogItems(modelsSection.contentJson, defaultModelItems))
       }
       if (corporateSection) {
@@ -1062,13 +1026,7 @@ const AdminPage = () => {
         setMechanizedForm(parseProductDetailContent(productDetailSection.contentJson))
       }
       if (productGallerySection) {
-        const galleryPage = productGalleryAdminPages.find((item) => item.pageKey === page.pageKey)
-        const galleryContent = parseProductGalleryContent(
-          productGallerySection.contentJson,
-          getDefaultProductGalleryPageContent(page.pageKey, galleryPage?.label)
-        )
-        setProductGalleryPageContent(galleryContent)
-        setProductGalleryImages(galleryContent.images)
+        setProductGalleryImages(parseProductGalleryImages(productGallerySection.contentJson, []))
       }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Sayfa yuklenemedi')
@@ -1613,9 +1571,9 @@ const AdminPage = () => {
       if (productsSection) {
         await saveSection('products.grid', {
           sectionType: productsSection.sectionType,
-          title: productCatalogIntro.title,
-          subtitle: productCatalogIntro.eyebrow,
-          body: productCatalogIntro.description,
+          title: productsSection.title || '',
+          subtitle: productsSection.subtitle || '',
+          body: productsSection.body || '',
           contentJson: buildCatalogContentJson(productItems),
           sortOrder: productsSection.sortOrder,
           enabled: productsSection.enabled,
@@ -1646,9 +1604,9 @@ const AdminPage = () => {
       if (modelsSection) {
         await saveSection('models.grid', {
           sectionType: modelsSection.sectionType,
-          title: modelCatalogIntro.title,
-          subtitle: modelCatalogIntro.eyebrow,
-          body: modelCatalogIntro.description,
+          title: modelsSection.title || '',
+          subtitle: modelsSection.subtitle || '',
+          body: modelsSection.body || '',
           contentJson: buildCatalogContentJson(modelItems),
           sortOrder: modelsSection.sortOrder,
           enabled: modelsSection.enabled,
@@ -1748,7 +1706,7 @@ const AdminPage = () => {
           title: gallerySection.title || '',
           subtitle: gallerySection.subtitle || '',
           body: gallerySection.body || '',
-          contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryPageContent),
+          contentJson: buildProductGalleryContentJson(productGalleryImages),
           sortOrder: gallerySection.sortOrder,
           enabled: gallerySection.enabled,
         })
@@ -1824,13 +1782,6 @@ const AdminPage = () => {
     setProductGalleryImages((current) =>
       current.map((image) => image.id === imageId ? { ...image, ...updates } : image)
     )
-  }
-
-  const updateProductGalleryPageContent = (updates: Partial<ProductGalleryPageContent>) => {
-    setProductGalleryPageContent((current) => ({
-      ...current,
-      ...updates,
-    }))
   }
 
   const addProductGalleryImage = () => {
@@ -2071,47 +2022,6 @@ const AdminPage = () => {
     </div>
   )
 
-  const renderCatalogIntroEditor = (
-    title: string,
-    intro: CatalogTextFallback,
-    onChange: (nextIntro: CatalogTextFallback) => void,
-  ) => (
-    <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <p className="mt-1 text-sm text-[#6f6960]">Public sitede kartların üstünde görünen bölüm başlığı ve açıklaması.</p>
-
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <label className="text-sm font-medium text-[#3a342c]">
-          Küçük başlık
-          <input
-            value={intro.eyebrow}
-            onChange={(event) => onChange({ ...intro, eyebrow: event.target.value })}
-            className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-          />
-        </label>
-
-        <label className="text-sm font-medium text-[#3a342c]">
-          Ana başlık
-          <input
-            value={intro.title}
-            onChange={(event) => onChange({ ...intro, title: event.target.value })}
-            className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-          />
-        </label>
-
-        <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
-          Açıklama
-          <textarea
-            value={intro.description}
-            onChange={(event) => onChange({ ...intro, description: event.target.value })}
-            rows={3}
-            className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-          />
-        </label>
-      </div>
-    </div>
-  )
-
   const renderHeroSlideEditor = () => (
     <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
       <div className="mb-5 flex items-center justify-between gap-3">
@@ -2339,72 +2249,6 @@ const AdminPage = () => {
       </div>
 
       {renderPageSearchFields()}
-      {renderCatalogIntroEditor('Ürünler bölüm metinleri', productCatalogIntro, setProductCatalogIntro)}
-
-      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
-        <h2 className="text-lg font-semibold">{activeProductGalleryPage.label} sayfa metinleri</h2>
-        <p className="mt-1 text-sm text-[#6f6960]">
-          Public ürün/model detay sayfasının üst bölümünde ve galeri başlığında görünen metinler.
-        </p>
-
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <label className="text-sm font-medium text-[#3a342c]">
-            Koleksiyon etiketi
-            <input
-              value={productGalleryPageContent.eyebrow}
-              onChange={(event) => updateProductGalleryPageContent({ eyebrow: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c]">
-            Ana başlık
-            <input
-              value={productGalleryPageContent.title}
-              onChange={(event) => updateProductGalleryPageContent({ title: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c]">
-            İkinci satır
-            <input
-              value={productGalleryPageContent.highlight}
-              onChange={(event) => updateProductGalleryPageContent({ highlight: event.target.value })}
-              placeholder="Boş bırakılabilir"
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c]">
-            Galeri küçük başlığı
-            <input
-              value={productGalleryPageContent.galleryEyebrow}
-              onChange={(event) => updateProductGalleryPageContent({ galleryEyebrow: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
-            Açıklama
-            <textarea
-              value={productGalleryPageContent.description}
-              onChange={(event) => updateProductGalleryPageContent({ description: event.target.value })}
-              rows={3}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
-            Galeri başlığı
-            <input
-              value={productGalleryPageContent.galleryTitle}
-              onChange={(event) => updateProductGalleryPageContent({ galleryTitle: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-        </div>
-      </div>
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <h2 className="text-lg font-semibold">Ürün kartları</h2>
@@ -2536,7 +2380,6 @@ const AdminPage = () => {
       </div>
 
       {renderPageSearchFields()}
-      {renderCatalogIntroEditor('Perde Modelleri bölüm metinleri', modelCatalogIntro, setModelCatalogIntro)}
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <h2 className="text-lg font-semibold">Model kartları</h2>

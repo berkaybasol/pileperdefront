@@ -3,13 +3,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
-import {
-  buildProductGalleryFallback,
-  getPublicProductGalleryContent,
-  type ProductGalleryImage,
-  type ProductGalleryPageContent,
-} from '@/lib/productGalleryContent'
+import { useEffect, useState } from 'react'
+import { getPublicProductGallery, type ProductGalleryImage } from '@/lib/productGalleryContent'
 
 type BreadcrumbItem = {
   label: string
@@ -39,11 +34,6 @@ export default function ManagedProductGalleryPage({
   eyebrow,
   galleryTitle = `${title} Modelleri`,
 }: ManagedProductGalleryPageProps) {
-  const fallbackContent = useMemo(
-    () => buildProductGalleryFallback(title, description, fallbackImages, eyebrow, galleryTitle),
-    [description, eyebrow, fallbackImages, galleryTitle, title],
-  )
-  const [content, setContent] = useState<ProductGalleryPageContent>(fallbackContent)
   const [images, setImages] = useState<ProductGalleryImage[]>(fallbackImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(fallbackImages[0])
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -51,20 +41,17 @@ export default function ManagedProductGalleryPage({
   useEffect(() => {
     let isMounted = true
 
-    getPublicProductGalleryContent(pageKey, fallbackContent).then((nextContent) => {
-      if (isMounted) {
-        setContent(nextContent)
-        if (nextContent.images.length > 0) {
-          setImages(nextContent.images)
-          setSelectedImage(nextContent.images[0])
-        }
+    getPublicProductGallery(pageKey, fallbackImages).then((nextImages) => {
+      if (isMounted && nextImages.length > 0) {
+        setImages(nextImages)
+        setSelectedImage(nextImages[0])
       }
     })
 
     return () => {
       isMounted = false
     }
-  }, [fallbackContent, pageKey])
+  }, [fallbackImages, pageKey])
 
   const currentImageIndex = images.findIndex((image) => image.id === selectedImage.id)
 
@@ -127,20 +114,15 @@ export default function ManagedProductGalleryPage({
 
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
               <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-              <span className="text-xs uppercase tracking-wider text-gray-400">{content.eyebrow}</span>
+              <span className="text-xs uppercase tracking-wider text-gray-400">{eyebrow || `${title} Koleksiyonu`}</span>
             </div>
 
             <h1 className="mb-6 text-4xl font-extralight text-white md:text-5xl lg:text-6xl">
-              {content.title}
-              {content.highlight && (
-                <span className="block bg-gradient-to-r from-white via-gray-400 to-white bg-clip-text font-thin text-transparent">
-                  {content.highlight}
-                </span>
-              )}
+              {title}
             </h1>
 
             <p className="mx-auto max-w-3xl text-lg font-light leading-relaxed text-gray-400">
-              {content.description}
+              {description}
             </p>
           </div>
         </div>
@@ -149,9 +131,9 @@ export default function ManagedProductGalleryPage({
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">
           <div className="mb-16 text-center">
-            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">{content.galleryEyebrow}</p>
+            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">Ürün Galerisi</p>
             <h2 className="text-3xl font-extralight text-white md:text-4xl">
-              {content.galleryTitle}
+              {galleryTitle}
             </h2>
           </div>
 

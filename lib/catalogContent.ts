@@ -9,9 +9,6 @@ type ApiResponse<T> = {
 
 type CmsSection = {
   sectionKey: string
-  title: string | null
-  subtitle: string | null
-  body: string | null
   contentJson: string | null
   enabled: boolean
 }
@@ -28,31 +25,6 @@ export type CatalogItem = {
   description: string
   enabled: boolean
   badge?: string
-}
-
-export type CatalogContent = {
-  eyebrow: string
-  title: string
-  description: string
-  items: CatalogItem[]
-}
-
-export type CatalogTextFallback = {
-  eyebrow: string
-  title: string
-  description: string
-}
-
-export const defaultProductCatalogText: CatalogTextFallback = {
-  eyebrow: 'ÜRÜNLERİMİZ',
-  title: 'Geniş Ürün Yelpazemiz',
-  description: 'En yeni teknoloji ve trendlere uygun, kaliteli perde ve dekorasyon ürünleri',
-}
-
-export const defaultModelCatalogText: CatalogTextFallback = {
-  eyebrow: 'PERDE MODELLERİ',
-  title: 'Tarzınıza Uygun Perde Modelleri',
-  description: 'Klasikten moderne, minimalistten gösterişliye kadar geniş model yelpazemizle mekanlarınıza değer katıyoruz',
 }
 
 export const defaultProductItems: CatalogItem[] = [
@@ -283,28 +255,6 @@ export const parseCatalogItems = (
 
 export const buildCatalogContentJson = (items: CatalogItem[]) => JSON.stringify({ items }, null, 2)
 
-const buildCatalogContent = (
-  section: CmsSection | null,
-  fallbackItems: CatalogItem[],
-  fallbackText: CatalogTextFallback,
-): CatalogContent => {
-  if (!section || !section.enabled) {
-    return {
-      ...fallbackText,
-      items: fallbackItems,
-    }
-  }
-
-  const items = parseCatalogItems(section.contentJson, fallbackItems).filter((item) => item.enabled)
-
-  return {
-    eyebrow: section.subtitle || fallbackText.eyebrow,
-    title: section.title || fallbackText.title,
-    description: section.body || fallbackText.description,
-    items,
-  }
-}
-
 export const getPublicCatalogItems = async (
   pageKey: string,
   sectionKey: string,
@@ -332,46 +282,11 @@ export const getPublicCatalogItems = async (
   }
 }
 
-export const getPublicCatalogContent = async (
-  pageKey: string,
-  sectionKey: string,
-  fallbackItems: CatalogItem[],
-  fallbackText: CatalogTextFallback,
-) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
-      cache: 'no-store',
-    })
-
-    if (!response.ok) {
-      return {
-        ...fallbackText,
-        items: fallbackItems,
-      }
-    }
-
-    const body = await response.json() as ApiResponse<CmsPage>
-    const section = body.data.sections.find((item) => item.sectionKey === sectionKey) || null
-    return buildCatalogContent(section, fallbackItems, fallbackText)
-  } catch {
-    return {
-      ...fallbackText,
-      items: fallbackItems,
-    }
-  }
-}
-
 export const getPublicProductItems = () =>
   getPublicCatalogItems('products', 'products.grid', defaultProductItems)
 
 export const getPublicModelItems = () =>
   getPublicCatalogItems('curtain-models', 'models.grid', defaultModelItems)
-
-export const getPublicProductCatalogContent = () =>
-  getPublicCatalogContent('products', 'products.grid', defaultProductItems, defaultProductCatalogText)
-
-export const getPublicModelCatalogContent = () =>
-  getPublicCatalogContent('curtain-models', 'models.grid', defaultModelItems, defaultModelCatalogText)
 
 export const getPublicCorporateItems = () =>
   getPublicCatalogItems('corporate-products', 'corporate.grid', defaultCorporateItems)
