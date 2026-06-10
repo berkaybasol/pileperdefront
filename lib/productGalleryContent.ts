@@ -25,6 +25,84 @@ export type ProductGalleryImage = {
   enabled?: boolean
 }
 
+export type ProductGalleryPageContent = {
+  eyebrow: string
+  title: string
+  highlight: string
+  description: string
+  galleryEyebrow: string
+  galleryTitle: string
+  images: ProductGalleryImage[]
+}
+
+export type ProductGalleryPageFallback = Omit<ProductGalleryPageContent, 'images'> & {
+  images?: ProductGalleryImage[]
+}
+
+const defaultPageText = {
+  eyebrow: 'Ürün Koleksiyonu',
+  title: 'Ürün',
+  highlight: 'Modelleri',
+  description: 'Pile Perde ürün ve uygulama görsellerini inceleyin.',
+  galleryEyebrow: 'Ürün Galerisi',
+  galleryTitle: 'Ürün Modelleri',
+}
+
+export const buildProductGalleryFallback = (
+  title: string,
+  description: string,
+  images: ProductGalleryImage[],
+  eyebrow?: string,
+  galleryTitle = `${title} Modelleri`,
+): ProductGalleryPageContent => ({
+  eyebrow: eyebrow || `${title} Koleksiyonu`,
+  title,
+  highlight: '',
+  description,
+  galleryEyebrow: 'Ürün Galerisi',
+  galleryTitle,
+  images,
+})
+
+export const parseProductGalleryContent = (
+  contentJson: string | null | undefined,
+  fallback: ProductGalleryPageFallback,
+): ProductGalleryPageContent => {
+  const fallbackImages = fallback.images || []
+
+  if (!contentJson) {
+    return {
+      ...defaultPageText,
+      ...fallback,
+      images: fallbackImages,
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(contentJson) as Partial<ProductGalleryPageContent> & {
+      images?: Partial<ProductGalleryImage>[]
+    }
+
+    return {
+      ...defaultPageText,
+      ...fallback,
+      eyebrow: parsed.eyebrow || fallback.eyebrow || defaultPageText.eyebrow,
+      title: parsed.title || fallback.title || defaultPageText.title,
+      highlight: parsed.highlight ?? fallback.highlight ?? defaultPageText.highlight,
+      description: parsed.description || fallback.description || defaultPageText.description,
+      galleryEyebrow: parsed.galleryEyebrow || fallback.galleryEyebrow || defaultPageText.galleryEyebrow,
+      galleryTitle: parsed.galleryTitle || fallback.galleryTitle || defaultPageText.galleryTitle,
+      images: parseProductGalleryImages(contentJson, fallbackImages),
+    }
+  } catch {
+    return {
+      ...defaultPageText,
+      ...fallback,
+      images: fallbackImages,
+    }
+  }
+}
+
 export const parseProductGalleryImages = (
   contentJson: string | null | undefined,
   fallbackImages: ProductGalleryImage[],
@@ -56,8 +134,11 @@ export const parseProductGalleryImages = (
   }
 }
 
-export const buildProductGalleryContentJson = (images: ProductGalleryImage[]) =>
-  JSON.stringify({ images }, null, 2)
+export const buildProductGalleryContentJson = (
+  images: ProductGalleryImage[],
+  pageContent?: Omit<ProductGalleryPageContent, 'images'>,
+) =>
+  JSON.stringify({ ...pageContent, images }, null, 2)
 
 export const getPublicProductGallery = async (
   pageKey: string,
@@ -81,5 +162,30 @@ export const getPublicProductGallery = async (
     return parseProductGalleryImages(section.contentJson, fallbackImages)
   } catch {
     return fallbackImages
+  }
+}
+
+export const getPublicProductGalleryContent = async (
+  pageKey: string,
+  fallback: ProductGalleryPageContent,
+) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      return fallback
+    }
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
+    if (!section || !section.enabled) {
+      return fallback
+    }
+
+    return parseProductGalleryContent(section.contentJson, fallback)
+  } catch {
+    return fallback
   }
 }

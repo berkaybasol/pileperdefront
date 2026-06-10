@@ -6,7 +6,11 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination } from 'swiper/modules'
-import { defaultProductItems, getPublicProductItems } from '@/lib/catalogContent'
+import {
+  defaultProductCatalogText,
+  defaultProductItems,
+  getPublicProductCatalogContent,
+} from '@/lib/catalogContent'
 
 import 'swiper/css'
 import 'swiper/css/pagination'
@@ -16,14 +20,20 @@ interface ProductsProps {
 }
 
 const Products = ({ showSwiper = true }: ProductsProps) => {
+  const [intro, setIntro] = useState(defaultProductCatalogText)
   const [products, setProducts] = useState(defaultProductItems)
 
   useEffect(() => {
     let isMounted = true
 
-    getPublicProductItems().then((items) => {
+    getPublicProductCatalogContent().then((content) => {
       if (isMounted) {
-        setProducts(items)
+        setIntro({
+          eyebrow: content.eyebrow,
+          title: content.title,
+          description: content.description,
+        })
+        setProducts(content.items)
       }
     })
 
@@ -48,15 +58,15 @@ const Products = ({ showSwiper = true }: ProductsProps) => {
           <div className="mb-4 inline-block">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="h-[1px] w-12 bg-gray-700" />
-              <span className="font-light uppercase tracking-[0.2em]">ÜRÜNLERİMİZ</span>
+              <span className="font-light uppercase tracking-[0.2em]">{intro.eyebrow}</span>
               <span className="h-[1px] w-12 bg-gray-700" />
             </div>
           </div>
           <h2 className="mb-4 text-3xl font-extralight text-white lg:text-5xl">
-            Geniş Ürün Yelpazemiz
+            {intro.title}
           </h2>
           <p className="mx-auto max-w-2xl font-light text-gray-400">
-            En yeni teknoloji ve trendlere uygun, kaliteli perde ve dekorasyon ürünleri
+            {intro.description}
           </p>
         </motion.div>
 

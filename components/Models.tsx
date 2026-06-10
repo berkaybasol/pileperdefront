@@ -6,7 +6,11 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination } from 'swiper/modules'
-import { getPublicModelItems, type CatalogItem } from '@/lib/catalogContent'
+import {
+  defaultModelCatalogText,
+  getPublicModelCatalogContent,
+  type CatalogItem,
+} from '@/lib/catalogContent'
 
 // Import Swiper styles
 import 'swiper/css'
@@ -106,14 +110,20 @@ const Models = ({ showSwiper = true, showCTA = true }: ModelsProps) => {
   ]
 
   const [cmsModels, setCmsModels] = useState<CatalogItem[] | null>(null)
+  const [intro, setIntro] = useState(defaultModelCatalogText)
   const displayedModels = cmsModels || models
 
   useEffect(() => {
     let isMounted = true
 
-    getPublicModelItems().then((items) => {
+    getPublicModelCatalogContent().then((content) => {
       if (isMounted) {
-        setCmsModels(items)
+        setIntro({
+          eyebrow: content.eyebrow,
+          title: content.title,
+          description: content.description,
+        })
+        setCmsModels(content.items)
       }
     })
 
@@ -141,16 +151,15 @@ const Models = ({ showSwiper = true, showCTA = true }: ModelsProps) => {
             <div className="inline-block mb-4">
               <div className="flex items-center space-x-3 text-xs text-gray-500">
                 <span className="w-12 h-[1px] bg-gray-700"></span>
-                <span className="uppercase tracking-[0.2em] font-light">PERDE MODELLERİ</span>
+                <span className="uppercase tracking-[0.2em] font-light">{intro.eyebrow}</span>
                 <span className="w-12 h-[1px] bg-gray-700"></span>
               </div>
             </div>
             <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-              Tarzınıza Uygun Perde Modelleri
+              {intro.title}
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto font-light">
-              Klasikten moderne, minimalistten gösterişliye kadar geniş model
-              yelpazemizle mekanlarınıza değer katıyoruz
+              {intro.description}
             </p>
           </motion.div>
         )}

@@ -4,7 +4,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getPublicProductGallery } from '@/lib/productGalleryContent'
+import {
+  buildProductGalleryFallback,
+  getPublicProductGalleryContent,
+} from '@/lib/productGalleryContent'
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-model-perdeler-klasik-ve-avangart-perde'
 
@@ -157,6 +160,16 @@ const productAdvantages = [
   'Her mekan için özel tasarım perde modelleri'
 ]
 
+const fallbackPageContent = buildProductGalleryFallback(
+  'Klasik ve Avangart',
+  'Dekorasyonu tamamlayan, bir mekanın modern veya klasik olmasında belirleyici unsur, perde seçimidir. Perde, dekorasyonun karakterini değiştirebilecek etkiye sahiptir. Perdelerin rengi, modeli, detayları mekanın bütünlüğüne ciddi anlamda katkı sağlamaktadır.',
+  productImages,
+  'Model Perde Koleksiyonu',
+  'Klasik ve Avangart Perde Modelleri',
+)
+
+fallbackPageContent.highlight = 'Perde Modelleri'
+
 const usageAreas = [
   'Salon ve oturma odaları',
   'Yatak odaları',
@@ -204,6 +217,7 @@ const staggerContainerVariants = {
 }
 
 export default function KlasikAvangartPerdePage() {
+  const [pageContent, setPageContent] = useState(fallbackPageContent)
   const [galleryImages, setGalleryImages] = useState(productImages)
   const [selectedImage, setSelectedImage] = useState(productImages[0])
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -214,13 +228,14 @@ export default function KlasikAvangartPerdePage() {
   useEffect(() => {
     let mounted = true
 
-    getPublicProductGallery(PRODUCT_GALLERY_PAGE_KEY, productImages).then((images) => {
+    getPublicProductGalleryContent(PRODUCT_GALLERY_PAGE_KEY, fallbackPageContent).then((content) => {
       if (!mounted) {
         return
       }
 
-      setGalleryImages(images)
-      setSelectedImage((current) => images.find((image) => image.id === current.id) || images[0] || current)
+      setPageContent(content)
+      setGalleryImages(content.images)
+      setSelectedImage((current) => content.images.find((image) => image.id === current.id) || content.images[0] || current)
     })
 
     return () => {
@@ -282,20 +297,20 @@ export default function KlasikAvangartPerdePage() {
 
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Model Perde Koleksiyonu</span>
+              <span className="text-xs text-gray-400 uppercase tracking-wider">{pageContent.eyebrow}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight text-white mb-6">
-              Klasik ve Avangart
-              <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
-                Perde Modelleri
-              </span>
+              {pageContent.title}
+              {pageContent.highlight && (
+                <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
+                  {pageContent.highlight}
+                </span>
+              )}
             </h1>
 
             <p className="text-lg text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
-              Dekorasyonu tamamlayan, bir mekanın modern veya klasik olmasında belirleyici unsur, perde seçimidir. 
-              Perde, dekorasyonun karakterini değiştirebilecek etkiye sahiptir. Perdelerin rengi, modeli, detayları 
-              mekanın bütünlüğüne ciddi anlamda katkı sağlamaktadır.
+              {pageContent.description}
             </p>
           </div>
         </div>
@@ -406,9 +421,9 @@ export default function KlasikAvangartPerdePage() {
       <section className="relative py-20 border-t border-white/5">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
+            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">{pageContent.galleryEyebrow}</p>
             <h2 className="text-3xl md:text-4xl font-extralight text-white">
-              Klasik ve Avangart Perde Modelleri
+              {pageContent.galleryTitle}
             </h2>
           </div>
 
