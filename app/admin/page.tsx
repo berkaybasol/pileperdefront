@@ -2342,6 +2342,71 @@ const AdminPage = () => {
       {renderCatalogIntroEditor('Ürünler bölüm metinleri', productCatalogIntro, setProductCatalogIntro)}
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <h2 className="text-lg font-semibold">{activeProductGalleryPage.label} sayfa metinleri</h2>
+        <p className="mt-1 text-sm text-[#6f6960]">
+          Public ürün/model detay sayfasının üst bölümünde ve galeri başlığında görünen metinler.
+        </p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Koleksiyon etiketi
+            <input
+              value={productGalleryPageContent.eyebrow}
+              onChange={(event) => updateProductGalleryPageContent({ eyebrow: event.target.value })}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c]">
+            Ana başlık
+            <input
+              value={productGalleryPageContent.title}
+              onChange={(event) => updateProductGalleryPageContent({ title: event.target.value })}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c]">
+            İkinci satır
+            <input
+              value={productGalleryPageContent.highlight}
+              onChange={(event) => updateProductGalleryPageContent({ highlight: event.target.value })}
+              placeholder="Boş bırakılabilir"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c]">
+            Galeri küçük başlığı
+            <input
+              value={productGalleryPageContent.galleryEyebrow}
+              onChange={(event) => updateProductGalleryPageContent({ galleryEyebrow: event.target.value })}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+            Açıklama
+            <textarea
+              value={productGalleryPageContent.description}
+              onChange={(event) => updateProductGalleryPageContent({ description: event.target.value })}
+              rows={3}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+            Galeri başlığı
+            <input
+              value={productGalleryPageContent.galleryTitle}
+              onChange={(event) => updateProductGalleryPageContent({ galleryTitle: event.target.value })}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <h2 className="text-lg font-semibold">Ürün kartları</h2>
         <p className="mt-1 text-sm text-[#6f6960]">
           Bu kartlar public sitedeki Ürünler alanında aynı sırayla gösterilir.
@@ -2833,71 +2898,6 @@ const AdminPage = () => {
       </div>
 
       {renderPageSearchFields()}
-
-      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
-        <h2 className="text-lg font-semibold">{activeProductGalleryPage.label} sayfa metinleri</h2>
-        <p className="mt-1 text-sm text-[#6f6960]">
-          Public ürün/model detay sayfasının üst bölümünde ve galeri başlığında görünen metinler.
-        </p>
-
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <label className="text-sm font-medium text-[#3a342c]">
-            Koleksiyon etiketi
-            <input
-              value={productGalleryPageContent.eyebrow}
-              onChange={(event) => updateProductGalleryPageContent({ eyebrow: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c]">
-            Ana başlık
-            <input
-              value={productGalleryPageContent.title}
-              onChange={(event) => updateProductGalleryPageContent({ title: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c]">
-            İkinci satır
-            <input
-              value={productGalleryPageContent.highlight}
-              onChange={(event) => updateProductGalleryPageContent({ highlight: event.target.value })}
-              placeholder="Boş bırakılabilir"
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c]">
-            Galeri küçük başlığı
-            <input
-              value={productGalleryPageContent.galleryEyebrow}
-              onChange={(event) => updateProductGalleryPageContent({ galleryEyebrow: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
-            Açıklama
-            <textarea
-              value={productGalleryPageContent.description}
-              onChange={(event) => updateProductGalleryPageContent({ description: event.target.value })}
-              rows={3}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-
-          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
-            Galeri başlığı
-            <input
-              value={productGalleryPageContent.galleryTitle}
-              onChange={(event) => updateProductGalleryPageContent({ galleryTitle: event.target.value })}
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
-        </div>
-      </div>
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
