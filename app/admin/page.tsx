@@ -27,8 +27,10 @@ import {
 } from '@/lib/blogContent'
 import {
   buildProductGalleryContentJson,
+  parseProductGalleryHeroCopy,
   parseProductGalleryImages,
   type ProductGalleryImage,
+  type ProductGalleryHeroCopy,
 } from '@/lib/productGalleryContent'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
@@ -464,6 +466,26 @@ const productGalleryAdminPages = [
   { pageKey: 'product-gallery-kurumsal-urunler-otel-perdeleri', label: 'Otel Perdeleri' },
 ] as const
 
+const getDefaultProductGalleryHeroCopy = (label: string): ProductGalleryHeroCopy => {
+  if (label === 'Klasik ve Avangart Perde') {
+    return {
+      breadcrumbLabel: 'Klasik ve Avangart Perde',
+      eyebrow: 'Model Perde Koleksiyonu',
+      title: 'Klasik ve Avangart',
+      highlightedTitle: 'Perde Modelleri',
+      description: 'Dekorasyonu tamamlayan, bir mekanın modern veya klasik olmasında belirleyici unsur, perde seçimidir. Perde, dekorasyonun karakterini değiştirebilecek etkiye sahiptir. Perdelerin rengi, modeli, detayları mekanın bütünlüğüne ciddi anlamda katkı sağlamaktadır.',
+    }
+  }
+
+  return {
+    breadcrumbLabel: label,
+    eyebrow: 'Ürün Koleksiyonu',
+    title: label,
+    highlightedTitle: 'Modelleri',
+    description: '',
+  }
+}
+
 const productDetailCategoryGalleryPages: Record<string, Record<string, string>> = {
   'product-tul-fon-perde': {
     'Modern Fon Perde': 'product-gallery-urunler-tul-fon-perde-modern-fon-perde',
@@ -763,6 +785,9 @@ const AdminPage = () => {
   const [mechanizedForm, setMechanizedForm] = useState<ProductDetailContent>(defaultMekanizmaliPerdelerContent)
   const [selectedProductGalleryPageKey, setSelectedProductGalleryPageKey] = useState<string>(productGalleryAdminPages[0].pageKey)
   const [productGalleryImages, setProductGalleryImages] = useState<ProductGalleryImage[]>([])
+  const [productGalleryHeroCopy, setProductGalleryHeroCopy] = useState<ProductGalleryHeroCopy>(
+    getDefaultProductGalleryHeroCopy(productGalleryAdminPages[0].label),
+  )
   const [aboutForm, setAboutForm] = useState<AboutForm>(defaultAboutForm)
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([])
   const [contactRequests, setContactRequests] = useState<ContactRequestItem[]>([])
@@ -1003,6 +1028,7 @@ const AdminPage = () => {
 
       const body = await response.json() as ApiResponse<CmsPageDetail>
       const page = body.data
+      const loadedProductGalleryPage = productGalleryAdminPages.find((item) => item.pageKey === page.pageKey) || activeProductGalleryPage
       setSelectedPage(page)
       const heroSection = page.sections.find((section) => section.sectionKey === 'home.hero') || null
       const aboutSection = page.sections.find((section) => section.sectionKey === 'about.main') || null
@@ -1057,6 +1083,10 @@ const AdminPage = () => {
       }
       if (productGallerySection) {
         setProductGalleryImages(parseProductGalleryImages(productGallerySection.contentJson, []))
+        setProductGalleryHeroCopy(parseProductGalleryHeroCopy(
+          productGallerySection.contentJson,
+          getDefaultProductGalleryHeroCopy(loadedProductGalleryPage.label),
+        ))
       }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Sayfa yuklenemedi')
@@ -1760,7 +1790,7 @@ const AdminPage = () => {
           title: gallerySection.title || '',
           subtitle: gallerySection.subtitle || '',
           body: gallerySection.body || '',
-          contentJson: buildProductGalleryContentJson(productGalleryImages),
+          contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy),
           sortOrder: gallerySection.sortOrder,
           enabled: gallerySection.enabled,
         })
@@ -2893,6 +2923,59 @@ const AdminPage = () => {
       </div>
 
       {renderPageSearchFields()}
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <div>
+          <h2 className="text-lg font-semibold">Sayfa üst alanı</h2>
+          <p className="mt-1 text-sm text-[#6f6960]">
+            Public detay sayfasının en üstündeki breadcrumb, rozet, başlık ve açıklama metinleri.
+          </p>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Breadcrumb son metin
+            <input
+              value={productGalleryHeroCopy.breadcrumbLabel}
+              onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, breadcrumbLabel: event.target.value }))}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+          <label className="text-sm font-medium text-[#3a342c]">
+            Rozet metni
+            <input
+              value={productGalleryHeroCopy.eyebrow}
+              onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, eyebrow: event.target.value }))}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+          <label className="text-sm font-medium text-[#3a342c]">
+            Başlık ilk satır
+            <input
+              value={productGalleryHeroCopy.title}
+              onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, title: event.target.value }))}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+          <label className="text-sm font-medium text-[#3a342c]">
+            Başlık ikinci satır
+            <input
+              value={productGalleryHeroCopy.highlightedTitle}
+              onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, highlightedTitle: event.target.value }))}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+            Açıklama
+            <textarea
+              value={productGalleryHeroCopy.description}
+              onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, description: event.target.value }))}
+              rows={4}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+      </div>
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
