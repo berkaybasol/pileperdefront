@@ -9,11 +9,15 @@ type ApiResponse<T> = {
 
 type CmsSection = {
   sectionKey: string
+  title: string | null
+  subtitle: string | null
+  body: string | null
   contentJson: string | null
   enabled: boolean
 }
 
 type CmsPage = {
+  title: string
   sections: CmsSection[]
 }
 
@@ -25,6 +29,26 @@ export type CatalogItem = {
   description: string
   enabled: boolean
   badge?: string
+}
+
+export type ProductSectionCopy = {
+  heroTitle: string
+  heroSubtitle: string
+  sectionEyebrow: string
+  sectionTitle: string
+  sectionDescription: string
+}
+
+export type ProductPageContent = ProductSectionCopy & {
+  items: CatalogItem[]
+}
+
+export const defaultProductSectionCopy: ProductSectionCopy = {
+  heroTitle: 'Ürünlerimiz',
+  heroSubtitle: 'Kaliteli perde çözümleri',
+  sectionEyebrow: 'ÜRÜNLERİMİZ',
+  sectionTitle: 'Geniş Ürün Yelpazemiz',
+  sectionDescription: 'En yeni teknoloji ve trendlere uygun, kaliteli perde ve dekorasyon ürünleri',
 }
 
 export const defaultProductItems: CatalogItem[] = [
@@ -284,6 +308,33 @@ export const getPublicCatalogItems = async (
 
 export const getPublicProductItems = () =>
   getPublicCatalogItems('products', 'products.grid', defaultProductItems)
+
+export const getPublicProductsPageContent = async (): Promise<ProductPageContent> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/products`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      return { ...defaultProductSectionCopy, items: defaultProductItems }
+    }
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const heroSection = body.data.sections.find((item) => item.sectionKey === 'products.hero')
+    const gridSection = body.data.sections.find((item) => item.sectionKey === 'products.grid')
+
+    return {
+      heroTitle: heroSection?.enabled && heroSection.title ? heroSection.title : defaultProductSectionCopy.heroTitle,
+      heroSubtitle: heroSection?.enabled && heroSection.body ? heroSection.body : defaultProductSectionCopy.heroSubtitle,
+      sectionEyebrow: gridSection?.enabled && gridSection.subtitle ? gridSection.subtitle : defaultProductSectionCopy.sectionEyebrow,
+      sectionTitle: gridSection?.enabled && gridSection.title ? gridSection.title : defaultProductSectionCopy.sectionTitle,
+      sectionDescription: gridSection?.enabled && gridSection.body ? gridSection.body : defaultProductSectionCopy.sectionDescription,
+      items: gridSection?.enabled ? parseCatalogItems(gridSection.contentJson, defaultProductItems) : defaultProductItems,
+    }
+  } catch {
+    return { ...defaultProductSectionCopy, items: defaultProductItems }
+  }
+}
 
 export const getPublicModelItems = () =>
   getPublicCatalogItems('curtain-models', 'models.grid', defaultModelItems)

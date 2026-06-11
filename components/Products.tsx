@@ -6,24 +6,44 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination } from 'swiper/modules'
-import { defaultProductItems, getPublicProductItems } from '@/lib/catalogContent'
+import {
+  defaultProductItems,
+  defaultProductSectionCopy,
+  getPublicProductsPageContent,
+  type CatalogItem,
+  type ProductSectionCopy,
+} from '@/lib/catalogContent'
 
 import 'swiper/css'
 import 'swiper/css/pagination'
 
 interface ProductsProps {
   showSwiper?: boolean
+  initialItems?: CatalogItem[]
+  initialCopy?: ProductSectionCopy
 }
 
-const Products = ({ showSwiper = true }: ProductsProps) => {
-  const [products, setProducts] = useState(defaultProductItems)
+const Products = ({
+  showSwiper = true,
+  initialItems = defaultProductItems,
+  initialCopy = defaultProductSectionCopy,
+}: ProductsProps) => {
+  const [products, setProducts] = useState(initialItems)
+  const [copy, setCopy] = useState(initialCopy)
 
   useEffect(() => {
     let isMounted = true
 
-    getPublicProductItems().then((items) => {
+    getPublicProductsPageContent().then((content) => {
       if (isMounted) {
-        setProducts(items)
+        setProducts(content.items)
+        setCopy({
+          heroTitle: content.heroTitle,
+          heroSubtitle: content.heroSubtitle,
+          sectionEyebrow: content.sectionEyebrow,
+          sectionTitle: content.sectionTitle,
+          sectionDescription: content.sectionDescription,
+        })
       }
     })
 
@@ -48,15 +68,15 @@ const Products = ({ showSwiper = true }: ProductsProps) => {
           <div className="mb-4 inline-block">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="h-[1px] w-12 bg-gray-700" />
-              <span className="font-light uppercase tracking-[0.2em]">ÜRÜNLERİMİZ</span>
+              <span className="font-light uppercase tracking-[0.2em]">{copy.sectionEyebrow}</span>
               <span className="h-[1px] w-12 bg-gray-700" />
             </div>
           </div>
           <h2 className="mb-4 text-3xl font-extralight text-white lg:text-5xl">
-            Geniş Ürün Yelpazemiz
+            {copy.sectionTitle}
           </h2>
           <p className="mx-auto max-w-2xl font-light text-gray-400">
-            En yeni teknoloji ve trendlere uygun, kaliteli perde ve dekorasyon ürünleri
+            {copy.sectionDescription}
           </p>
         </motion.div>
 

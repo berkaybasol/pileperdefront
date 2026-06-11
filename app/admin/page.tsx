@@ -7,6 +7,7 @@ import {
   defaultCorporateItems,
   defaultModelItems,
   defaultProductItems,
+  defaultProductSectionCopy,
   parseCatalogItems,
   type CatalogItem,
 } from '@/lib/catalogContent'
@@ -153,6 +154,14 @@ type AboutForm = {
   tabs: AboutTabForm[]
   services: string[]
   stats: AboutStatForm[]
+}
+
+type ProductsPageCopyForm = {
+  heroTitle: string
+  heroSubtitle: string
+  sectionEyebrow: string
+  sectionTitle: string
+  sectionDescription: string
 }
 
 type MediaAsset = {
@@ -739,6 +748,7 @@ const AdminPage = () => {
   })
   const [heroSlides, setHeroSlides] = useState<HeroSlideForm[]>(defaultHeroSlides)
   const [heroStats, setHeroStats] = useState<HeroStatForm[]>(defaultHeroStats)
+  const [productsPageCopy, setProductsPageCopy] = useState<ProductsPageCopyForm>(defaultProductSectionCopy)
   const [productItems, setProductItems] = useState<CatalogItem[]>(defaultProductItems)
   const [modelItems, setModelItems] = useState<CatalogItem[]>(defaultModelItems)
   const [corporateItems, setCorporateItems] = useState<CatalogItem[]>(defaultCorporateItems)
@@ -989,6 +999,7 @@ const AdminPage = () => {
       setSelectedPage(page)
       const heroSection = page.sections.find((section) => section.sectionKey === 'home.hero') || null
       const aboutSection = page.sections.find((section) => section.sectionKey === 'about.main') || null
+      const productsHeroSection = page.sections.find((section) => section.sectionKey === 'products.hero') || null
       const productsSection = page.sections.find((section) => section.sectionKey === 'products.grid') || null
       const modelsSection = page.sections.find((section) => section.sectionKey === 'models.grid') || null
       const corporateSection = page.sections.find((section) => section.sectionKey === 'corporate.grid') || null
@@ -1010,6 +1021,13 @@ const AdminPage = () => {
       if (aboutSection) {
         setAboutForm(parseAboutForm(aboutSection))
       }
+      setProductsPageCopy({
+        heroTitle: productsHeroSection?.title || defaultProductSectionCopy.heroTitle,
+        heroSubtitle: productsHeroSection?.body || defaultProductSectionCopy.heroSubtitle,
+        sectionEyebrow: productsSection?.subtitle || defaultProductSectionCopy.sectionEyebrow,
+        sectionTitle: productsSection?.title || defaultProductSectionCopy.sectionTitle,
+        sectionDescription: productsSection?.body || defaultProductSectionCopy.sectionDescription,
+      })
       if (productsSection) {
         setProductItems(parseCatalogItems(productsSection.contentJson))
       }
@@ -1567,13 +1585,25 @@ const AdminPage = () => {
 
     try {
       await savePageBasics()
+      const productsHeroSection = selectedPage.sections.find((section) => section.sectionKey === 'products.hero')
+      if (productsHeroSection) {
+        await saveSection('products.hero', {
+          sectionType: productsHeroSection.sectionType,
+          title: productsPageCopy.heroTitle,
+          subtitle: productsHeroSection.subtitle || '',
+          body: productsPageCopy.heroSubtitle,
+          contentJson: productsHeroSection.contentJson || '',
+          sortOrder: productsHeroSection.sortOrder,
+          enabled: productsHeroSection.enabled,
+        })
+      }
       const productsSection = selectedPage.sections.find((section) => section.sectionKey === 'products.grid')
       if (productsSection) {
         await saveSection('products.grid', {
           sectionType: productsSection.sectionType,
-          title: productsSection.title || '',
-          subtitle: productsSection.subtitle || '',
-          body: productsSection.body || '',
+          title: productsPageCopy.sectionTitle,
+          subtitle: productsPageCopy.sectionEyebrow,
+          body: productsPageCopy.sectionDescription,
           contentJson: buildCatalogContentJson(productItems),
           sortOrder: productsSection.sortOrder,
           enabled: productsSection.enabled,
@@ -2249,6 +2279,75 @@ const AdminPage = () => {
       </div>
 
       {renderPageSearchFields()}
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <h2 className="text-lg font-semibold">Sayfa üst alanı</h2>
+        <p className="mt-1 text-sm text-[#6f6960]">
+          /urunler sayfasının en üstünde görünen başlık ve kısa açıklama.
+        </p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Başlık
+            <input
+              value={productsPageCopy.heroTitle}
+              onChange={(event) => setProductsPageCopy({ ...productsPageCopy, heroTitle: event.target.value })}
+              placeholder="Ürünlerimiz"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c]">
+            Açıklama
+            <input
+              value={productsPageCopy.heroSubtitle}
+              onChange={(event) => setProductsPageCopy({ ...productsPageCopy, heroSubtitle: event.target.value })}
+              placeholder="Kaliteli perde çözümleri"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <h2 className="text-lg font-semibold">Ürünler bölüm başlığı</h2>
+        <p className="mt-1 text-sm text-[#6f6960]">
+          Ürün kartlarının üstünde görünen küçük etiket, başlık ve açıklama.
+        </p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Küçük etiket
+            <input
+              value={productsPageCopy.sectionEyebrow}
+              onChange={(event) => setProductsPageCopy({ ...productsPageCopy, sectionEyebrow: event.target.value })}
+              placeholder="ÜRÜNLERİMİZ"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c]">
+            Başlık
+            <input
+              value={productsPageCopy.sectionTitle}
+              onChange={(event) => setProductsPageCopy({ ...productsPageCopy, sectionTitle: event.target.value })}
+              placeholder="Geniş Ürün Yelpazemiz"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+            Açıklama
+            <textarea
+              value={productsPageCopy.sectionDescription}
+              onChange={(event) => setProductsPageCopy({ ...productsPageCopy, sectionDescription: event.target.value })}
+              rows={3}
+              placeholder="En yeni teknoloji ve trendlere uygun, kaliteli perde ve dekorasyon ürünleri"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+      </div>
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <h2 className="text-lg font-semibold">Ürün kartları</h2>
