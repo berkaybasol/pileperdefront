@@ -4,17 +4,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getPublicProductGallery, getPublicProductGalleryHeroCopy } from '@/lib/productGalleryContent'
+import { getPublicProductGallery, getPublicProductGalleryHeroCopy, getProductGalleryDefaultHeroCopy } from '@/lib/productGalleryContent'
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-model-perdeler-klasik-ve-avangart-perde'
 
-const defaultHeroCopy = {
-  breadcrumbLabel: 'Klasik ve Avangart Perde',
-  eyebrow: 'Model Perde Koleksiyonu',
-  title: 'Klasik ve Avangart',
-  highlightedTitle: 'Perde Modelleri',
-  description: 'Dekorasyonu tamamlayan, bir mekanın modern veya klasik olmasında belirleyici unsur, perde seçimidir. Perde, dekorasyonun karakterini değiştirebilecek etkiye sahiptir. Perdelerin rengi, modeli, detayları mekanın bütünlüğüne ciddi anlamda katkı sağlamaktadır.',
-}
+const defaultHeroCopy = getProductGalleryDefaultHeroCopy(PRODUCT_GALLERY_PAGE_KEY)
+
 
 const productImages = [
   { id: 1, src: '/api/public/media/images/df6a191d-3db6-4645-a083-f71422f49200/file', alt: 'Klasik ve avangart perde modelleri Ankara', title: 'Klasik Avangart Perde 1' },

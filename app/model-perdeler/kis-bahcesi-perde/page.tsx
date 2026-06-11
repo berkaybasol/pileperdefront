@@ -4,9 +4,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getPublicProductGallery } from '@/lib/productGalleryContent'
+import { getPublicProductGallery, getPublicProductGalleryHeroCopy, getProductGalleryDefaultHeroCopy } from '@/lib/productGalleryContent'
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-model-perdeler-kis-bahcesi-perde'
+
+const defaultHeroCopy = getProductGalleryDefaultHeroCopy(PRODUCT_GALLERY_PAGE_KEY)
 
 const productImages = [
   { id: 1, src: '/api/public/media/images/3f3e07b0-8d36-4b49-8b21-1f0f4d439d90/file', alt: 'Kış Bahçesi Perde modelleri Ankara', title: 'Kış Bahçesi Perde 1' },
@@ -99,6 +101,7 @@ const staggerContainerVariants = {
 export default function ModernPerdePage() {
   const [galleryImages, setGalleryImages] = useState(productImages)
   const [selectedImage, setSelectedImage] = useState(productImages[0])
+  const [heroCopy, setHeroCopy] = useState(defaultHeroCopy)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const currentImageIndex = galleryImages.findIndex(img => img.id === selectedImage.id)
@@ -113,6 +116,14 @@ export default function ModernPerdePage() {
 
       setGalleryImages(images)
       setSelectedImage((current) => images.find((image) => image.id === current.id) || images[0] || current)
+    })
+
+    getPublicProductGalleryHeroCopy(PRODUCT_GALLERY_PAGE_KEY, defaultHeroCopy).then((copy) => {
+      if (!mounted) {
+        return
+      }
+
+      setHeroCopy(copy)
     })
 
     return () => {
@@ -165,25 +176,23 @@ export default function ModernPerdePage() {
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <span className="text-sm text-gray-400">Kış Bahçesi Perde</span>
+              <span className="text-sm text-gray-400">{heroCopy.breadcrumbLabel}</span>
             </div>
 
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Model Perde Koleksiyonu</span>
+              <span className="text-xs text-gray-400 uppercase tracking-wider">{heroCopy.eyebrow}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight text-white mb-6">
-              Kış Bahçesi Perde
+              {heroCopy.title}
               <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
-                Perde Modelleri
+                {heroCopy.highlightedTitle}
               </span>
             </h1>
 
             <p className="text-lg text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
-              Yeni bir yaşam tarzı olarak hayatımıza giren kış bahçeleri (winter garden), dekorasyon zenginliği yaratan
-              perde sistemleriyle keyifli mekanlar haline geldi. Esnek formları sayesinde hem fonksiyonel hem de şık
-              sistemlerdir.
+              {heroCopy.description}
             </p>
           </div>
         </div>
