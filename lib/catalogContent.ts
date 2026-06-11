@@ -43,12 +43,23 @@ export type ProductPageContent = ProductSectionCopy & {
   items: CatalogItem[]
 }
 
+export type ModelPageContent = {
+  heroTitle: string
+  heroSubtitle: string
+  items: CatalogItem[]
+}
+
 export const defaultProductSectionCopy: ProductSectionCopy = {
   heroTitle: 'Ürünlerimiz',
   heroSubtitle: 'Kaliteli perde çözümleri',
   sectionEyebrow: 'ÜRÜNLERİMİZ',
   sectionTitle: 'Geniş Ürün Yelpazemiz',
   sectionDescription: 'En yeni teknoloji ve trendlere uygun, kaliteli perde ve dekorasyon ürünleri',
+}
+
+export const defaultModelPageCopy = {
+  heroTitle: 'Perde Modelleri',
+  heroSubtitle: 'Mekanınıza uygun perde modellerimiz',
 }
 
 export const defaultProductItems: CatalogItem[] = [
@@ -338,6 +349,30 @@ export const getPublicProductsPageContent = async (): Promise<ProductPageContent
 
 export const getPublicModelItems = () =>
   getPublicCatalogItems('curtain-models', 'models.grid', defaultModelItems)
+
+export const getPublicModelsPageContent = async (): Promise<ModelPageContent> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/curtain-models`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      return { ...defaultModelPageCopy, items: defaultModelItems }
+    }
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const heroSection = body.data.sections.find((item) => item.sectionKey === 'models.hero')
+    const gridSection = body.data.sections.find((item) => item.sectionKey === 'models.grid')
+
+    return {
+      heroTitle: heroSection?.enabled && heroSection.title ? heroSection.title : defaultModelPageCopy.heroTitle,
+      heroSubtitle: heroSection?.enabled && heroSection.body ? heroSection.body : defaultModelPageCopy.heroSubtitle,
+      items: gridSection?.enabled ? parseCatalogItems(gridSection.contentJson, defaultModelItems) : defaultModelItems,
+    }
+  } catch {
+    return { ...defaultModelPageCopy, items: defaultModelItems }
+  }
+}
 
 export const getPublicCorporateItems = () =>
   getPublicCatalogItems('corporate-products', 'corporate.grid', defaultCorporateItems)

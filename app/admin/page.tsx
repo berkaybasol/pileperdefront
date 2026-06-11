@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   buildCatalogContentJson,
   defaultCorporateItems,
+  defaultModelPageCopy,
   defaultModelItems,
   defaultProductItems,
   defaultProductSectionCopy,
@@ -162,6 +163,11 @@ type ProductsPageCopyForm = {
   sectionEyebrow: string
   sectionTitle: string
   sectionDescription: string
+}
+
+type ModelsPageCopyForm = {
+  heroTitle: string
+  heroSubtitle: string
 }
 
 type MediaAsset = {
@@ -749,6 +755,7 @@ const AdminPage = () => {
   const [heroSlides, setHeroSlides] = useState<HeroSlideForm[]>(defaultHeroSlides)
   const [heroStats, setHeroStats] = useState<HeroStatForm[]>(defaultHeroStats)
   const [productsPageCopy, setProductsPageCopy] = useState<ProductsPageCopyForm>(defaultProductSectionCopy)
+  const [modelsPageCopy, setModelsPageCopy] = useState<ModelsPageCopyForm>(defaultModelPageCopy)
   const [productItems, setProductItems] = useState<CatalogItem[]>(defaultProductItems)
   const [modelItems, setModelItems] = useState<CatalogItem[]>(defaultModelItems)
   const [corporateItems, setCorporateItems] = useState<CatalogItem[]>(defaultCorporateItems)
@@ -1001,6 +1008,7 @@ const AdminPage = () => {
       const aboutSection = page.sections.find((section) => section.sectionKey === 'about.main') || null
       const productsHeroSection = page.sections.find((section) => section.sectionKey === 'products.hero') || null
       const productsSection = page.sections.find((section) => section.sectionKey === 'products.grid') || null
+      const modelsHeroSection = page.sections.find((section) => section.sectionKey === 'models.hero') || null
       const modelsSection = page.sections.find((section) => section.sectionKey === 'models.grid') || null
       const corporateSection = page.sections.find((section) => section.sectionKey === 'corporate.grid') || null
       const blogSection = page.sections.find((section) => section.sectionKey === 'blog.list') || null
@@ -1031,6 +1039,10 @@ const AdminPage = () => {
       if (productsSection) {
         setProductItems(parseCatalogItems(productsSection.contentJson))
       }
+      setModelsPageCopy({
+        heroTitle: modelsHeroSection?.title || defaultModelPageCopy.heroTitle,
+        heroSubtitle: modelsHeroSection?.body || defaultModelPageCopy.heroSubtitle,
+      })
       if (modelsSection) {
         setModelItems(parseCatalogItems(modelsSection.contentJson, defaultModelItems))
       }
@@ -1630,6 +1642,18 @@ const AdminPage = () => {
 
     try {
       await savePageBasics()
+      const modelsHeroSection = selectedPage.sections.find((section) => section.sectionKey === 'models.hero')
+      if (modelsHeroSection) {
+        await saveSection('models.hero', {
+          sectionType: modelsHeroSection.sectionType,
+          title: modelsPageCopy.heroTitle,
+          subtitle: modelsHeroSection.subtitle || '',
+          body: modelsPageCopy.heroSubtitle,
+          contentJson: modelsHeroSection.contentJson || '',
+          sortOrder: modelsHeroSection.sortOrder,
+          enabled: modelsHeroSection.enabled,
+        })
+      }
       const modelsSection = selectedPage.sections.find((section) => section.sectionKey === 'models.grid')
       if (modelsSection) {
         await saveSection('models.grid', {
@@ -2479,6 +2503,35 @@ const AdminPage = () => {
       </div>
 
       {renderPageSearchFields()}
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <h2 className="text-lg font-semibold">Sayfa üst alanı</h2>
+        <p className="mt-1 text-sm text-[#6f6960]">
+          /perde-modelleri sayfasının en üstünde görünen başlık ve kısa açıklama.
+        </p>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Başlık
+            <input
+              value={modelsPageCopy.heroTitle}
+              onChange={(event) => setModelsPageCopy({ ...modelsPageCopy, heroTitle: event.target.value })}
+              placeholder="Perde Modelleri"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c]">
+            Açıklama
+            <input
+              value={modelsPageCopy.heroSubtitle}
+              onChange={(event) => setModelsPageCopy({ ...modelsPageCopy, heroSubtitle: event.target.value })}
+              placeholder="Mekanınıza uygun perde modellerimiz"
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+      </div>
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <h2 className="text-lg font-semibold">Model kartları</h2>

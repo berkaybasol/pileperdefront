@@ -15,9 +15,10 @@ import 'swiper/css/pagination'
 interface ModelsProps {
   showSwiper?: boolean;
   showCTA?: boolean;
+  initialItems?: CatalogItem[];
 }
 
-const Models = ({ showSwiper = true, showCTA = true }: ModelsProps) => {
+const Models = ({ showSwiper = true, showCTA = true, initialItems }: ModelsProps) => {
   const models = [
     {
       id: 1,
@@ -105,7 +106,7 @@ const Models = ({ showSwiper = true, showCTA = true }: ModelsProps) => {
     },
   ]
 
-  const [cmsModels, setCmsModels] = useState<CatalogItem[] | null>(null)
+  const [cmsModels, setCmsModels] = useState<CatalogItem[] | null>(initialItems || null)
   const displayedModels = cmsModels || models
 
   useEffect(() => {
