@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPublicProductGallery, type ProductGalleryImage } from '@/lib/productGalleryContent'
+import { getPublicProductGallery, getPublicProductGalleryHeroCopy, type ProductGalleryImage } from '@/lib/productGalleryContent'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -33,6 +33,14 @@ const productImages: ProductGalleryImage[] = [
 ]
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-urunler-mekanizmali-perdeler-silhouette-vision-perde'
+
+const defaultHeroCopy = {
+  breadcrumbLabel: "Silhouette & Vision Perde",
+  eyebrow: "WIP Technical Perde Koleksiyonu",
+  title: "Silhouette & Vision",
+  highlightedTitle: "Perde",
+  description: "Pile Perde garantisiyle satışa sunduğumuz Silhouette & Vision perdeler, alışılmış mekanizmalı sistemlere alternatif, dekoratif ve fonksiyonel mekanizmalı stor perde türüdür. 1.sınıf kumaş ve mekanizmalardan üretilmektedir.",
+}
 
 const productAdvantages = [
   'Basit mekanizması sayesinde minimum arıza sorunu çıkaran perde sistemleridir',
@@ -101,6 +109,7 @@ const staggerContainerVariants = {
 export default function SilhouetteVisionPerdePage() {
   const [galleryImages, setGalleryImages] = useState<ProductGalleryImage[]>(productImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(productImages[0])
+  const [heroCopy, setHeroCopy] = useState(defaultHeroCopy)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
@@ -111,6 +120,14 @@ export default function SilhouetteVisionPerdePage() {
         setGalleryImages(images)
         setSelectedImage(images[0])
       }
+    })
+
+    getPublicProductGalleryHeroCopy(PRODUCT_GALLERY_PAGE_KEY, defaultHeroCopy).then((copy) => {
+      if (!isMounted) {
+        return
+      }
+
+      setHeroCopy(copy)
     })
 
     return () => {
@@ -176,25 +193,25 @@ export default function SilhouetteVisionPerdePage() {
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <span className="text-sm text-gray-400">Silhouette & Vision Perde</span>
+              <span className="text-sm text-gray-400">{heroCopy.breadcrumbLabel}</span>
             </div>
 
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-xs text-gray-400 uppercase tracking-wider">WIP Technical Perde Koleksiyonu</span>
+              <span className="text-xs text-gray-400 uppercase tracking-wider">{heroCopy.eyebrow}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight text-white mb-6">
-              Silhouette & Vision
-              <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
-                Perde
-              </span>
+              {heroCopy.title}
+              {heroCopy.highlightedTitle && (
+                <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
+                  {heroCopy.highlightedTitle}
+                </span>
+              )}
             </h1>
 
             <p className="text-lg text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
-              Pile Perde garantisiyle satışa sunduğumuz Silhouette & Vision perdeler, alışılmış mekanizmalı sistemlere
-              alternatif, dekoratif ve fonksiyonel mekanizmalı stor perde türüdür. 1.sınıf kumaş ve mekanizmalardan
-              üretilmektedir.
+              {heroCopy.description}
             </p>
           </div>
         </div>

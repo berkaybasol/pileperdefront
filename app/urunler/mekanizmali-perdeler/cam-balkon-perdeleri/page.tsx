@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPublicProductGallery, type ProductGalleryImage } from '@/lib/productGalleryContent'
+import { getPublicProductGallery, getPublicProductGalleryHeroCopy, type ProductGalleryImage } from '@/lib/productGalleryContent'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -26,6 +26,14 @@ const productImages: ProductGalleryImage[] = [
 ]
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-urunler-mekanizmali-perdeler-cam-balkon-perdeleri'
+
+const defaultHeroCopy = {
+  breadcrumbLabel: "Cam Balkon Perdeleri",
+  eyebrow: "Cam Balkon Perde Koleksiyonu",
+  title: "Cam Balkon",
+  highlightedTitle: "Perdeleri",
+  description: "Plise Cam Balkon Perdesi, 16 mm kıvrımlı polyester kumaşlarla üretilmiş, yüksek kaliteli mekanik perde türüdür. Standart kumaşlar dışında keten kumaş, karartma (blackout) ve tül dışında ikili sistem tül ve kumaş aynı mekanizmada uygulanabilir.",
+}
 
 const productAdvantages = [
   'Cam Balkon Perde sistemleri kalitesi, sağlamlığı, kullanım kolaylığı ile kullanıcıya avantaj sağlamaktadır',
@@ -84,6 +92,7 @@ const staggerContainerVariants = {
 export default function CamBalkonPerdeleriPage() {
   const [galleryImages, setGalleryImages] = useState<ProductGalleryImage[]>(productImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(productImages[0])
+  const [heroCopy, setHeroCopy] = useState(defaultHeroCopy)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
@@ -94,6 +103,14 @@ export default function CamBalkonPerdeleriPage() {
         setGalleryImages(images)
         setSelectedImage(images[0])
       }
+    })
+
+    getPublicProductGalleryHeroCopy(PRODUCT_GALLERY_PAGE_KEY, defaultHeroCopy).then((copy) => {
+      if (!isMounted) {
+        return
+      }
+
+      setHeroCopy(copy)
     })
 
     return () => {
@@ -159,25 +176,25 @@ export default function CamBalkonPerdeleriPage() {
               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <span className="text-sm text-gray-400">Cam Balkon Perdeleri</span>
+              <span className="text-sm text-gray-400">{heroCopy.breadcrumbLabel}</span>
             </div>
 
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Cam Balkon Perde Koleksiyonu</span>
+              <span className="text-xs text-gray-400 uppercase tracking-wider">{heroCopy.eyebrow}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight text-white mb-6">
-              Cam Balkon
-              <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
-                Perdeleri
-              </span>
+              {heroCopy.title}
+              {heroCopy.highlightedTitle && (
+                <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
+                  {heroCopy.highlightedTitle}
+                </span>
+              )}
             </h1>
 
             <p className="text-lg text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
-              Plise Cam Balkon Perdesi, 16 mm kıvrımlı polyester kumaşlarla üretilmiş, yüksek kaliteli mekanik perde
-              türüdür. Standart kumaşlar dışında keten kumaş, karartma (blackout) ve tül dışında ikili sistem tül ve
-              kumaş aynı mekanizmada uygulanabilir.
+              {heroCopy.description}
             </p>
           </div>
         </div>

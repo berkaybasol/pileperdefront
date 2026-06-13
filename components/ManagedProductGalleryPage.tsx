@@ -3,8 +3,13 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { getPublicProductGallery, type ProductGalleryImage } from '@/lib/productGalleryContent'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  getPublicProductGallery,
+  getPublicProductGalleryHeroCopy,
+  type ProductGalleryHeroCopy,
+  type ProductGalleryImage,
+} from '@/lib/productGalleryContent'
 
 type BreadcrumbItem = {
   label: string
@@ -34,12 +39,31 @@ export default function ManagedProductGalleryPage({
   eyebrow,
   galleryTitle = `${title} Modelleri`,
 }: ManagedProductGalleryPageProps) {
+  const resolvedBreadcrumbItems = useMemo(() => breadcrumbItems || [
+    { label: '?r?nler', href: '/urunler' },
+    { label: 'T?l & Fon Perde', href: '/urunler/tul-fon-perde' },
+    { label: title },
+  ], [breadcrumbItems, title])
   const [images, setImages] = useState<ProductGalleryImage[]>(fallbackImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(fallbackImages[0])
+  const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>({
+    breadcrumbLabel: resolvedBreadcrumbItems[resolvedBreadcrumbItems.length - 1]?.label || title,
+    eyebrow: eyebrow || `${title} Koleksiyonu`,
+    title,
+    highlightedTitle: '',
+    description,
+  })
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
     let isMounted = true
+    const fallbackHeroCopy = {
+      breadcrumbLabel: resolvedBreadcrumbItems[resolvedBreadcrumbItems.length - 1]?.label || title,
+      eyebrow: eyebrow || `${title} Koleksiyonu`,
+      title,
+      highlightedTitle: '',
+      description,
+    }
 
     getPublicProductGallery(pageKey, fallbackImages).then((nextImages) => {
       if (isMounted && nextImages.length > 0) {
@@ -48,10 +72,16 @@ export default function ManagedProductGalleryPage({
       }
     })
 
+    getPublicProductGalleryHeroCopy(pageKey, fallbackHeroCopy).then((nextHeroCopy) => {
+      if (isMounted) {
+        setHeroCopy(nextHeroCopy)
+      }
+    })
+
     return () => {
       isMounted = false
     }
-  }, [fallbackImages, pageKey])
+  }, [description, eyebrow, fallbackImages, pageKey, resolvedBreadcrumbItems, title])
 
   const currentImageIndex = images.findIndex((image) => image.id === selectedImage.id)
 
@@ -94,35 +124,42 @@ export default function ManagedProductGalleryPage({
         <div className="container mx-auto px-6">
           <div className="mx-auto max-w-4xl text-center">
             <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
-              {breadcrumbItems.map((item, index) => (
+              {resolvedBreadcrumbItems.map((item, index) => {
+                const label = index === resolvedBreadcrumbItems.length - 1 ? heroCopy.breadcrumbLabel : item.label
+                return (
                 <div key={`${item.label}-${index}`} className="flex items-center gap-2">
                   {item.href ? (
                     <Link href={item.href} className="text-sm text-gray-500 transition-colors hover:text-gray-300">
-                      {item.label}
+                      {label}
                     </Link>
                   ) : (
-                    <span className="text-sm text-gray-400">{item.label}</span>
+                    <span className="text-sm text-gray-400">{label}</span>
                   )}
-                  {index < breadcrumbItems.length - 1 && (
+                  {index < resolvedBreadcrumbItems.length - 1 && (
                     <svg className="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   )}
                 </div>
-              ))}
+              )})}
             </div>
 
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
               <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-              <span className="text-xs uppercase tracking-wider text-gray-400">{eyebrow || `${title} Koleksiyonu`}</span>
+              <span className="text-xs uppercase tracking-wider text-gray-400">{heroCopy.eyebrow}</span>
             </div>
 
             <h1 className="mb-6 text-4xl font-extralight text-white md:text-5xl lg:text-6xl">
-              {title}
+              {heroCopy.title}
+              {heroCopy.highlightedTitle && (
+                <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
+                  {heroCopy.highlightedTitle}
+                </span>
+              )}
             </h1>
 
             <p className="mx-auto max-w-3xl text-lg font-light leading-relaxed text-gray-400">
-              {description}
+              {heroCopy.description}
             </p>
           </div>
         </div>
@@ -184,7 +221,7 @@ export default function ManagedProductGalleryPage({
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6 text-center">
           <h3 className="mb-4 text-2xl font-extralight text-white md:text-3xl">
-            {title} hakkında sorularınız mı var?
+            {heroCopy.breadcrumbLabel} hakkında sorularınız mı var?
           </h3>
           <p className="mx-auto mb-8 max-w-2xl font-light text-gray-400">
             Dilerseniz hemen <strong>0312 241 72 72</strong> no&apos;lu telefondan bize ulaşarak uygulamak istediğiniz
