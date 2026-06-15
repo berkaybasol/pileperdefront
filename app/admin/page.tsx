@@ -905,6 +905,7 @@ const AdminPage = () => {
   )
   const [aboutForm, setAboutForm] = useState<AboutForm>(defaultAboutForm)
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([])
+  const [expandedMediaPickerKey, setExpandedMediaPickerKey] = useState<string | null>(null)
   const [contactRequests, setContactRequests] = useState<ContactRequestItem[]>([])
   const [selectedContactRequestId, setSelectedContactRequestId] = useState<string | null>(null)
   const [contactRequestForm, setContactRequestForm] = useState({
@@ -956,6 +957,8 @@ const AdminPage = () => {
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
   const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey) || productGalleryPages[0] || productGalleryAdminPages[0]
   const selectedContactRequest = contactRequests.find((requestItem) => requestItem.id === selectedContactRequestId) || null
+  const getMediaPickerAssets = (pickerKey: string) =>
+    expandedMediaPickerKey === pickerKey ? mediaAssets : mediaAssets.slice(0, 16)
 
   useEffect(() => {
     const savedToken = window.localStorage.getItem('pileperde.admin.auth')
@@ -2234,6 +2237,24 @@ const AdminPage = () => {
     void loadPageByKey(galleryPage.pageKey, authHeader, galleryPage)
   }
 
+  const renderMediaPickerLimitToggle = (pickerKey: string) => {
+    if (mediaAssets.length <= 16) {
+      return null
+    }
+
+    const isExpanded = expandedMediaPickerKey === pickerKey
+
+    return (
+      <button
+        type="button"
+        onClick={() => setExpandedMediaPickerKey((current) => current === pickerKey ? null : pickerKey)}
+        className="mb-2 rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] hover:text-[#3a342c]"
+      >
+        {isExpanded ? 'Daha az goster' : `Tumunu goruntule (${mediaAssets.length})`}
+      </button>
+    )
+  }
+
   const updateBlogPostTitle = (postId: number, title: string) => {
     setBlogPosts((current) =>
       current.map((post) => {
@@ -2570,8 +2591,9 @@ const AdminPage = () => {
                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                           Yüklenenlerden seç
                         </p>
+                        {renderMediaPickerLimitToggle(`hero-${slide.id}`)}
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.map((asset) => (
+                          {getMediaPickerAssets(`hero-${slide.id}`).map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -2893,8 +2915,9 @@ const AdminPage = () => {
                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                           Yüklenenlerden seç
                         </p>
+                        {renderMediaPickerLimitToggle(`product-${item.id}`)}
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.map((asset) => (
+                          {getMediaPickerAssets(`product-${item.id}`).map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -3103,8 +3126,9 @@ const AdminPage = () => {
                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                           Yüklenenlerden seç
                         </p>
+                        {renderMediaPickerLimitToggle(`model-${item.id}`)}
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.map((asset) => (
+                          {getMediaPickerAssets(`model-${item.id}`).map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -3284,8 +3308,9 @@ const AdminPage = () => {
                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                           Yüklenenlerden seç
                         </p>
+                        {renderMediaPickerLimitToggle(`corporate-${item.id}`)}
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.map((asset) => (
+                          {getMediaPickerAssets(`corporate-${item.id}`).map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -3621,8 +3646,9 @@ const AdminPage = () => {
                       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                         Yüklenenlerden seç
                       </p>
+                      {renderMediaPickerLimitToggle(`gallery-${image.id}`)}
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                        {mediaAssets.map((asset) => (
+                        {getMediaPickerAssets(`gallery-${image.id}`).map((asset) => (
                           <button
                             type="button"
                             key={asset.id}
@@ -3824,8 +3850,9 @@ const AdminPage = () => {
                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                           Yüklenenlerden seç
                         </p>
+                        {renderMediaPickerLimitToggle(`blog-${post.id}`)}
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.map((asset) => (
+                          {getMediaPickerAssets(`blog-${post.id}`).map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -4098,8 +4125,9 @@ const AdminPage = () => {
                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                           Yüklenenlerden seç
                         </p>
+                        {renderMediaPickerLimitToggle(`category-${item.id}`)}
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.map((asset) => (
+                          {getMediaPickerAssets(`category-${item.id}`).map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -4318,8 +4346,9 @@ const AdminPage = () => {
                     <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f6960]">
                       Yüklenenlerden seç
                     </p>
+                    {renderMediaPickerLimitToggle('about-main')}
                     <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                      {mediaAssets.map((asset) => (
+                      {getMediaPickerAssets('about-main').map((asset) => (
                         <button
                           type="button"
                           key={asset.id}
