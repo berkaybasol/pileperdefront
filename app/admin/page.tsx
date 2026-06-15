@@ -761,6 +761,60 @@ const readErrorMessage = async (response: Response, fallback: string) => {
   return fallback
 }
 
+const IMAGE_UPLOAD_COMPRESSION_THRESHOLD_BYTES = 8 * 1024 * 1024
+const IMAGE_UPLOAD_MAX_DIMENSION = 2200
+
+const loadImageElement = (file: File) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = document.createElement('img')
+    const objectUrl = URL.createObjectURL(file)
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      resolve(image)
+    }
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error(`${file.name} okunamadi`))
+    }
+    image.src = objectUrl
+  })
+
+const prepareImageFileForUpload = async (file: File) => {
+  if (!file.type.startsWith('image/') || file.size <= IMAGE_UPLOAD_COMPRESSION_THRESHOLD_BYTES) {
+    return file
+  }
+
+  const image = await loadImageElement(file)
+  const scale = Math.min(1, IMAGE_UPLOAD_MAX_DIMENSION / image.naturalWidth, IMAGE_UPLOAD_MAX_DIMENSION / image.naturalHeight)
+  const width = Math.max(1, Math.round(image.naturalWidth * scale))
+  const height = Math.max(1, Math.round(image.naturalHeight * scale))
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const context = canvas.getContext('2d')
+
+  if (!context) {
+    return file
+  }
+
+  context.drawImage(image, 0, 0, width, height)
+
+  return new Promise<File>((resolve) => {
+    canvas.toBlob((blob) => {
+      if (!blob || blob.size >= file.size) {
+        resolve(file)
+        return
+      }
+
+      resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+      }))
+    }, 'image/jpeg', 0.86)
+  })
+}
+
 const AdminPage = () => {
   const [credentials, setCredentials] = useState(emptyCredentials)
   const [authToken, setAuthToken] = useState<string | null>(null)
@@ -1319,18 +1373,24 @@ const AdminPage = () => {
       let nextId = productGalleryImages.reduce((maxId, image) => Math.max(maxId, image.id), 0) + 1
 
       for (const file of files) {
+        const uploadFile = await prepareImageFileForUpload(file)
         const formData = new FormData()
-        formData.append('file', file)
+        formData.append('file', uploadFile)
         formData.append('title', file.name)
         formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-          method: 'POST',
-          headers: {
-            Authorization: authHeader,
-          },
-          body: formData,
-        })
+        let response: Response
+        try {
+          response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
+            method: 'POST',
+            headers: {
+              Authorization: authHeader,
+            },
+            body: formData,
+          })
+        } catch {
+          throw new Error(`${file.name} yuklenemedi. Baglanti kesildi veya dosya boyutu sunucu limitini asti.`)
+        }
 
         if (!response.ok) {
           throw new Error(await readErrorMessage(response, `${file.name} yuklenemedi`))

@@ -31,17 +31,13 @@ export default function ManagedProductGalleryPage({
   title,
   description,
   fallbackImages,
-  breadcrumbItems = [
-    { label: 'Ürünler', href: '/urunler' },
-    { label: 'Tül & Fon Perde', href: '/urunler/tul-fon-perde' },
-    { label: title },
-  ],
+  breadcrumbItems,
   eyebrow,
   galleryTitle = `${title} Modelleri`,
 }: ManagedProductGalleryPageProps) {
   const resolvedBreadcrumbItems = useMemo(() => breadcrumbItems || [
-    { label: '?r?nler', href: '/urunler' },
-    { label: 'T?l & Fon Perde', href: '/urunler/tul-fon-perde' },
+    { label: '\u00dcr\u00fcnler', href: '/urunler' },
+    { label: 'T\u00fcl & Fon Perde', href: '/urunler/tul-fon-perde' },
     { label: title },
   ], [breadcrumbItems, title])
   const [images, setImages] = useState<ProductGalleryImage[]>(fallbackImages)
@@ -68,7 +64,7 @@ export default function ManagedProductGalleryPage({
     getPublicProductGallery(pageKey, fallbackImages).then((nextImages) => {
       if (isMounted && nextImages.length > 0) {
         setImages(nextImages)
-        setSelectedImage(nextImages[0])
+        setSelectedImage((current) => nextImages.find((image) => image.id === current.id) || nextImages[0])
       }
     })
 
