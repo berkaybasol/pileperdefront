@@ -80,6 +80,12 @@ type CmsSection = {
   enabled: boolean
 }
 
+type ProductGalleryAdminPage = {
+  pageKey: string
+  label: string
+  href?: string
+}
+
 type CmsPageDetail = {
   id: string
   pageKey: string
@@ -820,6 +826,41 @@ const fallbackCardImage = '/api/public/media/images/d67000cc-c999-4e24-9023-8777
 const getNextNumericId = (items: Array<{ id: number }>) =>
   items.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1
 
+const normalizeInternalHref = (href: string) => {
+  const trimmedHref = href.trim()
+  if (!trimmedHref || trimmedHref.startsWith('http') || trimmedHref.startsWith('mailto:') || trimmedHref.startsWith('tel:')) {
+    return ''
+  }
+
+  return `/${trimmedHref.replace(/^\/+|\/+$/g, '')}`
+}
+
+const getProductGalleryPageKeyFromHref = (href: string) => {
+  const normalizedHref = normalizeInternalHref(href)
+  if (!normalizedHref) {
+    return ''
+  }
+
+  return `product-gallery-${normalizedHref.replace(/^\/+/, '').replace(/\//g, '-')}`
+}
+
+const getGalleryPageFromCatalogItem = (item: CatalogItem | ProductCategoryItem): ProductGalleryAdminPage | null => {
+  const normalizedHref = normalizeInternalHref(item.href)
+  if (
+    !normalizedHref ||
+    !item.title.trim() ||
+    !['/urunler/', '/model-perdeler/', '/kurumsal-urunler/'].some((prefix) => normalizedHref.startsWith(prefix))
+  ) {
+    return null
+  }
+
+  return {
+    pageKey: getProductGalleryPageKeyFromHref(normalizedHref),
+    label: item.title,
+    href: normalizedHref,
+  }
+}
+
 const moveItemById = <T extends { id: number }>(items: T[], itemId: number, direction: 'up' | 'down') => {
   const index = items.findIndex((item) => item.id === itemId)
   const targetIndex = direction === 'up' ? index - 1 : index + 1
@@ -876,6 +917,7 @@ const AdminPage = () => {
   const [isAboutImageUploading, setIsAboutImageUploading] = useState(false)
   const [uploadingBlogPostId, setUploadingBlogPostId] = useState<number | null>(null)
   const [uploadingGalleryImageId, setUploadingGalleryImageId] = useState<number | null>(null)
+  const [uploadingCardImageKey, setUploadingCardImageKey] = useState<string | null>(null)
   const [isGalleryBulkUploading, setIsGalleryBulkUploading] = useState(false)
   const [isMediaUploading, setIsMediaUploading] = useState(false)
   const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null)
@@ -891,8 +933,28 @@ const AdminPage = () => {
     return `Bearer ${authToken}`
   }, [authToken])
 
+  const productGalleryPages = useMemo(() => {
+    const pageMap = new Map<string, ProductGalleryAdminPage>()
+
+    productGalleryAdminPages.forEach((page) => pageMap.set(page.pageKey, page))
+    pages
+      .filter((page) => page.pageKey.startsWith('product-gallery-'))
+      .forEach((page) => pageMap.set(page.pageKey, {
+        pageKey: page.pageKey,
+        label: page.title,
+        href: page.slug,
+      }))
+
+    ;[...productItems, ...modelItems, ...corporateItems, ...mechanizedForm.categories]
+      .map(getGalleryPageFromCatalogItem)
+      .filter((page): page is ProductGalleryAdminPage => Boolean(page))
+      .forEach((page) => pageMap.set(page.pageKey, page))
+
+    return Array.from(pageMap.values()).sort((a, b) => a.label.localeCompare(b.label, 'tr'))
+  }, [corporateItems, mechanizedForm.categories, modelItems, pages, productItems])
+
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
-  const activeProductGalleryPage = productGalleryAdminPages.find((item) => item.pageKey === selectedProductGalleryPageKey) || productGalleryAdminPages[0]
+  const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey) || productGalleryPages[0] || productGalleryAdminPages[0]
   const selectedContactRequest = contactRequests.find((requestItem) => requestItem.id === selectedContactRequestId) || null
 
   useEffect(() => {
@@ -940,7 +1002,7 @@ const AdminPage = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images?size=60&sort=createdAt,desc`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/media/images?size=200&sort=createdAt,desc`, {
         headers: {
           Authorization: header,
         },
@@ -1052,7 +1114,66 @@ const AdminPage = () => {
     }
   }
 
-  const loadPageByKey = async (pageKey: string, header = authHeader) => {
+  const createProductGalleryPage = async (
+    galleryPage: ProductGalleryAdminPage,
+    header = authHeader,
+  ) => {
+    if (!header) {
+      return null
+    }
+
+    const heroCopy = getDefaultProductGalleryHeroCopy(galleryPage.label)
+    const pageResponse = await fetch(`${API_BASE_URL}/api/admin/cms/pages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: header,
+      },
+      body: JSON.stringify({
+        pageKey: galleryPage.pageKey,
+        slug: galleryPage.href || `/${galleryPage.pageKey.replace(/^product-gallery-/, '')}`,
+        title: galleryPage.label,
+        seoTitle: `${galleryPage.label} Galerisi - Pile Perde`,
+        seoDescription: `${galleryPage.label} uygulama gorselleri.`,
+        status: 'PUBLISHED',
+      }),
+    })
+
+    if (!pageResponse.ok) {
+      throw new Error(await readErrorMessage(pageResponse, 'Galeri sayfasi olusturulamadi'))
+    }
+
+    const pageBody = await pageResponse.json() as ApiResponse<CmsPageDetail>
+    const sectionResponse = await fetch(`${API_BASE_URL}/api/admin/cms/pages/${pageBody.data.id}/sections`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: header,
+      },
+      body: JSON.stringify({
+        sectionKey: 'product.gallery',
+        sectionType: 'gallery',
+        title: galleryPage.label,
+        subtitle: heroCopy.eyebrow,
+        body: heroCopy.description,
+        contentJson: buildProductGalleryContentJson([], heroCopy),
+        sortOrder: 1,
+        enabled: true,
+      }),
+    })
+
+    if (!sectionResponse.ok) {
+      throw new Error(await readErrorMessage(sectionResponse, 'Galeri bolumu olusturulamadi'))
+    }
+
+    return pageBody.data
+  }
+
+  const loadPageByKey = async (
+    pageKey: string,
+    header = authHeader,
+    fallbackGalleryPage?: ProductGalleryAdminPage,
+  ) => {
     if (!header) {
       return
     }
@@ -1078,6 +1199,15 @@ const AdminPage = () => {
     const refreshedPage = body.data.find((item) => item.pageKey === pageKey)
     if (refreshedPage) {
       await loadPage(refreshedPage.id, header)
+      return
+    }
+
+    if (fallbackGalleryPage && pageKey.startsWith('product-gallery-')) {
+      const createdPage = await createProductGalleryPage(fallbackGalleryPage, header)
+      if (createdPage) {
+        await loadPages(header)
+        await loadPage(createdPage.id, header)
+      }
     }
   }
 
@@ -1102,7 +1232,7 @@ const AdminPage = () => {
 
       const body = await response.json() as ApiResponse<CmsPageDetail>
       const page = body.data
-      const loadedProductGalleryPage = productGalleryAdminPages.find((item) => item.pageKey === page.pageKey) || activeProductGalleryPage
+      const loadedProductGalleryPage = productGalleryPages.find((item) => item.pageKey === page.pageKey) || activeProductGalleryPage
       setSelectedPage(page)
       const heroSection = page.sections.find((section) => section.sectionKey === 'home.hero') || null
       const aboutSection = page.sections.find((section) => section.sectionKey === 'about.main') || null
@@ -1434,6 +1564,49 @@ const AdminPage = () => {
       setErrorMessage(error instanceof Error ? error.message : 'Galeri gorselleri yuklenemedi')
     } finally {
       setIsGalleryBulkUploading(false)
+    }
+  }
+
+  const uploadCardImage = async (
+    cardKey: string,
+    file: File | null,
+    applyImage: (publicUrl: string) => void,
+  ) => {
+    if (!file || !authHeader) {
+      return
+    }
+
+    setUploadingCardImageKey(cardKey)
+    setStatusMessage(null)
+    setErrorMessage(null)
+
+    try {
+      const uploadFile = await prepareImageFileForUpload(file)
+      const formData = new FormData()
+      formData.append('file', uploadFile)
+      formData.append('title', file.name)
+      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+        },
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Kart gorseli yuklenemedi'))
+      }
+
+      const body = await response.json() as ApiResponse<MediaAsset>
+      applyImage(body.data.publicUrl)
+      await loadMediaAssets()
+      setStatusMessage('Kart gorseli yuklendi')
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Kart gorseli yuklenemedi')
+    } finally {
+      setUploadingCardImageKey(null)
     }
   }
 
@@ -2055,10 +2228,10 @@ const AdminPage = () => {
     })
   }
 
-  const openCategoryGallery = (galleryPageKey: string) => {
-    setSelectedProductGalleryPageKey(galleryPageKey)
+  const openCategoryGallery = (galleryPage: ProductGalleryAdminPage) => {
+    setSelectedProductGalleryPageKey(galleryPage.pageKey)
     setActivePanel('productGalleries')
-    void loadPageByKey(galleryPageKey)
+    void loadPageByKey(galleryPage.pageKey, authHeader, galleryPage)
   }
 
   const updateBlogPostTitle = (postId: number, title: string) => {
@@ -2398,7 +2571,7 @@ const AdminPage = () => {
                           Yüklenenlerden seç
                         </p>
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.slice(0, 16).map((asset) => (
+                          {mediaAssets.map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -2688,6 +2861,22 @@ const AdminPage = () => {
                 </label>
 
                 <div className="md:col-span-2">
+                  <label className="inline-flex cursor-pointer items-center rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]">
+                    {uploadingCardImageKey === `product-${item.id}` ? 'Yukleniyor' : 'Bilgisayardan gorsel yukle'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingCardImageKey === `product-${item.id}`}
+                      onChange={(event) => {
+                        void uploadCardImage(`product-${item.id}`, event.target.files?.[0] || null, (publicUrl) => updateProductItem(item.id, { image: publicUrl }))
+                        event.target.value = ''
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <div className="md:col-span-2">
                   <div className="grid gap-3 md:grid-cols-[180px_1fr]">
                     <div className="overflow-hidden rounded-md border border-[#d8d0c3] bg-white">
                       <Image
@@ -2705,7 +2894,7 @@ const AdminPage = () => {
                           Yüklenenlerden seç
                         </p>
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.slice(0, 16).map((asset) => (
+                          {mediaAssets.map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -2882,6 +3071,22 @@ const AdminPage = () => {
                 </label>
 
                 <div className="md:col-span-2">
+                  <label className="inline-flex cursor-pointer items-center rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]">
+                    {uploadingCardImageKey === `model-${item.id}` ? 'Yukleniyor' : 'Bilgisayardan gorsel yukle'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingCardImageKey === `model-${item.id}`}
+                      onChange={(event) => {
+                        void uploadCardImage(`model-${item.id}`, event.target.files?.[0] || null, (publicUrl) => updateModelItem(item.id, { image: publicUrl }))
+                        event.target.value = ''
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <div className="md:col-span-2">
                   <div className="grid gap-3 md:grid-cols-[180px_1fr]">
                     <div className="overflow-hidden rounded-md border border-[#d8d0c3] bg-white">
                       <Image
@@ -2899,7 +3104,7 @@ const AdminPage = () => {
                           Yüklenenlerden seç
                         </p>
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.slice(0, 16).map((asset) => (
+                          {mediaAssets.map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -3047,6 +3252,22 @@ const AdminPage = () => {
                 </label>
 
                 <div className="md:col-span-2">
+                  <label className="inline-flex cursor-pointer items-center rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]">
+                    {uploadingCardImageKey === `corporate-${item.id}` ? 'Yukleniyor' : 'Bilgisayardan gorsel yukle'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingCardImageKey === `corporate-${item.id}`}
+                      onChange={(event) => {
+                        void uploadCardImage(`corporate-${item.id}`, event.target.files?.[0] || null, (publicUrl) => updateCorporateItem(item.id, { image: publicUrl }))
+                        event.target.value = ''
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <div className="md:col-span-2">
                   <div className="grid gap-3 md:grid-cols-[180px_1fr]">
                     <div className="overflow-hidden rounded-md border border-[#d8d0c3] bg-white">
                       <Image
@@ -3064,7 +3285,7 @@ const AdminPage = () => {
                           Yüklenenlerden seç
                         </p>
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.slice(0, 16).map((asset) => (
+                          {mediaAssets.map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -3198,12 +3419,13 @@ const AdminPage = () => {
           <select
             value={selectedProductGalleryPageKey}
             onChange={(event) => {
+              const nextGalleryPage = productGalleryPages.find((item) => item.pageKey === event.target.value)
               setSelectedProductGalleryPageKey(event.target.value)
-              void loadPageByKey(event.target.value)
+              void loadPageByKey(event.target.value, authHeader, nextGalleryPage)
             }}
             className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
           >
-            {productGalleryAdminPages.map((item) => (
+            {productGalleryPages.map((item) => (
               <option key={item.pageKey} value={item.pageKey}>
                 {item.label}
               </option>
@@ -3400,7 +3622,7 @@ const AdminPage = () => {
                         Yüklenenlerden seç
                       </p>
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                        {mediaAssets.slice(0, 16).map((asset) => (
+                        {mediaAssets.map((asset) => (
                           <button
                             type="button"
                             key={asset.id}
@@ -3603,7 +3825,7 @@ const AdminPage = () => {
                           Yüklenenlerden seç
                         </p>
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.slice(0, 16).map((asset) => (
+                          {mediaAssets.map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -3799,17 +4021,30 @@ const AdminPage = () => {
                   />
                 </label>
 
-                {activeProductDetailPage && productDetailCategoryGalleryPages[activeProductDetailPage.pageKey]?.[item.title] && (
+                {(() => {
+                  const mappedGalleryPageKey = activeProductDetailPage
+                    ? productDetailCategoryGalleryPages[activeProductDetailPage.pageKey]?.[item.title]
+                    : null
+                  const galleryPage = mappedGalleryPageKey
+                    ? productGalleryPages.find((page) => page.pageKey === mappedGalleryPageKey) || getGalleryPageFromCatalogItem(item)
+                    : getGalleryPageFromCatalogItem(item)
+
+                  if (!galleryPage) {
+                    return null
+                  }
+
+                  return (
                   <div className="md:col-span-2">
                     <button
                       type="button"
-                      onClick={() => openCategoryGallery(productDetailCategoryGalleryPages[activeProductDetailPage.pageKey][item.title])}
+                      onClick={() => openCategoryGallery(galleryPage)}
                       className="rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]"
                     >
                       Galeriye git
                     </button>
                   </div>
-                )}
+                  )
+                })()}
 
                 <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
                   Açıklama
@@ -3831,6 +4066,22 @@ const AdminPage = () => {
                 </label>
 
                 <div className="md:col-span-2">
+                  <label className="inline-flex cursor-pointer items-center rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]">
+                    {uploadingCardImageKey === `category-${item.id}` ? 'Yukleniyor' : 'Bilgisayardan gorsel yukle'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingCardImageKey === `category-${item.id}`}
+                      onChange={(event) => {
+                        void uploadCardImage(`category-${item.id}`, event.target.files?.[0] || null, (publicUrl) => updateMechanizedCategory(item.id, { image: publicUrl }))
+                        event.target.value = ''
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <div className="md:col-span-2">
                   <div className="grid gap-3 md:grid-cols-[180px_1fr]">
                     <div className="overflow-hidden rounded-md border border-[#d8d0c3] bg-white">
                       <Image
@@ -3848,7 +4099,7 @@ const AdminPage = () => {
                           Yüklenenlerden seç
                         </p>
                         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                          {mediaAssets.slice(0, 16).map((asset) => (
+                          {mediaAssets.map((asset) => (
                             <button
                               type="button"
                               key={asset.id}
@@ -4068,7 +4319,7 @@ const AdminPage = () => {
                       Yüklenenlerden seç
                     </p>
                     <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-                      {mediaAssets.slice(0, 16).map((asset) => (
+                      {mediaAssets.map((asset) => (
                         <button
                           type="button"
                           key={asset.id}
