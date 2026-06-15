@@ -3,31 +3,12 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { fallbackSiteSettings, getPublicSiteSettings, normalizePhoneHref, normalizeWhatsAppNumber } from '@/lib/siteSettings'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
 
-type ApiResponse<T> = {
-  success: boolean
-  data: T
-  message: string | null
-  timestamp: string
-}
-
-const fallbackSettings: Record<string, string> = {
-  'company.phone.primary': '+90 (312) 241 72 72',
-  'company.whatsapp.primary': '+90 (533) 512 72 72',
-  'company.email': 'info@pileperde.com.tr',
-  'company.address.showroom': 'Prof. Dr. Ahmet Taner Kışlalı Mahallesi\nBanga Bandhu Şeyh Mucibur Rahman Blv. No:94 H\n06810 Çankaya/Ankara',
-  'company.maps.url': 'https://maps.app.goo.gl/vZuC8nLLVss97n2Z9',
-  'company.hours.weekday': 'Pzt-Cmt: 10:00-19:30',
-  'company.hours.sunday': 'Pazar: 11:30-17:30',
-}
-
-const normalizePhoneHref = (value: string) => value.replace(/[^\d+]/g, '')
-const normalizeWhatsAppNumber = (value: string) => value.replace(/\D/g, '')
-
 const Contact = () => {
-  const [settings, setSettings] = useState<Record<string, string>>(fallbackSettings)
+  const [settings, setSettings] = useState<Record<string, string>>(fallbackSiteSettings)
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -39,16 +20,7 @@ const Contact = () => {
 
   useEffect(() => {
     const loadSettings = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/public/settings`)
-        if (!response.ok) {
-          return
-        }
-
-        const body = await response.json() as ApiResponse<Record<string, string>>
-        setSettings({ ...fallbackSettings, ...body.data })
-      } catch {
-      }
+      setSettings(await getPublicSiteSettings())
     }
 
     void loadSettings()

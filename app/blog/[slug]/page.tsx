@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getAllBlogPosts, getPublicBlogPostBySlug, getPublicBlogPosts } from '@/lib/blogContent';
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
+import { getPublicSiteSettings, normalizePhoneHref, normalizeWhatsAppNumber } from '@/lib/siteSettings';
 
 export async function generateStaticParams() {
   const posts = getAllBlogPosts();
@@ -117,6 +118,10 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   };
 
   const formattedContent = sanitizeHtml(formatContent(post.content));
+  const siteSettings = await getPublicSiteSettings();
+  const phone = siteSettings['company.phone.primary'];
+  const whatsapp = siteSettings['company.whatsapp.primary'];
+  const addressLines = siteSettings['company.address.showroom'].split(/\r?\n/).filter(Boolean);
 
   // İlgili yazıları bul
   const relatedPosts = posts
@@ -234,8 +239,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                     </svg>
                     <div>
                       <p className="text-sm text-gray-300">Telefon</p>
-                      <a href="tel:+903125127272" className="text-sm text-white hover:text-blue-400 transition-colors">
-                        0312 512 72 72
+                      <a href={`tel:${normalizePhoneHref(phone)}`} className="text-sm text-white hover:text-blue-400 transition-colors">
+                        {phone}
                       </a>
                     </div>
                   </div>
@@ -246,8 +251,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                     </svg>
                     <div>
                       <p className="text-sm text-gray-300">WhatsApp</p>
-                      <a href="https://wa.me/905335127272" target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:text-green-400 transition-colors">
-                        0533 512 72 72
+                      <a href={`https://wa.me/${normalizeWhatsAppNumber(whatsapp)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:text-green-400 transition-colors">
+                        {whatsapp}
                       </a>
                     </div>
                   </div>
@@ -260,15 +265,19 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                     <div>
                       <p className="text-sm text-gray-300">Adres</p>
                       <p className="text-sm text-white">
-                        Yaşamkent Mah. 3061. Cadde<br/>
-                        (Eski 3158) No:5/B Çankaya/Ankara
+                        {addressLines.map((line) => (
+                          <span key={line}>
+                            {line}
+                            <br />
+                          </span>
+                        ))}
                       </p>
                     </div>
                   </div>
 
                   <div className="pt-4 mt-4 border-t border-gray-700">
                     <a
-                      href="https://maps.app.goo.gl/5XbjMAsscS58sh7p8"
+                      href={siteSettings['company.maps.url']}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
