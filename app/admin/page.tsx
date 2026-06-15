@@ -815,6 +815,26 @@ const prepareImageFileForUpload = async (file: File) => {
   })
 }
 
+const fallbackCardImage = '/api/public/media/images/d67000cc-c999-4e24-9023-87774b037372/file'
+
+const getNextNumericId = (items: Array<{ id: number }>) =>
+  items.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1
+
+const moveItemById = <T extends { id: number }>(items: T[], itemId: number, direction: 'up' | 'down') => {
+  const index = items.findIndex((item) => item.id === itemId)
+  const targetIndex = direction === 'up' ? index - 1 : index + 1
+
+  if (index < 0 || targetIndex < 0 || targetIndex >= items.length) {
+    return items
+  }
+
+  const nextItems = [...items]
+  const currentItem = nextItems[index]
+  nextItems[index] = nextItems[targetIndex]
+  nextItems[targetIndex] = currentItem
+  return nextItems
+}
+
 const AdminPage = () => {
   const [credentials, setCredentials] = useState(emptyCredentials)
   const [authToken, setAuthToken] = useState<string | null>(null)
@@ -1904,16 +1924,89 @@ const AdminPage = () => {
     )
   }
 
+  const addProductItem = () => {
+    setProductItems((current) => [
+      ...current,
+      {
+        id: getNextNumericId(current),
+        title: 'Yeni Urun',
+        image: mediaAssets[0]?.publicUrl || fallbackCardImage,
+        href: '/urunler/yeni-urun',
+        description: 'Yeni urun aciklamasi',
+        enabled: true,
+      },
+    ])
+  }
+
+  const removeProductItem = (itemId: number) => {
+    if (window.confirm('Bu urun karti silinsin mi?')) {
+      setProductItems((current) => current.filter((item) => item.id !== itemId))
+    }
+  }
+
+  const moveProductItem = (itemId: number, direction: 'up' | 'down') => {
+    setProductItems((current) => moveItemById(current, itemId, direction))
+  }
+
   const updateModelItem = (itemId: number, updates: Partial<CatalogItem>) => {
     setModelItems((current) =>
       current.map((item) => item.id === itemId ? { ...item, ...updates } : item)
     )
   }
 
+  const addModelItem = () => {
+    setModelItems((current) => [
+      ...current,
+      {
+        id: getNextNumericId(current),
+        title: 'Yeni Model',
+        image: mediaAssets[0]?.publicUrl || fallbackCardImage,
+        href: '/model-perdeler/yeni-model',
+        description: 'Yeni model aciklamasi',
+        enabled: true,
+      },
+    ])
+  }
+
+  const removeModelItem = (itemId: number) => {
+    if (window.confirm('Bu model karti silinsin mi?')) {
+      setModelItems((current) => current.filter((item) => item.id !== itemId))
+    }
+  }
+
+  const moveModelItem = (itemId: number, direction: 'up' | 'down') => {
+    setModelItems((current) => moveItemById(current, itemId, direction))
+  }
+
   const updateCorporateItem = (itemId: number, updates: Partial<CatalogItem>) => {
     setCorporateItems((current) =>
       current.map((item) => item.id === itemId ? { ...item, ...updates } : item)
     )
+  }
+
+  const addCorporateItem = () => {
+    setCorporateItems((current) => [
+      ...current,
+      {
+        id: getNextNumericId(current),
+        title: 'Yeni Kurumsal Urun',
+        image: mediaAssets[0]?.publicUrl || fallbackCardImage,
+        href: '/kurumsal-urunler/yeni-kurumsal-urun',
+        description: 'Yeni kurumsal urun aciklamasi',
+        badge: 'Yeni',
+        enabled: true,
+      },
+    ])
+  }
+
+  const removeCorporateItem = (itemId: number) => {
+    if (window.confirm('Bu kurumsal urun karti silinsin mi?')) {
+      setCorporateItems((current) => current.filter((item) => item.id !== itemId))
+    }
+  }
+
+  const moveCorporateItem = (itemId: number, direction: 'up' | 'down') => {
+    setCorporateItems((current) => moveItemById(current, itemId, direction))
   }
 
   const updateBlogPost = (postId: number, updates: Partial<BlogPost>) => {
@@ -2097,6 +2190,41 @@ const AdminPage = () => {
     setMechanizedForm((current) => ({
       ...current,
       categories: current.categories.map((item) => item.id === itemId ? { ...item, ...updates } : item),
+    }))
+  }
+
+  const addMechanizedCategory = () => {
+    setMechanizedForm((current) => ({
+      ...current,
+      categories: [
+        ...current.categories,
+        {
+          id: getNextNumericId(current.categories),
+          title: 'Yeni Kategori',
+          description: 'Yeni kategori aciklamasi',
+          image: mediaAssets[0]?.publicUrl || fallbackCardImage,
+          href: `${pageForm.slug || '/urunler'}/yeni-kategori`.replace(/\/+/g, '/'),
+          enabled: true,
+        },
+      ],
+    }))
+  }
+
+  const removeMechanizedCategory = (itemId: number) => {
+    if (!window.confirm('Bu kategori karti silinsin mi?')) {
+      return
+    }
+
+    setMechanizedForm((current) => ({
+      ...current,
+      categories: current.categories.filter((item) => item.id !== itemId),
+    }))
+  }
+
+  const moveMechanizedCategory = (itemId: number, direction: 'up' | 'down') => {
+    setMechanizedForm((current) => ({
+      ...current,
+      categories: moveItemById(current.categories, itemId, direction),
     }))
   }
 
@@ -2469,20 +2597,54 @@ const AdminPage = () => {
           Bu kartlar public sitedeki Ürünler alanında aynı sırayla gösterilir.
         </p>
 
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={addProductItem}
+            className="rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]"
+          >
+            Kart ekle
+          </button>
+        </div>
         <div className="mt-5 space-y-4">
           {productItems.map((item, index) => (
             <div key={item.id} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[#3a342c]">Ürün {index + 1}</p>
-                <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
-                  <input
-                    type="checkbox"
-                    checked={item.enabled}
-                    onChange={(event) => updateProductItem(item.id, { enabled: event.target.checked })}
-                    className="h-4 w-4 rounded border-[#d8d0c3]"
-                  />
-                  Yayında
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => moveProductItem(item.id, 'up')}
+                    disabled={index === 0}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Yukari
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveProductItem(item.id, 'down')}
+                    disabled={index === productItems.length - 1}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Asagi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeProductItem(item.id)}
+                    className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                  >
+                    Sil
+                  </button>
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
+                    <input
+                      type="checkbox"
+                      checked={item.enabled}
+                      onChange={(event) => updateProductItem(item.id, { enabled: event.target.checked })}
+                      className="h-4 w-4 rounded border-[#d8d0c3]"
+                    />
+                    Yayinda
+                  </label>
+                </div>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
@@ -2629,20 +2791,54 @@ const AdminPage = () => {
           Bu kartlar public sitedeki Perde Modelleri alanında aynı sırayla gösterilir.
         </p>
 
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={addModelItem}
+            className="rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]"
+          >
+            Kart ekle
+          </button>
+        </div>
         <div className="mt-5 space-y-4">
           {modelItems.map((item, index) => (
             <div key={item.id} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[#3a342c]">Model {index + 1}</p>
-                <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
-                  <input
-                    type="checkbox"
-                    checked={item.enabled}
-                    onChange={(event) => updateModelItem(item.id, { enabled: event.target.checked })}
-                    className="h-4 w-4 rounded border-[#d8d0c3]"
-                  />
-                  Yayında
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => moveModelItem(item.id, 'up')}
+                    disabled={index === 0}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Yukari
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveModelItem(item.id, 'down')}
+                    disabled={index === modelItems.length - 1}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Asagi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeModelItem(item.id)}
+                    className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                  >
+                    Sil
+                  </button>
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
+                    <input
+                      type="checkbox"
+                      checked={item.enabled}
+                      onChange={(event) => updateModelItem(item.id, { enabled: event.target.checked })}
+                      className="h-4 w-4 rounded border-[#d8d0c3]"
+                    />
+                    Yayinda
+                  </label>
+                </div>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
@@ -2760,20 +2956,54 @@ const AdminPage = () => {
           Bu kartlar public sitedeki Kurumsal Ürünler alanında aynı sırayla gösterilir.
         </p>
 
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={addCorporateItem}
+            className="rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]"
+          >
+            Kart ekle
+          </button>
+        </div>
         <div className="mt-5 space-y-4">
           {corporateItems.map((item, index) => (
             <div key={item.id} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[#3a342c]">Kurumsal ürün {index + 1}</p>
-                <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
-                  <input
-                    type="checkbox"
-                    checked={item.enabled}
-                    onChange={(event) => updateCorporateItem(item.id, { enabled: event.target.checked })}
-                    className="h-4 w-4 rounded border-[#d8d0c3]"
-                  />
-                  Yayında
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => moveCorporateItem(item.id, 'up')}
+                    disabled={index === 0}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Yukari
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveCorporateItem(item.id, 'down')}
+                    disabled={index === corporateItems.length - 1}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Asagi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeCorporateItem(item.id)}
+                    className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                  >
+                    Sil
+                  </button>
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
+                    <input
+                      type="checkbox"
+                      checked={item.enabled}
+                      onChange={(event) => updateCorporateItem(item.id, { enabled: event.target.checked })}
+                      className="h-4 w-4 rounded border-[#d8d0c3]"
+                    />
+                    Yayinda
+                  </label>
+                </div>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
@@ -3500,20 +3730,54 @@ const AdminPage = () => {
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <h2 className="text-lg font-semibold">Kategori kartları</h2>
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={addMechanizedCategory}
+            className="rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]"
+          >
+            Kart ekle
+          </button>
+        </div>
         <div className="mt-5 space-y-4">
           {mechanizedForm.categories.map((item, index) => (
             <div key={item.id} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[#3a342c]">Kategori {index + 1}</p>
-                <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
-                  <input
-                    type="checkbox"
-                    checked={item.enabled}
-                    onChange={(event) => updateMechanizedCategory(item.id, { enabled: event.target.checked })}
-                    className="h-4 w-4 rounded border-[#d8d0c3]"
-                  />
-                  Yayında
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => moveMechanizedCategory(item.id, 'up')}
+                    disabled={index === 0}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Yukari
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveMechanizedCategory(item.id, 'down')}
+                    disabled={index === mechanizedForm.categories.length - 1}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Asagi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeMechanizedCategory(item.id)}
+                    className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                  >
+                    Sil
+                  </button>
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
+                    <input
+                      type="checkbox"
+                      checked={item.enabled}
+                      onChange={(event) => updateMechanizedCategory(item.id, { enabled: event.target.checked })}
+                      className="h-4 w-4 rounded border-[#d8d0c3]"
+                    />
+                    Yayinda
+                  </label>
+                </div>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
