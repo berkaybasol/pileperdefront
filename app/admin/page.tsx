@@ -426,6 +426,12 @@ const productDetailAdminPages = [
 const productDetailPanels = productDetailAdminPages.map((item) => item.panel) as AdminPanel[]
 
 const productGalleryAdminPages = [
+  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler', label: 'Mekanizmalı Perdeler', href: '/urunler/mekanizmali-perdeler' },
+  { pageKey: 'product-gallery-urunler-tul-fon-perde', label: 'Tül & Fon Perde', href: '/urunler/tul-fon-perde' },
+  { pageKey: 'product-gallery-urunler-dosemelik-kumas', label: 'Döşemelik Kumaş', href: '/urunler/dosemelik-kumas' },
+  { pageKey: 'product-gallery-urunler-motorlu-perdeler', label: 'Motorlu Perdeler', href: '/urunler/motorlu-perdeler' },
+  { pageKey: 'product-gallery-urunler-perde-aksesuarlari', label: 'Perde Aksesuarları', href: '/urunler/perde-aksesuarlari' },
+  { pageKey: 'product-gallery-urunler-metal-zincir-perde', label: 'Metal Zincir Perde', href: '/urunler/metal-zincir-perde' },
   { pageKey: 'product-gallery-model-perdeler-modern-perde', label: 'Modern Perde' },
   { pageKey: 'product-gallery-model-perdeler-kruvaze-perde', label: 'Kruvaze Perde' },
   { pageKey: 'product-gallery-model-perdeler-klasik-ve-avangart-perde', label: 'Klasik ve Avangart Perde' },
