@@ -426,12 +426,6 @@ const productDetailAdminPages = [
 const productDetailPanels = productDetailAdminPages.map((item) => item.panel) as AdminPanel[]
 
 const productGalleryAdminPages = [
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler', label: 'Mekanizmalı Perdeler', href: '/urunler/mekanizmali-perdeler' },
-  { pageKey: 'product-gallery-urunler-tul-fon-perde', label: 'Tül & Fon Perde', href: '/urunler/tul-fon-perde' },
-  { pageKey: 'product-gallery-urunler-dosemelik-kumas', label: 'Döşemelik Kumaş', href: '/urunler/dosemelik-kumas' },
-  { pageKey: 'product-gallery-urunler-motorlu-perdeler', label: 'Motorlu Perdeler', href: '/urunler/motorlu-perdeler' },
-  { pageKey: 'product-gallery-urunler-perde-aksesuarlari', label: 'Perde Aksesuarları', href: '/urunler/perde-aksesuarlari' },
-  { pageKey: 'product-gallery-urunler-metal-zincir-perde', label: 'Metal Zincir Perde', href: '/urunler/metal-zincir-perde' },
   { pageKey: 'product-gallery-model-perdeler-modern-perde', label: 'Modern Perde' },
   { pageKey: 'product-gallery-model-perdeler-kruvaze-perde', label: 'Kruvaze Perde' },
   { pageKey: 'product-gallery-model-perdeler-klasik-ve-avangart-perde', label: 'Klasik ve Avangart Perde' },
@@ -850,10 +844,21 @@ const getProductGalleryPageKeyFromHref = (href: string) => {
   return `product-gallery-${normalizedHref.replace(/^\/+/, '').replace(/\//g, '-')}`
 }
 
+const productDetailGalleryPageKeys = new Set([
+  'product-gallery-urunler-mekanizmali-perdeler',
+  'product-gallery-urunler-tul-fon-perde',
+  'product-gallery-urunler-dosemelik-kumas',
+  'product-gallery-urunler-motorlu-perdeler',
+  'product-gallery-urunler-perde-aksesuarlari',
+  'product-gallery-urunler-metal-zincir-perde',
+])
+
 const getGalleryPageFromCatalogItem = (item: CatalogItem | ProductCategoryItem): ProductGalleryAdminPage | null => {
   const normalizedHref = normalizeInternalHref(item.href)
+  const pageKey = getProductGalleryPageKeyFromHref(normalizedHref)
   if (
     !normalizedHref ||
+    productDetailGalleryPageKeys.has(pageKey) ||
     !item.title.trim() ||
     !['/urunler/', '/model-perdeler/', '/kurumsal-urunler/'].some((prefix) => normalizedHref.startsWith(prefix))
   ) {
@@ -861,7 +866,7 @@ const getGalleryPageFromCatalogItem = (item: CatalogItem | ProductCategoryItem):
   }
 
   return {
-    pageKey: getProductGalleryPageKeyFromHref(normalizedHref),
+    pageKey,
     label: item.title,
     href: normalizedHref,
   }
@@ -945,7 +950,7 @@ const AdminPage = () => {
 
     productGalleryAdminPages.forEach((page) => pageMap.set(page.pageKey, page))
     pages
-      .filter((page) => page.pageKey.startsWith('product-gallery-'))
+      .filter((page) => page.pageKey.startsWith('product-gallery-') && !productDetailGalleryPageKeys.has(page.pageKey))
       .forEach((page) => pageMap.set(page.pageKey, {
         pageKey: page.pageKey,
         label: page.title,
