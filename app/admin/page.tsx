@@ -967,6 +967,7 @@ const AdminPage = () => {
 
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
   const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey) || productGalleryPages[0] || productGalleryAdminPages[0]
+  const isMotorizedProductGallery = activeProductGalleryPage.pageKey.startsWith('product-gallery-urunler-motorlu-perdeler-')
   const selectedContactRequest = contactRequests.find((requestItem) => requestItem.id === selectedContactRequestId) || null
   const getMediaPickerAssets = (pickerKey: string) =>
     expandedMediaPickerKey === pickerKey ? mediaAssets : mediaAssets.slice(0, 16)
@@ -3522,15 +3523,47 @@ const AdminPage = () => {
               className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
             />
           </label>
-          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
-            YouTube linki
-            <input
-              value={productGalleryHeroCopy.youtubeUrl || ''}
-              onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, youtubeUrl: event.target.value }))}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-            />
-          </label>
+          {isMotorizedProductGallery && (
+            <>
+              <label className="text-sm font-medium text-[#3a342c]">
+                Video küçük başlık
+                <input
+                  value={productGalleryHeroCopy.videoEyebrow || ''}
+                  onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, videoEyebrow: event.target.value }))}
+                  placeholder="Video Anlatım"
+                  className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                />
+              </label>
+              <label className="text-sm font-medium text-[#3a342c]">
+                Video başlığı
+                <input
+                  value={productGalleryHeroCopy.videoTitle || ''}
+                  onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, videoTitle: event.target.value }))}
+                  placeholder="Nasıl Çalışır?"
+                  className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                />
+              </label>
+              <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+                Video açıklaması
+                <textarea
+                  value={productGalleryHeroCopy.videoDescription || ''}
+                  onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, videoDescription: event.target.value }))}
+                  placeholder="Ürün çalışma prensibini ve montaj detaylarını videomuzda izleyebilirsiniz."
+                  rows={3}
+                  className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                />
+              </label>
+              <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+                YouTube linki
+                <input
+                  value={productGalleryHeroCopy.youtubeUrl || ''}
+                  onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, youtubeUrl: event.target.value }))}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                />
+              </label>
+            </>
+          )}
         </div>
       </div>
 

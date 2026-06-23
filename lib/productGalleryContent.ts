@@ -32,6 +32,9 @@ export type ProductGalleryHeroCopy = {
   highlightedTitle: string
   description: string
   youtubeUrl?: string
+  videoEyebrow?: string
+  videoTitle?: string
+  videoDescription?: string
 }
 
 const productGalleryDefaultHeroCopies: Record<string, ProductGalleryHeroCopy> = {
@@ -180,6 +183,9 @@ export const parseProductGalleryHeroCopy = (
       highlightedTitle: hero.highlightedTitle || fallbackCopy.highlightedTitle,
       description: hero.description || fallbackCopy.description,
       youtubeUrl: hero.youtubeUrl || '',
+      videoEyebrow: hero.videoEyebrow || fallbackCopy.videoEyebrow || 'Video Anlatım',
+      videoTitle: hero.videoTitle || fallbackCopy.videoTitle || 'Nasıl Çalışır?',
+      videoDescription: hero.videoDescription || fallbackCopy.videoDescription || '',
     }
   } catch {
     return fallbackCopy
