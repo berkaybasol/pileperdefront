@@ -9,6 +9,7 @@ import {
   getProductDetailContent,
   type ProductDetailContent,
 } from '@/lib/productDetailContent'
+import { getYouTubeEmbedUrl } from '@/lib/youtube'
 
 type ManagedProductDetailProps = {
   pageKey?: string
@@ -72,50 +73,68 @@ export default function MekanizmaliPerdelerContent({
           </motion.div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {content.categories.map((category) => (
-              <motion.div key={category.id} className="group">
-                <Link href={category.href}>
-                  <div className="relative h-[600px] overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 transition-all duration-500 hover:border-white/20">
-                    <div className="absolute inset-0">
-                      <Image
-                        src={category.image}
-                        alt={category.title}
-                        fill
-                        className="object-cover opacity-80 transition-all duration-700 group-hover:scale-110 group-hover:opacity-90"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                    </div>
+            {content.categories.map((category) => {
+              const youtubeEmbedUrl = getYouTubeEmbedUrl(category.youtubeUrl)
 
-                    <div className="absolute inset-x-0 bottom-0 p-8">
-                      <div className="flex items-end justify-between">
-                        <div>
-                          <h3 className="mb-2 text-2xl font-light text-white transition-transform duration-300 group-hover:-translate-y-1">
-                            {category.title}
-                          </h3>
-                          <p className="text-sm font-light text-gray-400">
-                            {category.description}
-                          </p>
-                        </div>
-                        <div className="ml-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm transition-all duration-300 group-hover:border-white group-hover:bg-white">
-                          <svg
-                            className="h-5 w-5 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-black"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
+              return (
+                <motion.div key={category.id} className="group">
+                  <Link href={category.href}>
+                    <div className="relative h-[600px] overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 transition-all duration-500 hover:border-white/20">
+                      <div className="absolute inset-0">
+                        <Image
+                          src={category.image}
+                          alt={category.title}
+                          fill
+                          className="object-cover opacity-80 transition-all duration-700 group-hover:scale-110 group-hover:opacity-90"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                      </div>
+
+                      <div className="absolute inset-x-0 bottom-0 p-8">
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <h3 className="mb-2 text-2xl font-light text-white transition-transform duration-300 group-hover:-translate-y-1">
+                              {category.title}
+                            </h3>
+                            <p className="text-sm font-light text-gray-400">
+                              {category.description}
+                            </p>
+                          </div>
+                          <div className="ml-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm transition-all duration-300 group-hover:border-white group-hover:bg-white">
+                            <svg
+                              className="h-5 w-5 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-black"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
-                      <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
+                      <div className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
+                        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                  </Link>
+
+                  {youtubeEmbedUrl && (
+                    <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900/80 to-black">
+                      <div className="aspect-video">
+                        <iframe
+                          src={youtubeEmbedUrl}
+                          title={`${category.title} video`}
+                          className="h-full w-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
