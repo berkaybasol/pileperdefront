@@ -2,8 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPublicProductGallery, getPublicProductGalleryHeroCopy, type ProductGalleryHeroCopy, type ProductGalleryImage } from '@/lib/productGalleryContent'
-import { getYouTubeEmbedUrl } from '@/lib/youtube'
+import { getPublicProductGallery, getPublicProductGalleryHeroCopy, type ProductGalleryImage } from '@/lib/productGalleryContent'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -14,16 +13,12 @@ const productImages: ProductGalleryImage[] = [
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde'
 
-const defaultHeroCopy: ProductGalleryHeroCopy = {
+const defaultHeroCopy = {
   breadcrumbLabel: "Projeksiyon Perde",
   eyebrow: "Dış Mekan Sistemleri",
   title: "Projeksiyon",
   highlightedTitle: "Perde",
   description: "Dış mekan alanlarınızı konforlu yaşam alanlarına dönüştüren motorlu projeksiyon perde sistemleri. Güneş, rüzgar ve yağmura karşı maksimum koruma ile balkon, teras ve dış cephe uygulamalarında mükemmel çözüm sunmaktadır.",
-  youtubeUrl: '',
-  videoEyebrow: 'Video Anlatım',
-  videoTitle: 'Nasıl Çalışır?',
-  videoDescription: 'Projeksiyon perde sistemimizin çalışma prensibini ve kullanım detaylarını videomuzda izleyebilirsiniz.',
 }
 
 const productAdvantages = [
@@ -111,7 +106,6 @@ export default function ProksiyonPerdePage() {
   
   // Lightbox navigation functions
   const currentImageIndex = galleryImages.findIndex(img => img.id === selectedImage.id)
-  const youtubeEmbedUrl = getYouTubeEmbedUrl(heroCopy.youtubeUrl)
 
   const goToPrevious = () => {
     const prevIndex = currentImageIndex > 0 ? currentImageIndex - 1 : galleryImages.length - 1
@@ -294,42 +288,6 @@ export default function ProksiyonPerdePage() {
           </div>
         </div>
       </section>
-
-      {youtubeEmbedUrl && (
-        <section className="relative py-20 border-t border-white/5">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">
-                  {heroCopy.videoEyebrow || 'Video Anlatım'}
-                </p>
-                <h2 className="text-3xl md:text-4xl font-extralight text-white mb-4">
-                  {heroCopy.videoTitle || 'Nasıl Çalışır?'}
-                </h2>
-                {heroCopy.videoDescription && (
-                  <p className="text-gray-400 font-light max-w-2xl mx-auto">
-                    {heroCopy.videoDescription}
-                  </p>
-                )}
-              </div>
-
-              <div
-                className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10"
-                style={{ paddingBottom: '56.25%' }}
-              >
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full"
-                  src={youtubeEmbedUrl}
-                  title={`${heroCopy.breadcrumbLabel} - ${heroCopy.videoTitle || 'Video'}`}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Full Product Gallery - Dark Glassmorphism Grid */}
       <section className="relative py-20 border-t border-white/5">
