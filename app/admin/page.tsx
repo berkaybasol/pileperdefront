@@ -465,6 +465,7 @@ const productGalleryAdminPages = [
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde', label: 'Projeksiyon Perde' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-zip-perde', label: 'Zip Perde' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-dis-cephe-jaluzi', label: 'Dış Cephe Jaluzi' },
+  { pageKey: 'product-gallery-urunler-motorlu-perdeler-motorlu-tul-ve-kumas-perdeler', label: 'Motorlu Tül ve Kumaş Perdeler' },
   { pageKey: 'product-gallery-kurumsal-urunler-ozel-proje-perdeleri', label: 'Özel Proje Perdeleri' },
   { pageKey: 'product-gallery-kurumsal-urunler-cafe-restoran-perdeleri', label: 'Cafe Restoran Perdeleri' },
   { pageKey: 'product-gallery-kurumsal-urunler-hastane-perdeleri', label: 'Hastane Perdeleri' },
@@ -493,6 +494,9 @@ const getDefaultProductGalleryHeroCopy = (label: string): ProductGalleryHeroCopy
 }
 
 const productDetailCategoryGalleryPages: Record<string, Record<string, string>> = {
+  'product-motorlu-perdeler': {
+    'Motorlu Tül ve Kumaş Perdeler': 'product-gallery-urunler-motorlu-perdeler-motorlu-tul-ve-kumas-perdeler',
+  },
   'product-tul-fon-perde': {
     'Modern Fon Perde': 'product-gallery-urunler-tul-fon-perde-modern-fon-perde',
     'Desenli Fon Perde': 'product-gallery-urunler-tul-fon-perde-desenli-fon-perde',

@@ -199,51 +199,63 @@ export const buildProductGalleryContentJson = (
   JSON.stringify(hero ? { hero, images } : { images }, null, 2)
 
 export const getPublicProductGallery = async (
-  pageKey: string,
+  pageKey: string | string[],
   fallbackImages: ProductGalleryImage[],
 ) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
-      cache: 'no-store',
-    })
+  const pageKeys = Array.isArray(pageKey) ? pageKey : [pageKey]
 
-    if (!response.ok) {
-      return fallbackImages
+  for (const currentPageKey of pageKeys) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${currentPageKey}`, {
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        continue
+      }
+
+      const body = await response.json() as ApiResponse<CmsPage>
+      const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
+      if (!section || !section.enabled) {
+        continue
+      }
+
+      return parseProductGalleryImages(section.contentJson, fallbackImages)
+    } catch {
+      continue
     }
-
-    const body = await response.json() as ApiResponse<CmsPage>
-    const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
-    if (!section || !section.enabled) {
-      return fallbackImages
-    }
-
-    return parseProductGalleryImages(section.contentJson, fallbackImages)
-  } catch {
-    return fallbackImages
   }
+
+  return fallbackImages
 }
 
 export const getPublicProductGalleryHeroCopy = async (
-  pageKey: string,
+  pageKey: string | string[],
   fallbackCopy: ProductGalleryHeroCopy,
 ) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
-      cache: 'no-store',
-    })
+  const pageKeys = Array.isArray(pageKey) ? pageKey : [pageKey]
 
-    if (!response.ok) {
-      return fallbackCopy
+  for (const currentPageKey of pageKeys) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${currentPageKey}`, {
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        continue
+      }
+
+      const body = await response.json() as ApiResponse<CmsPage>
+      const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
+      if (!section || !section.enabled) {
+        continue
+      }
+
+      return parseProductGalleryHeroCopy(section.contentJson, fallbackCopy)
+    } catch {
+      continue
     }
-
-    const body = await response.json() as ApiResponse<CmsPage>
-    const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
-    if (!section || !section.enabled) {
-      return fallbackCopy
-    }
-
-    return parseProductGalleryHeroCopy(section.contentJson, fallbackCopy)
-  } catch {
-    return fallbackCopy
   }
+
+  return fallbackCopy
 }
