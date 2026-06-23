@@ -18,6 +18,7 @@ import {
   parseProductDetailContent,
   type ProductCategoryItem,
   type ProductDetailContent,
+  type ProductVideoItem,
 } from '@/lib/productDetailContent'
 import {
   buildBlogContentJson,
@@ -426,6 +427,7 @@ const productDetailAdminPages = [
 const productDetailPanels = productDetailAdminPages.map((item) => item.panel) as AdminPanel[]
 
 const productGalleryAdminPages = [
+  { pageKey: 'product-motorlu-perdeler', label: 'Motorlu Perdeler Video Kartları', href: '/urunler/motorlu-perdeler' },
   { pageKey: 'product-gallery-model-perdeler-modern-perde', label: 'Modern Perde' },
   { pageKey: 'product-gallery-model-perdeler-kruvaze-perde', label: 'Kruvaze Perde' },
   { pageKey: 'product-gallery-model-perdeler-klasik-ve-avangart-perde', label: 'Klasik ve Avangart Perde' },
@@ -968,6 +970,7 @@ const AdminPage = () => {
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
   const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey) || productGalleryPages[0] || productGalleryAdminPages[0]
   const selectedContactRequest = contactRequests.find((requestItem) => requestItem.id === selectedContactRequestId) || null
+  const selectedPageHasProductDetail = selectedPage?.sections.some((section) => section.sectionKey === 'product.detail') || false
   const getMediaPickerAssets = (pickerKey: string) =>
     expandedMediaPickerKey === pickerKey ? mediaAssets : mediaAssets.slice(0, 16)
 
@@ -2430,6 +2433,48 @@ const AdminPage = () => {
     setMechanizedForm((current) => ({
       ...current,
       categories: moveItemById(current.categories, itemId, direction),
+    }))
+  }
+
+  const updateMechanizedVideo = (itemId: number, updates: Partial<ProductVideoItem>) => {
+    setMechanizedForm((current) => ({
+      ...current,
+      videos: current.videos.map((item) => item.id === itemId ? { ...item, ...updates } : item),
+    }))
+  }
+
+  const addMechanizedVideo = () => {
+    setMechanizedForm((current) => ({
+      ...current,
+      videos: [
+        ...current.videos,
+        {
+          id: getNextNumericId(current.videos),
+          eyebrow: 'Video Anlatım',
+          title: 'Nasıl Çalışır?',
+          description: 'Bu ürün grubunun çalışma prensibini videomuzda izleyebilirsiniz.',
+          youtubeUrl: '',
+          enabled: true,
+        },
+      ],
+    }))
+  }
+
+  const removeMechanizedVideo = (itemId: number) => {
+    if (!window.confirm('Bu video karti silinsin mi?')) {
+      return
+    }
+
+    setMechanizedForm((current) => ({
+      ...current,
+      videos: current.videos.filter((item) => item.id !== itemId),
+    }))
+  }
+
+  const moveMechanizedVideo = (itemId: number, direction: 'up' | 'down') => {
+    setMechanizedForm((current) => ({
+      ...current,
+      videos: moveItemById(current.videos, itemId, direction),
     }))
   }
 
@@ -3928,6 +3973,29 @@ const AdminPage = () => {
 
       {renderPageSearchFields()}
 
+      {activePanel === 'productGalleries' && (
+        <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Düzenlenecek sayfa
+            <select
+              value={selectedProductGalleryPageKey}
+              onChange={(event) => {
+                const nextGalleryPage = productGalleryPages.find((item) => item.pageKey === event.target.value)
+                setSelectedProductGalleryPageKey(event.target.value)
+                void loadPageByKey(event.target.value, authHeader, nextGalleryPage)
+              }}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            >
+              {productGalleryPages.map((item) => (
+                <option key={item.pageKey} value={item.pageKey}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <h2 className="text-lg font-semibold">Üst alan</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -4162,6 +4230,128 @@ const AdminPage = () => {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold">Video anlatım kartları</h2>
+            <p className="mt-1 text-sm text-[#6f6960]">
+              Public sayfada kategori kartlarından sonra görünen YouTube video alanı.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={addMechanizedVideo}
+            className="rounded-md border border-[#9d7b46] px-3 py-2 text-sm font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]"
+          >
+            Video ekle
+          </button>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Bölüm üst yazısı
+            <input
+              value={mechanizedForm.videoEyebrow}
+              onChange={(event) => setMechanizedForm({ ...mechanizedForm, videoEyebrow: event.target.value })}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+
+          <label className="text-sm font-medium text-[#3a342c]">
+            Bölüm başlığı
+            <input
+              value={mechanizedForm.videoTitle}
+              onChange={(event) => setMechanizedForm({ ...mechanizedForm, videoTitle: event.target.value })}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+
+        <div className="mt-5 space-y-4">
+          {mechanizedForm.videos.map((item, index) => (
+            <div key={item.id} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-[#3a342c]">Video {index + 1}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => moveMechanizedVideo(item.id, 'up')}
+                    disabled={index === 0}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Yukari
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveMechanizedVideo(item.id, 'down')}
+                    disabled={index === mechanizedForm.videos.length - 1}
+                    className="rounded-md border border-[#d8d0c3] px-2 py-1 text-xs font-medium text-[#6f6960] transition hover:border-[#9d7b46] disabled:opacity-40"
+                  >
+                    Asagi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeMechanizedVideo(item.id)}
+                    className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                  >
+                    Sil
+                  </button>
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
+                    <input
+                      type="checkbox"
+                      checked={item.enabled}
+                      onChange={(event) => updateMechanizedVideo(item.id, { enabled: event.target.checked })}
+                      className="h-4 w-4 rounded border-[#d8d0c3]"
+                    />
+                    Yayinda
+                  </label>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="text-sm font-medium text-[#3a342c]">
+                  Kart üst yazısı
+                  <input
+                    value={item.eyebrow}
+                    onChange={(event) => updateMechanizedVideo(item.id, { eyebrow: event.target.value })}
+                    className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                  />
+                </label>
+
+                <label className="text-sm font-medium text-[#3a342c]">
+                  Başlık
+                  <input
+                    value={item.title}
+                    onChange={(event) => updateMechanizedVideo(item.id, { title: event.target.value })}
+                    className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                  />
+                </label>
+
+                <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+                  YouTube linki
+                  <input
+                    value={item.youtubeUrl}
+                    onChange={(event) => updateMechanizedVideo(item.id, { youtubeUrl: event.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                  />
+                </label>
+
+                <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+                  Açıklama
+                  <textarea
+                    value={item.description}
+                    onChange={(event) => updateMechanizedVideo(item.id, { description: event.target.value })}
+                    rows={2}
+                    className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                  />
+                </label>
               </div>
             </div>
           ))}
@@ -4957,7 +5147,9 @@ const AdminPage = () => {
               </div>
             )
           ) : activePanel === 'productGalleries' ? (
-            selectedPage ? renderProductGalleryPanel() : (
+            selectedPage ? (
+              selectedPageHasProductDetail ? renderMechanizedPanel() : renderProductGalleryPanel()
+            ) : (
               <div className="rounded-lg border border-[#ded5c7] bg-white p-8 text-sm text-[#6f6960]">
                 Ürün galerisi kaydı yüklenemedi. Backend migration ve bağlantısını kontrol et.
               </div>

@@ -15,6 +15,29 @@ type ManagedProductDetailProps = {
   fallbackContent?: ProductDetailContent
 }
 
+const getYouTubeEmbedUrl = (value: string) => {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return ''
+  }
+
+  if (trimmed.includes('youtube.com/embed/')) {
+    return trimmed
+  }
+
+  const shortMatch = trimmed.match(/youtu\.be\/([^?&/]+)/)
+  if (shortMatch?.[1]) {
+    return `https://www.youtube.com/embed/${shortMatch[1]}`
+  }
+
+  const watchMatch = trimmed.match(/[?&]v=([^?&/]+)/)
+  if (watchMatch?.[1]) {
+    return `https://www.youtube.com/embed/${watchMatch[1]}`
+  }
+
+  return trimmed
+}
+
 export default function MekanizmaliPerdelerContent({
   pageKey = 'product-mekanizmali-perdeler',
   fallbackContent = defaultMekanizmaliPerdelerContent,
@@ -119,6 +142,50 @@ export default function MekanizmaliPerdelerContent({
           </div>
         </div>
       </section>
+
+      {content.videos.length > 0 && (
+        <section className="relative border-t border-white/5 py-20">
+          <div className="container mx-auto px-6">
+            <motion.div className="mb-16 text-center">
+              <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">{content.videoEyebrow}</p>
+              <h2 className="text-3xl font-extralight text-white md:text-4xl">
+                {content.videoTitle}
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+              {content.videos.map((video) => {
+                const embedUrl = getYouTubeEmbedUrl(video.youtubeUrl)
+
+                return (
+                  <motion.div key={video.id} className="rounded-2xl border border-white/10 bg-gradient-to-br from-gray-800/30 to-gray-900/30 p-5 backdrop-blur-md">
+                    <div className="mb-6 text-center">
+                      <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gray-500">{video.eyebrow}</p>
+                      <h3 className="mb-3 text-2xl font-extralight text-white">
+                        {video.title}
+                      </h3>
+                      <p className="mx-auto max-w-xl text-sm font-light leading-relaxed text-gray-400">
+                        {video.description}
+                      </p>
+                    </div>
+
+                    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-gray-800/50 to-gray-900/50" style={{ paddingBottom: '56.25%' }}>
+                      <iframe
+                        className="absolute left-0 top-0 h-full w-full"
+                        src={embedUrl}
+                        title={video.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6 text-center">

@@ -26,6 +26,15 @@ export type ProductCategoryItem = {
   enabled: boolean
 }
 
+export type ProductVideoItem = {
+  id: number
+  eyebrow: string
+  title: string
+  description: string
+  youtubeUrl: string
+  enabled: boolean
+}
+
 export type ProductDetailContent = {
   heroEyebrow: string
   heroTitle: string
@@ -34,6 +43,9 @@ export type ProductDetailContent = {
   categoryEyebrow: string
   categoryTitle: string
   categories: ProductCategoryItem[]
+  videoEyebrow: string
+  videoTitle: string
+  videos: ProductVideoItem[]
   ctaTitle: string
   ctaDescription: string
   primaryCtaLabel: string
@@ -108,6 +120,9 @@ export const defaultProductDetailContent: ProductDetailContent = {
       enabled: true,
     },
   ],
+  videoEyebrow: '',
+  videoTitle: '',
+  videos: [],
   ctaTitle: 'Mekanınız İçin Doğru Çözüm',
   ctaDescription:
     'Size en uygun mekanizmalı perde sistemini birlikte belirleyelim. Ücretsiz keşif hizmetimizden yararlanın.',
@@ -155,6 +170,9 @@ export const productDetailDefaults: Record<string, ProductDetailContent> = {
         enabled: true,
       },
     ],
+    videoEyebrow: '',
+    videoTitle: '',
+    videos: [],
     ctaTitle: 'Tül ve Fon Perde Hakkında Sorularınız mı var?',
     ctaDescription: 'Kumaş, renk ve ölçü seçeneklerini birlikte değerlendirelim.',
     primaryCtaLabel: 'Ücretsiz Keşif',
@@ -196,6 +214,9 @@ export const productDetailDefaults: Record<string, ProductDetailContent> = {
           enabled: true,
         },
     ],
+    videoEyebrow: '',
+    videoTitle: '',
+    videos: [],
     ctaTitle: 'Kumaş Seçimini Birlikte Yapalım',
     ctaDescription: 'Kullanım alanına, renk paletine ve dayanıklılık ihtiyacına göre doğru kumaşı belirleyelim.',
     primaryCtaLabel: 'Danışmanlık Al',
@@ -234,6 +255,34 @@ export const productDetailDefaults: Record<string, ProductDetailContent> = {
         description: 'Otomatik dış cephe jaluzi sistemleri',
         image: '/api/public/media/images/71c09054-b91f-4cd7-8441-63e34da98813/file',
         href: '/urunler/motorlu-perdeler/dis-cephe-jaluzi',
+        enabled: true,
+      },
+    ],
+    videoEyebrow: 'Video Galerisi',
+    videoTitle: 'Ürün Tanıtım Videoları',
+    videos: [
+      {
+        id: 1,
+        eyebrow: 'Video Anlatım',
+        title: 'Projeksiyon Perde Nasıl Çalışır?',
+        description: 'Projeksiyon perde sistemlerinin kullanımını ve uygulama detaylarını videomuzda izleyebilirsiniz.',
+        youtubeUrl: 'https://www.youtube.com/embed/W8rh9V6R7Cw',
+        enabled: true,
+      },
+      {
+        id: 2,
+        eyebrow: 'Video Anlatım',
+        title: 'Zip Perde Nasıl Çalışır?',
+        description: 'Zip perde sistemlerinin rüzgar dayanımı, motorlu kullanımı ve montaj detaylarını inceleyebilirsiniz.',
+        youtubeUrl: 'https://www.youtube.com/embed/W8rh9V6R7Cw',
+        enabled: true,
+      },
+      {
+        id: 3,
+        eyebrow: 'Video Anlatım',
+        title: 'Dış Cephe Jaluzi Nasıl Çalışır?',
+        description: 'Dış cephe jaluzi sistemlerinin ışık kontrolü ve otomasyon özelliklerini videomuzda görebilirsiniz.',
+        youtubeUrl: 'https://www.youtube.com/embed/W8rh9V6R7Cw',
         enabled: true,
       },
     ],
@@ -278,6 +327,9 @@ export const productDetailDefaults: Record<string, ProductDetailContent> = {
         enabled: true,
       },
     ],
+    videoEyebrow: '',
+    videoTitle: '',
+    videos: [],
     ctaTitle: 'Perdenizi Detaylarla Tamamlayın',
     ctaDescription: 'Kumaş, model ve mekan stiline uygun aksesuar seçeneklerini birlikte değerlendirelim.',
     primaryCtaLabel: 'Aksesuar Seçimi İçin Görüş',
@@ -319,6 +371,9 @@ export const productDetailDefaults: Record<string, ProductDetailContent> = {
         enabled: true,
       },
     ],
+    videoEyebrow: '',
+    videoTitle: '',
+    videos: [],
     ctaTitle: 'Projenize Uygun Metal Zincir Perde',
     ctaDescription: 'Pencere, kapı veya alan bölücü ihtiyacına göre özel ölçü projelendirme yapalım.',
     primaryCtaLabel: 'Proje İçin Görüş',
@@ -348,11 +403,22 @@ export const parseProductDetailContent = (
           enabled: item.enabled !== false,
         }))
       : fallback.categories
+    const videos = Array.isArray(parsed.videos)
+      ? parsed.videos.map((item, index) => ({
+          id: Number(item.id) || index + 1,
+          eyebrow: item.eyebrow || fallback.videos[index]?.eyebrow || 'Video Anlatım',
+          title: item.title || fallback.videos[index]?.title || 'Nasıl Çalışır?',
+          description: item.description || fallback.videos[index]?.description || '',
+          youtubeUrl: item.youtubeUrl || fallback.videos[index]?.youtubeUrl || '',
+          enabled: item.enabled !== false,
+        }))
+      : fallback.videos
 
     return {
       ...fallback,
       ...parsed,
       categories,
+      videos,
     }
   } catch {
     return fallback
@@ -388,6 +454,7 @@ export const getProductDetailContent = async (pageKey: string) => {
     return {
       ...content,
       categories: content.categories.filter((item) => item.enabled),
+      videos: content.videos.filter((item) => item.enabled && item.youtubeUrl),
     }
   } catch {
     return fallback
