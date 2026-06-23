@@ -10,7 +10,6 @@ import {
   type ProductGalleryHeroCopy,
   type ProductGalleryImage,
 } from '@/lib/productGalleryContent'
-import { getYouTubeEmbedUrl } from '@/lib/youtube'
 
 type BreadcrumbItem = {
   label: string
@@ -25,8 +24,6 @@ type ManagedProductGalleryPageProps = {
   breadcrumbItems?: BreadcrumbItem[]
   eyebrow?: string
   galleryTitle?: string
-  showVideoSection?: boolean
-  alternatePageKeys?: string[]
 }
 
 export default function ManagedProductGalleryPage({
@@ -37,15 +34,12 @@ export default function ManagedProductGalleryPage({
   breadcrumbItems,
   eyebrow,
   galleryTitle = `${title} Modelleri`,
-  showVideoSection = false,
-  alternatePageKeys,
 }: ManagedProductGalleryPageProps) {
   const resolvedBreadcrumbItems = useMemo(() => breadcrumbItems || [
     { label: '\u00dcr\u00fcnler', href: '/urunler' },
     { label: 'T\u00fcl & Fon Perde', href: '/urunler/tul-fon-perde' },
     { label: title },
   ], [breadcrumbItems, title])
-  const galleryPageKeys = useMemo(() => Array.from(new Set([pageKey, ...(alternatePageKeys || [])])), [alternatePageKeys, pageKey])
   const [images, setImages] = useState<ProductGalleryImage[]>(fallbackImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(fallbackImages[0])
   const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>({
@@ -54,10 +48,6 @@ export default function ManagedProductGalleryPage({
     title,
     highlightedTitle: '',
     description,
-    youtubeUrl: '',
-    videoEyebrow: 'Video Anlatım',
-    videoTitle: 'Nasıl Çalışır?',
-    videoDescription: '',
   })
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
@@ -69,20 +59,16 @@ export default function ManagedProductGalleryPage({
       title,
       highlightedTitle: '',
       description,
-      youtubeUrl: '',
-      videoEyebrow: 'Video Anlatım',
-      videoTitle: 'Nasıl Çalışır?',
-      videoDescription: '',
     }
 
-    getPublicProductGallery(galleryPageKeys, fallbackImages).then((nextImages) => {
+    getPublicProductGallery(pageKey, fallbackImages).then((nextImages) => {
       if (isMounted && nextImages.length > 0) {
         setImages(nextImages)
         setSelectedImage((current) => nextImages.find((image) => image.id === current.id) || nextImages[0])
       }
     })
 
-    getPublicProductGalleryHeroCopy(galleryPageKeys, fallbackHeroCopy).then((nextHeroCopy) => {
+    getPublicProductGalleryHeroCopy(pageKey, fallbackHeroCopy).then((nextHeroCopy) => {
       if (isMounted) {
         setHeroCopy(nextHeroCopy)
       }
@@ -91,10 +77,9 @@ export default function ManagedProductGalleryPage({
     return () => {
       isMounted = false
     }
-  }, [description, eyebrow, fallbackImages, galleryPageKeys, resolvedBreadcrumbItems, title])
+  }, [description, eyebrow, fallbackImages, pageKey, resolvedBreadcrumbItems, title])
 
   const currentImageIndex = images.findIndex((image) => image.id === selectedImage.id)
-  const youtubeEmbedUrl = showVideoSection ? getYouTubeEmbedUrl(heroCopy.youtubeUrl) : ''
 
   const goToPrevious = () => {
     const previousIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1
@@ -175,42 +160,6 @@ export default function ManagedProductGalleryPage({
           </div>
         </div>
       </section>
-
-      {youtubeEmbedUrl && (
-        <section className="relative border-t border-white/5 py-20">
-          <div className="container mx-auto px-6">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-12 text-center">
-                <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">
-                  {heroCopy.videoEyebrow || 'Video Anlatım'}
-                </p>
-                <h2 className="mb-4 text-3xl font-extralight text-white md:text-4xl">
-                  {heroCopy.videoTitle || 'Nasıl Çalışır?'}
-                </h2>
-                {heroCopy.videoDescription && (
-                  <p className="mx-auto max-w-2xl font-light text-gray-400">
-                    {heroCopy.videoDescription}
-                  </p>
-                )}
-              </div>
-
-              <div
-                className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-gray-800/50 to-gray-900/50"
-                style={{ paddingBottom: '56.25%' }}
-              >
-                <iframe
-                  className="absolute left-0 top-0 h-full w-full"
-                  src={youtubeEmbedUrl}
-                  title={`${heroCopy.breadcrumbLabel} - ${heroCopy.videoTitle || 'Video'}`}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">
