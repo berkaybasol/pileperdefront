@@ -10,6 +10,7 @@ import {
   type ProductGalleryHeroCopy,
   type ProductGalleryImage,
 } from '@/lib/productGalleryContent'
+import { getYouTubeEmbedUrl } from '@/lib/youtube'
 
 type BreadcrumbItem = {
   label: string
@@ -48,6 +49,7 @@ export default function ManagedProductGalleryPage({
     title,
     highlightedTitle: '',
     description,
+    youtubeUrl: '',
   })
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
@@ -59,6 +61,7 @@ export default function ManagedProductGalleryPage({
       title,
       highlightedTitle: '',
       description,
+      youtubeUrl: '',
     }
 
     getPublicProductGallery(pageKey, fallbackImages).then((nextImages) => {
@@ -80,6 +83,7 @@ export default function ManagedProductGalleryPage({
   }, [description, eyebrow, fallbackImages, pageKey, resolvedBreadcrumbItems, title])
 
   const currentImageIndex = images.findIndex((image) => image.id === selectedImage.id)
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(heroCopy.youtubeUrl)
 
   const goToPrevious = () => {
     const previousIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1
@@ -160,6 +164,24 @@ export default function ManagedProductGalleryPage({
           </div>
         </div>
       </section>
+
+      {youtubeEmbedUrl && (
+        <section className="relative border-t border-white/5 py-20">
+          <div className="container mx-auto px-6">
+            <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900/80 to-black">
+              <div className="aspect-video">
+                <iframe
+                  src={youtubeEmbedUrl}
+                  title={`${heroCopy.breadcrumbLabel} video`}
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">

@@ -31,6 +31,7 @@ export type ProductGalleryHeroCopy = {
   title: string
   highlightedTitle: string
   description: string
+  youtubeUrl?: string
 }
 
 const productGalleryDefaultHeroCopies: Record<string, ProductGalleryHeroCopy> = {
@@ -178,6 +179,7 @@ export const parseProductGalleryHeroCopy = (
       title: hero.title || fallbackCopy.title,
       highlightedTitle: hero.highlightedTitle || fallbackCopy.highlightedTitle,
       description: hero.description || fallbackCopy.description,
+      youtubeUrl: hero.youtubeUrl || '',
     }
   } catch {
     return fallbackCopy

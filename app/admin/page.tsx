@@ -2410,7 +2410,6 @@ const AdminPage = () => {
           image: mediaAssets[0]?.publicUrl || fallbackCardImage,
           href: `${pageForm.slug || '/urunler'}/yeni-kategori`.replace(/\/+/g, '/'),
           enabled: true,
-          youtubeUrl: '',
         },
       ],
     }))
@@ -3523,6 +3522,15 @@ const AdminPage = () => {
               className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
             />
           </label>
+          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+            YouTube linki
+            <input
+              value={productGalleryHeroCopy.youtubeUrl || ''}
+              onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, youtubeUrl: event.target.value }))}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
         </div>
       </div>
 
@@ -4056,16 +4064,6 @@ const AdminPage = () => {
                   <input
                     value={item.href}
                     onChange={(event) => updateMechanizedCategory(item.id, { href: event.target.value })}
-                    className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
-                  />
-                </label>
-
-                <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
-                  YouTube linki
-                  <input
-                    value={item.youtubeUrl || ''}
-                    onChange={(event) => updateMechanizedCategory(item.id, { youtubeUrl: event.target.value })}
-                    placeholder="https://www.youtube.com/watch?v=..."
                     className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
                   />
                 </label>

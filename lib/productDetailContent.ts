@@ -24,7 +24,6 @@ export type ProductCategoryItem = {
   image: string
   href: string
   enabled: boolean
-  youtubeUrl?: string
 }
 
 export type ProductDetailContent = {
@@ -347,7 +346,6 @@ export const parseProductDetailContent = (
           image: item.image || fallback.categories[index]?.image || '/api/public/media/images/d67000cc-c999-4e24-9023-87774b037372/file',
           href: item.href || fallback.categories[index]?.href || '/iletisim',
           enabled: item.enabled !== false,
-          youtubeUrl: item.youtubeUrl || '',
         }))
       : fallback.categories
 
