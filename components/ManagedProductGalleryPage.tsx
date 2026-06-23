@@ -5,10 +5,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import {
+  defaultProductGalleryVideo,
   getPublicProductGallery,
   getPublicProductGalleryHeroCopy,
+  getPublicProductGalleryVideo,
+  getYouTubeEmbedUrl,
   type ProductGalleryHeroCopy,
   type ProductGalleryImage,
+  type ProductGalleryVideo,
 } from '@/lib/productGalleryContent'
 
 type BreadcrumbItem = {
@@ -49,6 +53,7 @@ export default function ManagedProductGalleryPage({
     highlightedTitle: '',
     description,
   })
+  const [productVideo, setProductVideo] = useState<ProductGalleryVideo>(defaultProductGalleryVideo)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
@@ -59,6 +64,12 @@ export default function ManagedProductGalleryPage({
       title,
       highlightedTitle: '',
       description,
+    }
+    const fallbackVideo = {
+      title: 'Nasıl Çalışır?',
+      description: `${title} sisteminin çalışma prensibini ve kullanım detaylarını videomuzda izleyebilirsiniz.`,
+      youtubeUrl: '',
+      enabled: false,
     }
 
     getPublicProductGallery(pageKey, fallbackImages).then((nextImages) => {
@@ -74,12 +85,19 @@ export default function ManagedProductGalleryPage({
       }
     })
 
+    getPublicProductGalleryVideo(pageKey, fallbackVideo).then((nextVideo) => {
+      if (isMounted) {
+        setProductVideo(nextVideo)
+      }
+    })
+
     return () => {
       isMounted = false
     }
   }, [description, eyebrow, fallbackImages, pageKey, resolvedBreadcrumbItems, title])
 
   const currentImageIndex = images.findIndex((image) => image.id === selectedImage.id)
+  const videoEmbedUrl = getYouTubeEmbedUrl(productVideo.youtubeUrl)
 
   const goToPrevious = () => {
     const previousIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1
@@ -160,6 +178,38 @@ export default function ManagedProductGalleryPage({
           </div>
         </div>
       </section>
+
+      {productVideo.enabled !== false && videoEmbedUrl && (
+        <section className="relative border-t border-white/5 py-20">
+          <div className="container mx-auto px-6">
+            <div className="mx-auto max-w-4xl text-center">
+              <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">Video Anlatım</p>
+              <h2 className="mb-6 text-3xl font-extralight text-white md:text-4xl">
+                {productVideo.title}
+              </h2>
+              {productVideo.description && (
+                <p className="mx-auto mb-12 max-w-2xl font-light leading-relaxed text-gray-400">
+                  {productVideo.description}
+                </p>
+              )}
+            </div>
+
+            <div className="mx-auto max-w-5xl">
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-gray-800/50 to-gray-900/50 shadow-2xl">
+                <div className="relative" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    src={videoEmbedUrl}
+                    title={productVideo.title}
+                    className="absolute inset-0 h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">

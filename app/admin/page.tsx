@@ -29,8 +29,10 @@ import {
   buildProductGalleryContentJson,
   parseProductGalleryHeroCopy,
   parseProductGalleryImages,
+  parseProductGalleryVideo,
   type ProductGalleryImage,
   type ProductGalleryHeroCopy,
+  type ProductGalleryVideo,
 } from '@/lib/productGalleryContent'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
@@ -462,6 +464,7 @@ const productGalleryAdminPages = [
   { pageKey: 'product-gallery-urunler-metal-zincir-perde-metal-zincir-perde', label: 'Metal Zincir Perde' },
   { pageKey: 'product-gallery-urunler-metal-zincir-perde-metal-zincir-seperator', label: 'Metal Zincir Seperatör' },
   { pageKey: 'product-gallery-urunler-metal-zincir-perde-pro-collection', label: 'Pro Collection' },
+  { pageKey: 'product-gallery-urunler-motorlu-tul-ve-kumas-perdeler', label: 'Motorlu Tül ve Kumaş Perdeler' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde', label: 'Projeksiyon Perde' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-zip-perde', label: 'Zip Perde' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-dis-cephe-jaluzi', label: 'Dış Cephe Jaluzi' },
@@ -491,6 +494,13 @@ const getDefaultProductGalleryHeroCopy = (label: string): ProductGalleryHeroCopy
     description: '',
   }
 }
+
+const getDefaultProductGalleryVideo = (label: string): ProductGalleryVideo => ({
+  title: 'Nasıl Çalışır?',
+  description: `${label} sisteminin çalışma prensibini ve kullanım detaylarını videomuzda izleyebilirsiniz.`,
+  youtubeUrl: '',
+  enabled: false,
+})
 
 const productDetailCategoryGalleryPages: Record<string, Record<string, string>> = {
   'product-tul-fon-perde': {
@@ -914,6 +924,9 @@ const AdminPage = () => {
   const [productGalleryHeroCopy, setProductGalleryHeroCopy] = useState<ProductGalleryHeroCopy>(
     getDefaultProductGalleryHeroCopy(productGalleryAdminPages[0].label),
   )
+  const [productGalleryVideo, setProductGalleryVideo] = useState<ProductGalleryVideo>(
+    getDefaultProductGalleryVideo(productGalleryAdminPages[0].label),
+  )
   const [aboutForm, setAboutForm] = useState<AboutForm>(defaultAboutForm)
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([])
   const [expandedMediaPickerKey, setExpandedMediaPickerKey] = useState<string | null>(null)
@@ -1137,6 +1150,7 @@ const AdminPage = () => {
     }
 
     const heroCopy = getDefaultProductGalleryHeroCopy(galleryPage.label)
+    const video = getDefaultProductGalleryVideo(galleryPage.label)
     const pageResponse = await fetch(`${API_BASE_URL}/api/admin/cms/pages`, {
       method: 'POST',
       headers: {
@@ -1170,7 +1184,7 @@ const AdminPage = () => {
         title: galleryPage.label,
         subtitle: heroCopy.eyebrow,
         body: heroCopy.description,
-        contentJson: buildProductGalleryContentJson([], heroCopy),
+        contentJson: buildProductGalleryContentJson([], heroCopy, video),
         sortOrder: 1,
         enabled: true,
       }),
@@ -1305,6 +1319,14 @@ const AdminPage = () => {
           productGallerySection.contentJson,
           getDefaultProductGalleryHeroCopy(loadedProductGalleryPage.label),
         ))
+        setProductGalleryVideo(parseProductGalleryVideo(
+          productGallerySection.contentJson,
+          getDefaultProductGalleryVideo(loadedProductGalleryPage.label),
+        ))
+      } else {
+        setProductGalleryImages([])
+        setProductGalleryHeroCopy(getDefaultProductGalleryHeroCopy(loadedProductGalleryPage.label))
+        setProductGalleryVideo(getDefaultProductGalleryVideo(loadedProductGalleryPage.label))
       }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Sayfa yuklenemedi')
@@ -2057,7 +2079,7 @@ const AdminPage = () => {
           title: gallerySection.title || '',
           subtitle: gallerySection.subtitle || '',
           body: gallerySection.body || '',
-          contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy),
+          contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy, productGalleryVideo),
           sortOrder: gallerySection.sortOrder,
           enabled: gallerySection.enabled,
         })
@@ -3519,6 +3541,55 @@ const AdminPage = () => {
               value={productGalleryHeroCopy.description}
               onChange={(event) => setProductGalleryHeroCopy((current) => ({ ...current, description: event.target.value }))}
               rows={4}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold">Video anlatım</h2>
+            <p className="mt-1 text-sm text-[#6f6960]">
+              Public ürün sayfasında galeri öncesinde görünen tek YouTube videosu.
+            </p>
+          </div>
+          <label className="flex items-center gap-2 text-sm font-medium text-[#3a342c]">
+            <input
+              type="checkbox"
+              checked={productGalleryVideo.enabled !== false}
+              onChange={(event) => setProductGalleryVideo((current) => ({ ...current, enabled: event.target.checked }))}
+              className="h-4 w-4 rounded border-[#d8d0c3]"
+            />
+            Yayında
+          </label>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Video başlığı
+            <input
+              value={productGalleryVideo.title}
+              onChange={(event) => setProductGalleryVideo((current) => ({ ...current, title: event.target.value }))}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+          <label className="text-sm font-medium text-[#3a342c]">
+            YouTube URL
+            <input
+              value={productGalleryVideo.youtubeUrl}
+              onChange={(event) => setProductGalleryVideo((current) => ({ ...current, youtubeUrl: event.target.value }))}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+          <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+            Video açıklaması
+            <textarea
+              value={productGalleryVideo.description}
+              onChange={(event) => setProductGalleryVideo((current) => ({ ...current, description: event.target.value }))}
+              rows={3}
               className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
             />
           </label>

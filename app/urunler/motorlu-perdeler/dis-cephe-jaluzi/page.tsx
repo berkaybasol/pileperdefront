@@ -2,7 +2,15 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPublicProductGallery, getPublicProductGalleryHeroCopy, type ProductGalleryImage } from '@/lib/productGalleryContent'
+import {
+  defaultProductGalleryVideo,
+  getPublicProductGallery,
+  getPublicProductGalleryHeroCopy,
+  getPublicProductGalleryVideo,
+  getYouTubeEmbedUrl,
+  type ProductGalleryImage,
+  type ProductGalleryVideo,
+} from '@/lib/productGalleryContent'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -97,10 +105,17 @@ export default function ProksiyonPerdePage() {
   const [galleryImages, setGalleryImages] = useState<ProductGalleryImage[]>(productImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(productImages[0])
   const [heroCopy, setHeroCopy] = useState(defaultHeroCopy)
+  const [productVideo, setProductVideo] = useState<ProductGalleryVideo>(defaultProductGalleryVideo)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
     let isMounted = true
+    const fallbackVideo = {
+      title: 'Nasıl Çalışır?',
+      description: 'Dış cephe jaluzi sisteminin çalışma prensibini ve kullanım detaylarını videomuzda izleyebilirsiniz.',
+      youtubeUrl: '',
+      enabled: false,
+    }
 
     getPublicProductGallery(PRODUCT_GALLERY_PAGE_KEY, productImages).then((images) => {
       if (isMounted && images.length > 0) {
@@ -117,6 +132,14 @@ export default function ProksiyonPerdePage() {
       setHeroCopy(copy)
     })
 
+    getPublicProductGalleryVideo(PRODUCT_GALLERY_PAGE_KEY, fallbackVideo).then((video) => {
+      if (!isMounted) {
+        return
+      }
+
+      setProductVideo(video)
+    })
+
     return () => {
       isMounted = false
     }
@@ -124,6 +147,7 @@ export default function ProksiyonPerdePage() {
   
   // Lightbox navigation functions
   const currentImageIndex = galleryImages.findIndex(img => img.id === selectedImage.id)
+  const videoEmbedUrl = getYouTubeEmbedUrl(productVideo.youtubeUrl)
 
   const goToPrevious = () => {
     const prevIndex = currentImageIndex > 0 ? currentImageIndex - 1 : galleryImages.length - 1
@@ -306,6 +330,38 @@ export default function ProksiyonPerdePage() {
           </div>
         </div>
       </section>
+
+      {productVideo.enabled !== false && videoEmbedUrl && (
+        <section className="relative py-20 border-t border-white/5">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto text-center">
+              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
+              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-6">
+                {productVideo.title}
+              </h2>
+              {productVideo.description && (
+                <p className="text-gray-400 font-light leading-relaxed max-w-2xl mx-auto mb-12">
+                  {productVideo.description}
+                </p>
+              )}
+            </div>
+
+            <div className="max-w-5xl mx-auto">
+              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10 shadow-2xl">
+                <div className="relative" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    src={videoEmbedUrl}
+                    title={productVideo.title}
+                    className="absolute inset-0 h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Full Product Gallery - Dark Glassmorphism Grid */}
       <section className="relative py-20 border-t border-white/5">

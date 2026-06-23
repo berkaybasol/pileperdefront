@@ -33,6 +33,20 @@ export type ProductGalleryHeroCopy = {
   description: string
 }
 
+export type ProductGalleryVideo = {
+  title: string
+  description: string
+  youtubeUrl: string
+  enabled?: boolean
+}
+
+export const defaultProductGalleryVideo: ProductGalleryVideo = {
+  title: 'Nasıl Çalışır?',
+  description: '',
+  youtubeUrl: '',
+  enabled: false,
+}
+
 const productGalleryDefaultHeroCopies: Record<string, ProductGalleryHeroCopy> = {
   'product-gallery-model-perdeler-modern-perde': {
     breadcrumbLabel: 'Modern Perde',
@@ -184,11 +198,71 @@ export const parseProductGalleryHeroCopy = (
   }
 }
 
+export const parseProductGalleryVideo = (
+  contentJson: string | null | undefined,
+  fallbackVideo: ProductGalleryVideo = defaultProductGalleryVideo,
+) => {
+  if (!contentJson) {
+    return fallbackVideo
+  }
+
+  try {
+    const parsed = JSON.parse(contentJson) as { video?: Partial<ProductGalleryVideo> }
+    const video = parsed.video || {}
+
+    return {
+      title: video.title || fallbackVideo.title,
+      description: video.description ?? fallbackVideo.description,
+      youtubeUrl: video.youtubeUrl || fallbackVideo.youtubeUrl,
+      enabled: video.enabled === true,
+    }
+  } catch {
+    return fallbackVideo
+  }
+}
+
 export const buildProductGalleryContentJson = (
   images: ProductGalleryImage[],
   hero?: ProductGalleryHeroCopy,
+  video?: ProductGalleryVideo,
 ) =>
-  JSON.stringify(hero ? { hero, images } : { images }, null, 2)
+  JSON.stringify({
+    ...(hero ? { hero } : {}),
+    ...(video ? { video } : {}),
+    images,
+  }, null, 2)
+
+export const getYouTubeEmbedUrl = (youtubeUrl: string) => {
+  const value = youtubeUrl.trim()
+  if (!value) {
+    return ''
+  }
+
+  try {
+    const url = new URL(value)
+    const host = url.hostname.replace(/^www\./, '')
+    let videoId = ''
+
+    if (host === 'youtu.be') {
+      videoId = url.pathname.split('/').filter(Boolean)[0] || ''
+    }
+
+    if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+      if (url.pathname === '/watch') {
+        videoId = url.searchParams.get('v') || ''
+      } else {
+        const [, route, id] = url.pathname.split('/')
+        if (['embed', 'shorts', 'live'].includes(route)) {
+          videoId = id || ''
+        }
+      }
+    }
+
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : ''
+  } catch {
+    return ''
+  }
+}
 
 export const getPublicProductGallery = async (
   pageKey: string,
@@ -237,5 +311,30 @@ export const getPublicProductGalleryHeroCopy = async (
     return parseProductGalleryHeroCopy(section.contentJson, fallbackCopy)
   } catch {
     return fallbackCopy
+  }
+}
+
+export const getPublicProductGalleryVideo = async (
+  pageKey: string,
+  fallbackVideo: ProductGalleryVideo = defaultProductGalleryVideo,
+) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      return fallbackVideo
+    }
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
+    if (!section || !section.enabled) {
+      return fallbackVideo
+    }
+
+    return parseProductGalleryVideo(section.contentJson, fallbackVideo)
+  } catch {
+    return fallbackVideo
   }
 }
