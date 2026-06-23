@@ -58,6 +58,9 @@ export default function MekanizmaliPerdelerContent({
     }
   }, [pageKey])
 
+  const getCategoryVideo = (categoryId: number, index: number) =>
+    content.videos.find((video) => video.id === categoryId) || content.videos[index] || null
+
   return (
     <main className="bg-black">
       <section className="relative overflow-hidden">
@@ -95,11 +98,61 @@ export default function MekanizmaliPerdelerContent({
           </motion.div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {content.categories.map((category) => (
-              <motion.div key={category.id} className="group">
-                <Link href={category.href}>
-                  <div className="relative h-[600px] overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 transition-all duration-500 hover:border-white/20">
-                    <div className="absolute inset-0">
+            {content.categories.map((category, index) => {
+              const video = getCategoryVideo(category.id, index)
+              const embedUrl = video ? getYouTubeEmbedUrl(video.youtubeUrl) : ''
+
+              if (!video || !embedUrl) {
+                return (
+                  <motion.div key={category.id} className="group">
+                    <Link href={category.href}>
+                      <div className="relative h-[600px] overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 transition-all duration-500 hover:border-white/20">
+                        <div className="absolute inset-0">
+                          <Image
+                            src={category.image}
+                            alt={category.title}
+                            fill
+                            className="object-cover opacity-80 transition-all duration-700 group-hover:scale-110 group-hover:opacity-90"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                        </div>
+
+                        <div className="absolute inset-x-0 bottom-0 p-8">
+                          <div className="flex items-end justify-between">
+                            <div>
+                              <h3 className="mb-2 text-2xl font-light text-white transition-transform duration-300 group-hover:-translate-y-1">
+                                {category.title}
+                              </h3>
+                              <p className="text-sm font-light text-gray-400">
+                                {category.description}
+                              </p>
+                            </div>
+                            <div className="ml-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm transition-all duration-300 group-hover:border-white group-hover:bg-white">
+                              <svg
+                                className="h-5 w-5 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-black"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
+                          <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )
+              }
+
+              return (
+                <motion.div key={category.id} className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md">
+                  <Link href={category.href} className="group block">
+                    <div className="relative h-[340px] overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50">
                       <Image
                         src={category.image}
                         alt={category.title}
@@ -107,64 +160,24 @@ export default function MekanizmaliPerdelerContent({
                         className="object-cover opacity-80 transition-all duration-700 group-hover:scale-110 group-hover:opacity-90"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                    </div>
-
-                    <div className="absolute inset-x-0 bottom-0 p-8">
-                      <div className="flex items-end justify-between">
-                        <div>
-                          <h3 className="mb-2 text-2xl font-light text-white transition-transform duration-300 group-hover:-translate-y-1">
-                            {category.title}
-                          </h3>
-                          <p className="text-sm font-light text-gray-400">
-                            {category.description}
-                          </p>
-                        </div>
-                        <div className="ml-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm transition-all duration-300 group-hover:border-white group-hover:bg-white">
-                          <svg
-                            className="h-5 w-5 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-black"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
-                        </div>
+                      <div className="absolute inset-x-0 bottom-0 p-6">
+                        <h3 className="mb-2 text-2xl font-light text-white transition-transform duration-300 group-hover:-translate-y-1">
+                          {category.title}
+                        </h3>
+                        <p className="text-sm font-light text-gray-400">
+                          {category.description}
+                        </p>
                       </div>
                     </div>
+                  </Link>
 
-                    <div className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
-                      <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {content.videos.length > 0 && (
-        <section className="relative border-t border-white/5 py-20">
-          <div className="container mx-auto px-6">
-            <motion.div className="mb-16 text-center">
-              <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">{content.videoEyebrow}</p>
-              <h2 className="text-3xl font-extralight text-white md:text-4xl">
-                {content.videoTitle}
-              </h2>
-            </motion.div>
-
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-              {content.videos.map((video) => {
-                const embedUrl = getYouTubeEmbedUrl(video.youtubeUrl)
-
-                return (
-                  <motion.div key={video.id} className="rounded-2xl border border-white/10 bg-gradient-to-br from-gray-800/30 to-gray-900/30 p-5 backdrop-blur-md">
-                    <div className="mb-6 text-center">
+                  <div className="space-y-5 p-5">
+                    <div>
                       <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gray-500">{video.eyebrow}</p>
-                      <h3 className="mb-3 text-2xl font-extralight text-white">
+                      <h4 className="mb-3 text-2xl font-extralight text-white">
                         {video.title}
-                      </h3>
-                      <p className="mx-auto max-w-xl text-sm font-light leading-relaxed text-gray-400">
+                      </h4>
+                      <p className="text-sm font-light leading-relaxed text-gray-400">
                         {video.description}
                       </p>
                     </div>
@@ -179,13 +192,13 @@ export default function MekanizmaliPerdelerContent({
                         allowFullScreen
                       />
                     </div>
-                  </motion.div>
-                )
-              })}
-            </div>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6 text-center">

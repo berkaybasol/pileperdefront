@@ -2460,6 +2460,31 @@ const AdminPage = () => {
     }))
   }
 
+  const addMechanizedVideoForCategory = (category: ProductCategoryItem, categoryIndex: number) => {
+    setMechanizedForm((current) => {
+      const existingVideo = current.videos.find((item) => item.id === category.id) || current.videos[categoryIndex]
+
+      if (existingVideo) {
+        return current
+      }
+
+      return {
+        ...current,
+        videos: [
+          ...current.videos,
+          {
+            id: category.id,
+            eyebrow: 'Video Anlatim',
+            title: `${category.title || 'Urun'} nasil calisir?`,
+            description: 'Bu urun grubunun calisma prensibini videomuzda izleyebilirsiniz.',
+            youtubeUrl: '',
+            enabled: true,
+          },
+        ],
+      }
+    })
+  }
+
   const removeMechanizedVideo = (itemId: number) => {
     if (!window.confirm('Bu video karti silinsin mi?')) {
       return
@@ -2997,6 +3022,7 @@ const AdminPage = () => {
                     )}
                   </div>
                 </div>
+
               </div>
             </div>
           ))}
@@ -3208,6 +3234,7 @@ const AdminPage = () => {
                     )}
                   </div>
                 </div>
+
               </div>
             </div>
           ))}
@@ -3390,6 +3417,7 @@ const AdminPage = () => {
                     )}
                   </div>
                 </div>
+
               </div>
             </div>
           ))}
@@ -4068,7 +4096,10 @@ const AdminPage = () => {
           </button>
         </div>
         <div className="mt-5 space-y-4">
-          {mechanizedForm.categories.map((item, index) => (
+          {mechanizedForm.categories.map((item, index) => {
+            const categoryVideo = mechanizedForm.videos.find((video) => video.id === item.id) || mechanizedForm.videos[index] || null
+
+            return (
             <div key={item.id} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[#3a342c]">Kategori {index + 1}</p>
@@ -4188,6 +4219,85 @@ const AdminPage = () => {
                 </div>
 
                 <div className="md:col-span-2">
+                  <div className="rounded-md border border-[#d8d0c3] bg-white p-4">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-semibold text-[#3a342c]">Kart video anlatimi</h3>
+                        <p className="mt-1 text-xs text-[#6f6960]">
+                          Public sayfada bu kartin icinde gorunen YouTube video alani.
+                        </p>
+                      </div>
+
+                      {categoryVideo ? (
+                        <label className="flex items-center gap-2 text-xs font-medium text-[#6f6960]">
+                          <input
+                            type="checkbox"
+                            checked={categoryVideo.enabled}
+                            onChange={(event) => updateMechanizedVideo(categoryVideo.id, { enabled: event.target.checked })}
+                            className="h-4 w-4 rounded border-[#d8d0c3]"
+                          />
+                          Yayinda
+                        </label>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => addMechanizedVideoForCategory(item, index)}
+                          className="rounded-md border border-[#9d7b46] px-3 py-2 text-xs font-medium text-[#6b4f1d] transition hover:bg-[#f6efe4]"
+                        >
+                          Video ekle
+                        </button>
+                      )}
+                    </div>
+
+                    {categoryVideo ? (
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <label className="text-sm font-medium text-[#3a342c]">
+                          Kart ust yazisi
+                          <input
+                            value={categoryVideo.eyebrow}
+                            onChange={(event) => updateMechanizedVideo(categoryVideo.id, { eyebrow: event.target.value })}
+                            className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                          />
+                        </label>
+
+                        <label className="text-sm font-medium text-[#3a342c]">
+                          Video basligi
+                          <input
+                            value={categoryVideo.title}
+                            onChange={(event) => updateMechanizedVideo(categoryVideo.id, { title: event.target.value })}
+                            className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                          />
+                        </label>
+
+                        <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+                          YouTube linki
+                          <input
+                            value={categoryVideo.youtubeUrl}
+                            onChange={(event) => updateMechanizedVideo(categoryVideo.id, { youtubeUrl: event.target.value })}
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                          />
+                        </label>
+
+                        <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
+                          Video aciklamasi
+                          <textarea
+                            value={categoryVideo.description}
+                            onChange={(event) => updateMechanizedVideo(categoryVideo.id, { description: event.target.value })}
+                            rows={2}
+                            className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+                          />
+                        </label>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[#6f6960]">
+                        Bu kart icin henuz video tanimli degil.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
                   <div className="grid gap-3 md:grid-cols-[180px_1fr]">
                     <div className="overflow-hidden rounded-md border border-[#d8d0c3] bg-white">
                       <Image
@@ -4232,11 +4342,12 @@ const AdminPage = () => {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
-      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+      <div className="hidden rounded-lg border border-[#ded5c7] bg-white p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold">Video anlatım kartları</h2>
