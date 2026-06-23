@@ -235,10 +235,10 @@ export const productDetailDefaults: Record<string, ProductDetailContent> = {
     categories: [
       {
         id: 1,
-        title: 'Motorlu Tül ve Kumaş Perdeler',
-        description: 'Uzaktan kumanda ve otomasyon destekli tül ve kumaş perde sistemleri',
+        title: 'Projeksiyon Perde',
+        description: 'Dış mekan projeksiyon perde sistemleri',
         image: '/api/public/media/images/9ae3d120-1399-40e0-81e2-47d274e6c2b8/file',
-        href: '/urunler/motorlu-tul-ve-kumas-perdeler',
+        href: '/urunler/motorlu-perdeler/projeksiyon-perde',
         enabled: true,
       },
       {
@@ -264,8 +264,8 @@ export const productDetailDefaults: Record<string, ProductDetailContent> = {
       {
         id: 1,
         eyebrow: 'Video Anlatım',
-        title: 'Motorlu Tül ve Kumaş Perdeler Nasıl Çalışır?',
-        description: 'Motorlu tül ve kumaş perde sistemlerinin çalışma prensibini ve kullanım kolaylığını videomuzda izleyebilirsiniz.',
+        title: 'Projeksiyon Perde Nasıl Çalışır?',
+        description: 'Projeksiyon perde sistemlerinin kullanımını ve uygulama detaylarını videomuzda izleyebilirsiniz.',
         youtubeUrl: 'https://www.youtube.com/embed/W8rh9V6R7Cw',
         enabled: true,
       },
