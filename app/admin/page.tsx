@@ -464,6 +464,7 @@ const productGalleryAdminPages = [
   { pageKey: 'product-gallery-urunler-metal-zincir-perde-metal-zincir-perde', label: 'Metal Zincir Perde' },
   { pageKey: 'product-gallery-urunler-metal-zincir-perde-metal-zincir-seperator', label: 'Metal Zincir Seperatör' },
   { pageKey: 'product-gallery-urunler-metal-zincir-perde-pro-collection', label: 'Pro Collection' },
+  { pageKey: 'product-gallery-urunler-motorlu-tul-ve-kumas-perdeler', label: 'Motorlu Tül ve Kumaş Perdeler' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde', label: 'Projeksiyon Perde' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-zip-perde', label: 'Zip Perde' },
   { pageKey: 'product-gallery-urunler-motorlu-perdeler-dis-cephe-jaluzi', label: 'Dış Cephe Jaluzi' },
@@ -473,6 +474,25 @@ const productGalleryAdminPages = [
   { pageKey: 'product-gallery-kurumsal-urunler-ofis-perdeleri', label: 'Ofis Perdeleri' },
   { pageKey: 'product-gallery-kurumsal-urunler-otel-perdeleri', label: 'Otel Perdeleri' },
 ] as const
+
+const motorizedFabricGalleryPageKey = 'product-gallery-urunler-motorlu-tul-ve-kumas-perdeler'
+
+const normalizeSearchText = (value: string) =>
+  value
+    .toLocaleLowerCase('tr')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ı/g, 'i')
+
+const isMotorizedFabricGalleryLabel = (label: string) => {
+  const normalizedLabel = normalizeSearchText(label)
+  return (
+    normalizedLabel.includes('motorlu') &&
+    normalizedLabel.includes('tul') &&
+    normalizedLabel.includes('kumas') &&
+    normalizedLabel.includes('perde')
+  )
+}
 
 const getDefaultProductGalleryHeroCopy = (label: string): ProductGalleryHeroCopy => {
   if (label === 'Klasik ve Avangart Perde') {
@@ -974,7 +994,16 @@ const AdminPage = () => {
       .filter((page): page is ProductGalleryAdminPage => Boolean(page))
       .forEach((page) => pageMap.set(page.pageKey, page))
 
-    return Array.from(pageMap.values()).sort((a, b) => a.label.localeCompare(b.label, 'tr'))
+    const galleryPages = Array.from(pageMap.values())
+    const hasMotorizedFabricGallery = galleryPages.some((page) => page.pageKey === motorizedFabricGalleryPageKey)
+
+    return galleryPages
+      .filter((page) => (
+        !hasMotorizedFabricGallery ||
+        !isMotorizedFabricGalleryLabel(page.label) ||
+        page.pageKey === motorizedFabricGalleryPageKey
+      ))
+      .sort((a, b) => a.label.localeCompare(b.label, 'tr'))
   }, [corporateItems, mechanizedForm.categories, modelItems, pages, productItems])
 
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
