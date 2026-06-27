@@ -92,7 +92,7 @@ const Blog = () => {
                   </div>
 
                   <div className="p-6">
-                    <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                    <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
                       <span>{post.date}</span>
                       <span>•</span>
                       <span>{post.readTime}</span>
@@ -102,7 +102,7 @@ const Blog = () => {
                       {post.title}
                     </h3>
 
-                    <p className="text-sm text-gray-400 font-light line-clamp-3 mb-4">
+                    <p className="text-sm text-gray-300 font-light line-clamp-3 mb-4">
                       {post.excerpt}
                     </p>
 
@@ -169,7 +169,7 @@ const Blog = () => {
                       </div>
 
                       <div className="p-5">
-                        <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                        <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
                           <span>{post.date}</span>
                           <span>•</span>
                           <span>{post.readTime}</span>
@@ -179,7 +179,7 @@ const Blog = () => {
                           {post.title}
                         </h3>
 
-                        <p className="text-sm text-gray-400 font-light line-clamp-3 mb-4">
+                        <p className="text-sm text-gray-300 font-light line-clamp-3 mb-4">
                           {post.excerpt}
                         </p>
 

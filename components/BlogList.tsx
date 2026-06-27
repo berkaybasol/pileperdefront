@@ -133,7 +133,7 @@ const BlogList = () => {
                       <span className={`px-2 py-1 text-xs font-medium ${categoryColors[post.category] || 'bg-gray-700/20 text-gray-400 border border-gray-600'}`}>
                         {post.category}
                       </span>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
                         <span>{post.date}</span>
                         <span>•</span>
                         <span>{post.readTime}</span>
@@ -144,7 +144,7 @@ const BlogList = () => {
                       {post.title}
                     </h3>
 
-                    <p className="text-sm text-gray-400 font-light line-clamp-2 mb-4">
+                    <p className="text-sm text-gray-300 font-light line-clamp-2 mb-4">
                       {post.excerpt}
                     </p>
 
@@ -213,7 +213,7 @@ const BlogList = () => {
                   pageNum === currentPage + 2
                 ) {
                   return (
-                    <span key={pageNum} className="px-2 text-gray-500">
+                    <span key={pageNum} className="px-2 text-gray-400">
                       ...
                     </span>
                   )
@@ -245,7 +245,7 @@ const BlogList = () => {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mt-8 text-sm text-gray-500"
+          className="text-center mt-8 text-sm text-gray-400"
         >
           {filteredPosts.length} yazıdan {startIndex + 1}-{Math.min(endIndex, filteredPosts.length)} arası gösteriliyor
           {selectedCategory && (

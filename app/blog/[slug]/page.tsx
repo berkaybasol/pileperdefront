@@ -326,7 +326,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       </article>
 
       {/* Related Posts */}
-      <section className="bg-gradient-to-b from-gray-900/30 to-black py-20">
+      <section className="bg-gradient-to-b from-[#111114] to-black py-20">
         <div className="container mx-auto max-w-7xl px-6">
           <h2 className="text-3xl font-bold text-white mb-12 text-center">
             {relatedPosts.length > 0 ? 'İlgili Yazılar' : 'Diğer Yazılar'}
@@ -339,7 +339,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 href={relatedPost.href}
                 className="group block"
               >
-                <article className="h-full bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-300">
+                <article className="h-full bg-gradient-to-br from-gray-900 to-gray-800/90 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300">
                   <div className="relative h-56">
                     <Image
                       src={relatedPost.image}
@@ -358,7 +358,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                   </div>
 
                   <div className="p-6">
-                    <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                    <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
                       <span>{relatedPost.date}</span>
                       <span>•</span>
                       <span>{relatedPost.readTime}</span>
@@ -368,7 +368,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                       {relatedPost.title}
                     </h3>
 
-                    <p className="text-gray-400 text-sm line-clamp-3">
+                    <p className="text-gray-300 text-sm line-clamp-3">
                       {relatedPost.excerpt}
                     </p>
 
