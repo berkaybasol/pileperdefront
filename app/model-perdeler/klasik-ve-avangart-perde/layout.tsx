@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
 const fallbackMetadata: Metadata = {
-  title: 'Klasik ve Avangart Perde Modelleri - Modern Tasarımlar ',
+  title: 'Klasik Perde Modelleri - Modern Tasarımlar ',
   description: 'Klasik ve avangart perde modelleri ile zamansız şıklık. Fırfırlı, büzgülü tasarımlar. Özel dikim hizmeti. Ankara\'da profesyonel montaj.',
   keywords: 'klasik perde, avangart perde, model perde, ipek perde, kadife perde, desenli perde, salon perde modelleri, yatak odası perde, ankara perde, pile perde',
   alternates: {

@@ -107,7 +107,7 @@ const Header = () => {
       megaMenu: true,
       content: {
         models: [
-          { title: 'Klasik ve Avangart', image: '/api/public/media/images/df6a191d-3db6-4645-a083-f71422f49200/file', href: '/model-perdeler/klasik-ve-avangart-perde' },
+          { title: 'Klasik Perde Modelleri', image: '/api/public/media/images/df6a191d-3db6-4645-a083-f71422f49200/file', href: '/model-perdeler/klasik-ve-avangart-perde' },
           { title: 'Modern Perde', image: '/api/public/media/images/d70ef178-4553-4734-b023-80b297f1e695/file', href: '/model-perdeler/modern-perde' },
           { title: 'Rustikli Perde', image: '/api/public/media/images/4b0f28ee-b79d-44e0-880d-5aec64bb13e3/file', href: '/model-perdeler/rustikli-perde' },
           { title: 'Kruvaze Perde', image: '/api/public/media/images/fa4be5de-409b-407c-adc6-44df3d5c712b/file', href: '/model-perdeler/kruvaze-perde' },

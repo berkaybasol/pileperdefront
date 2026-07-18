@@ -17,7 +17,7 @@ const canonicalUrl = 'https://pileperde.com.tr/model-perdeler/klasik-ve-avangart
 const breadcrumbItems: BreadcrumbItem[] = [
   { name: 'Ana Sayfa', url: '/' },
   { name: 'Perde Modelleri', url: '/perde-modelleri' },
-  { name: 'Klasik ve Avangart Perde', url: '/model-perdeler/klasik-ve-avangart-perde' },
+  { name: 'Klasik Perde Modelleri', url: '/model-perdeler/klasik-ve-avangart-perde' },
 ]
 
 
@@ -421,7 +421,7 @@ export default function KlasikAvangartPerdePage() {
           <div className="text-center mb-16">
             <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
             <h2 className="text-3xl md:text-4xl font-extralight text-white">
-              Klasik ve Avangart Perde Modelleri
+              Klasik Perde Modelleri
             </h2>
           </div>
 
@@ -543,7 +543,7 @@ export default function KlasikAvangartPerdePage() {
           <div
           >
             <h3 className="text-2xl md:text-3xl font-extralight text-white mb-4">
-              Klasik ve Avangart Perde Modelleri Hakkında Sorularınız mı var?
+              Klasik Perde Modelleri Hakkında Sorularınız mı var?
             </h3>
             <p className="text-gray-400 mb-8 max-w-2xl mx-auto font-light">
               Dilerseniz hemen <strong>0312 241 72 72</strong> no&apos;lu telefondan bize ulaşarak ihtiyacınıza

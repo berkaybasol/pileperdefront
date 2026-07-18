@@ -116,7 +116,7 @@ export const defaultProductItems: CatalogItem[] = [
 export const defaultModelItems: CatalogItem[] = [
   {
     id: 1,
-    title: 'Klasik ve Avangart',
+    title: 'Klasik Perde Modelleri',
     image: '/api/public/media/images/df6a191d-3db6-4645-a083-f71422f49200/file',
     href: '/model-perdeler/klasik-ve-avangart-perde',
     description: 'Zamansız elegans ve sofistike tasarımlar',

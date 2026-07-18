@@ -63,9 +63,9 @@ const productGalleryDefaultHeroCopies: Record<string, ProductGalleryHeroCopy> = 
     description: 'Kruvaze perde; tül perdelere ek olarak dikilen ve iki kanattan meydana gelen ve bunun yanında mekanizmalı ya da mekanizmasız çekilen ipleri ile büzüşerek estetik bir görünüm ortaya koyan perde çeşidi olarak tanımlanır. Bu modelin arkasında güneşlik olarak daha çok stor perde çeşitleri kullanılır.',
   },
   'product-gallery-model-perdeler-klasik-ve-avangart-perde': {
-    breadcrumbLabel: 'Klasik ve Avangart Perde',
+    breadcrumbLabel: 'Klasik Perde Modelleri',
     eyebrow: 'Model Perde Koleksiyonu',
-    title: 'Klasik ve Avangart',
+    title: 'Klasik',
     highlightedTitle: 'Perde Modelleri',
     description: 'Dekorasyonu tamamlayan, bir mekanın modern veya klasik olmasında belirleyici unsur, perde seçimidir. Perde, dekorasyonun karakterini değiştirebilecek etkiye sahiptir. Perdelerin rengi, modeli, detayları mekanın bütünlüğüne ciddi anlamda katkı sağlamaktadır.',
   },

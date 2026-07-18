@@ -160,7 +160,7 @@ const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
     },
     {
       id: 2,
-      title: 'Klasik ve Avangart Perde',
+      title: 'Klasik Perde Modelleri',
       subtitle: 'Zamansız Elegans',
       description: 'Modern bir dekorasyona perdede yapacağınız birkaç klasik dokunuş dekorasyonun kimliğini salt modernden çıkarır ve sizi dekorasyonda kullanacağınız aksesuarlarda özgürleştirir.',
       image: '/api/public/media/images/1257dce8-6141-47d9-8d0b-b3f4337daf65/file',
