@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
+import SiteSearch from '@/components/SiteSearch'
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -320,6 +321,9 @@ const Header = () => {
               ))}
             </nav>
 
+            <div className="flex items-center">
+              <SiteSearch />
+
             {/* CTA Button */}
             <div className="hidden lg:block">
               <Link
@@ -332,7 +336,10 @@ const Header = () => {
 
             {/* Mobile Menu Button */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Mobil menüyü kapat' : 'Mobil menüyü aç'}
+              aria-expanded={mobileMenuOpen}
               className="lg:hidden p-2 text-white"
             >
               <div className="w-6 h-5 flex flex-col justify-between">
@@ -347,6 +354,7 @@ const Header = () => {
                 }`} />
               </div>
             </button>
+            </div>
           </div>
         </div>
       </header>

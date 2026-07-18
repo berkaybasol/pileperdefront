@@ -5,6 +5,64 @@ import { getAllBlogPosts, getPublicBlogPostBySlug, getPublicBlogPosts } from '@/
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
 import { getPublicSiteSettings, normalizePhoneHref, normalizeWhatsAppNumber } from '@/lib/siteSettings';
 
+const SITE_URL = 'https://pileperde.com.tr';
+
+const turkishMonths: Record<string, string> = {
+  ocak: '01',
+  subat: '02',
+  mart: '03',
+  nisan: '04',
+  mayis: '05',
+  haziran: '06',
+  temmuz: '07',
+  agustos: '08',
+  eylul: '09',
+  ekim: '10',
+  kasim: '11',
+  aralik: '12',
+};
+
+function normalizeTurkishText(value: string): string {
+  return value
+    .toLocaleLowerCase('tr-TR')
+    .replaceAll('Ä±', 'i')
+    .replaceAll('ÅŸ', 's')
+    .replaceAll('ÄŸ', 'g')
+    .replaceAll('Ã§', 'c')
+    .replaceAll('Ã¶', 'o')
+    .replaceAll('Ã¼', 'u')
+    .replaceAll('ı', 'i')
+    .replaceAll('ş', 's')
+    .replaceAll('ğ', 'g')
+    .replaceAll('ç', 'c')
+    .replaceAll('ö', 'o')
+    .replaceAll('ü', 'u');
+}
+
+function toIsoPublishedDate(value: string): string | undefined {
+  const normalized = normalizeTurkishText(value).trim();
+  const match = normalized.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/);
+
+  if (!match) {
+    return undefined;
+  }
+
+  const [, day, monthName, year] = match;
+  const month = turkishMonths[monthName];
+
+  if (!month) {
+    return undefined;
+  }
+
+  return `${year}-${month}-${day.padStart(2, '0')}T00:00:00+03:00`;
+}
+
+function absoluteUrl(value: string): string {
+  return value.startsWith('http://') || value.startsWith('https://')
+    ? value
+    : new URL(value, SITE_URL).toString();
+}
+
 export async function generateStaticParams() {
   const posts = getAllBlogPosts();
   return posts.map((post) => ({
@@ -22,9 +80,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const canonicalUrl = `https://pileperde.com.tr/blog/${post.slug}`;
+
   return {
     title: `${post.title} - Pile Perde Blog`,
     description: post.excerpt,
+    alternates: {
+      canonical: canonicalUrl,
+    },
   };
 }
 
@@ -135,9 +198,84 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     .slice(0, 3);
 
   const suggestedPosts = relatedPosts.length > 0 ? relatedPosts : otherPosts;
+  const canonicalUrl = `${SITE_URL}/blog/${post.slug}`;
+  const datePublished = toIsoPublishedDate(post.date);
+  const blogPostingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${canonicalUrl}#blogposting`,
+    url: canonicalUrl,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+    headline: post.title,
+    description: post.excerpt,
+    image: [absoluteUrl(post.image)],
+    ...(datePublished ? { datePublished } : {}),
+    inLanguage: 'tr-TR',
+    articleSection: post.category,
+    author: {
+      '@type': 'Organization',
+      name: 'Pile Perde',
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Pile Perde',
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/pile_perde_logo-1.png`,
+      },
+    },
+    isPartOf: {
+      '@type': 'Blog',
+      '@id': `${SITE_URL}/blog#blog`,
+      url: `${SITE_URL}/blog`,
+      name: 'Pile Perde Blog',
+    },
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    '@id': `${canonicalUrl}#breadcrumb`,
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Ana Sayfa',
+        item: SITE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${SITE_URL}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: canonicalUrl,
+      },
+    ],
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0a0a0c] to-[#18181a]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(blogPostingSchema).replace(/</g, '\\u003c'),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c'),
+        }}
+      />
       {/* Hero Section */}
       <div className="relative">
         {/* Background Image */}
