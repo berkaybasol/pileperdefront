@@ -59,6 +59,7 @@ const sitemapEntries: SitemapEntry[] = [
   { path: '/urunler/perde-aksesuarlari/rustik-takimlari', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/perde-aksesuarlari/kol-bagi', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/perde-aksesuarlari/bracol', changeFrequency: 'weekly', priority: 0.7 },
+  { path: '/urunler/perde-aksesuarlari/perde-bordurleri', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/metal-zincir-perde', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/urunler/metal-zincir-perde/metal-zincir-seperator', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/metal-zincir-perde/pro-collection', changeFrequency: 'weekly', priority: 0.7 },

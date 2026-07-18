@@ -33,6 +33,7 @@ type ManagedProductGalleryPageProps = {
   galleryTitle?: string
   seoBreadcrumbItems?: SeoBreadcrumbItem[]
   breadcrumbCanonicalUrl?: string
+  fallbackHeroCopy?: ProductGalleryHeroCopy
 }
 
 export default function ManagedProductGalleryPage({
@@ -45,6 +46,7 @@ export default function ManagedProductGalleryPage({
   galleryTitle = `${title} Modelleri`,
   seoBreadcrumbItems,
   breadcrumbCanonicalUrl,
+  fallbackHeroCopy,
 }: ManagedProductGalleryPageProps) {
   const resolvedBreadcrumbItems = useMemo(() => breadcrumbItems || [
     { label: '\u00dcr\u00fcnler', href: '/urunler' },
@@ -53,25 +55,19 @@ export default function ManagedProductGalleryPage({
   ], [breadcrumbItems, title])
   const [images, setImages] = useState<ProductGalleryImage[]>(fallbackImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(fallbackImages[0])
-  const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>({
+  const resolvedFallbackHeroCopy = useMemo<ProductGalleryHeroCopy>(() => fallbackHeroCopy || ({
     breadcrumbLabel: resolvedBreadcrumbItems[resolvedBreadcrumbItems.length - 1]?.label || title,
     eyebrow: eyebrow || `${title} Koleksiyonu`,
     title,
     highlightedTitle: '',
     description,
-  })
+  }), [description, eyebrow, fallbackHeroCopy, resolvedBreadcrumbItems, title])
+  const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>(resolvedFallbackHeroCopy)
   const [productVideo, setProductVideo] = useState<ProductGalleryVideo>(defaultProductGalleryVideo)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
     let isMounted = true
-    const fallbackHeroCopy = {
-      breadcrumbLabel: resolvedBreadcrumbItems[resolvedBreadcrumbItems.length - 1]?.label || title,
-      eyebrow: eyebrow || `${title} Koleksiyonu`,
-      title,
-      highlightedTitle: '',
-      description,
-    }
     const fallbackVideo = {
       title: 'Nasıl Çalışır?',
       description: `${title} sisteminin çalışma prensibini ve kullanım detaylarını videomuzda izleyebilirsiniz.`,
@@ -86,7 +82,7 @@ export default function ManagedProductGalleryPage({
       }
     })
 
-    getPublicProductGalleryHeroCopy(pageKey, fallbackHeroCopy).then((nextHeroCopy) => {
+    getPublicProductGalleryHeroCopy(pageKey, resolvedFallbackHeroCopy).then((nextHeroCopy) => {
       if (isMounted) {
         setHeroCopy(nextHeroCopy)
       }
@@ -101,7 +97,7 @@ export default function ManagedProductGalleryPage({
     return () => {
       isMounted = false
     }
-  }, [description, eyebrow, fallbackImages, pageKey, resolvedBreadcrumbItems, title])
+  }, [fallbackImages, pageKey, resolvedFallbackHeroCopy, title])
 
   const currentImageIndex = images.findIndex((image) => image.id === selectedImage.id)
   const videoEmbedUrl = getYouTubeEmbedUrl(productVideo.youtubeUrl)
@@ -179,9 +175,9 @@ export default function ManagedProductGalleryPage({
             <h1 className="mb-6 text-4xl font-extralight text-white md:text-5xl lg:text-6xl">
               {heroCopy.title}
               {heroCopy.highlightedTitle && (
-                <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
-                  {heroCopy.highlightedTitle}
-                </span>
+                <>{' '}<span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
+                    {heroCopy.highlightedTitle}
+                  </span></>
               )}
             </h1>
 

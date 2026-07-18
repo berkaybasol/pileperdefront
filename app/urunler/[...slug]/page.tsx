@@ -7,6 +7,11 @@ import {
   buildDynamicGalleryTitle,
   fallbackDynamicGalleryImage,
 } from '@/lib/dynamicGalleryPage'
+import type { ProductGalleryHeroCopy } from '@/lib/productGalleryContent'
+
+const PERDE_BORDURLERI_SLUG = 'perde-aksesuarlari/perde-bordurleri'
+const PERDE_BORDURLERI_CANONICAL = `https://pileperde.com.tr/urunler/${PERDE_BORDURLERI_SLUG}`
+const PERDE_BORDURLERI_IMAGE = 'https://api.pileperde.com.tr/api/public/media/images/2084b064-a137-4345-a475-6de8efd4328f/file'
 
 type DynamicGalleryPageProps = {
   params: Promise<{
@@ -16,17 +21,41 @@ type DynamicGalleryPageProps = {
 
 export const generateMetadata = async ({ params }: DynamicGalleryPageProps) => {
   const { slug } = await params
+  const slugPath = slug.join('/')
   const title = buildDynamicGalleryTitle(slug)
+  const fallbackMetadata = slugPath === PERDE_BORDURLERI_SLUG ? {
+    title: 'Perde Bordür Modelleri | Dekoratif Bordür | Pile Perde Çayyolu Ankara',
+    description: 'Perde bordür modelleri, dekoratif perde bordürleri, perde şeritleri, perde biyeleri ve perde süsleme şeritlerini keşfedin. Zengin renk ve desen seçenekleri.',
+  } : buildDynamicGalleryMetadata(title)
   const metadata = await getCmsPageMetadata(
     buildDynamicGalleryPageKey('urunler', slug),
-    buildDynamicGalleryMetadata(title)
+    fallbackMetadata
   )
+
+  const canonical = `https://pileperde.com.tr/urunler/${slugPath}`
+  const pageTitle = typeof metadata.title === 'string' ? metadata.title : undefined
+  const pageDescription = typeof metadata.description === 'string' ? metadata.description : undefined
 
   return {
     ...metadata,
     alternates: {
-      canonical: `https://pileperde.com.tr/urunler/${slug.join('/')}`,
+      canonical,
     },
+    ...(slugPath === PERDE_BORDURLERI_SLUG ? {
+      openGraph: {
+        ...metadata.openGraph,
+        title: pageTitle,
+        description: pageDescription,
+        url: PERDE_BORDURLERI_CANONICAL,
+        images: [{ url: PERDE_BORDURLERI_IMAGE, alt: 'Perde Bordürleri Modelleri' }],
+      },
+      twitter: {
+        card: 'summary_large_image' as const,
+        title: pageTitle,
+        description: pageDescription,
+        images: [PERDE_BORDURLERI_IMAGE],
+      },
+    } : {}),
   }
 }
 
@@ -44,6 +73,7 @@ const activeProductBreadcrumbs: Record<string, { name: string; parentName: strin
   'motorlu-perdeler/ahsap-jaluzi': { name: 'Motorlu Ahşap Jaluzi', parentName: 'Motorlu Perdeler', parentUrl: '/urunler/motorlu-perdeler' },
   'motorlu-perdeler/motorlu-stor-perdeler': { name: 'Motorlu Stor Perdeler', parentName: 'Motorlu Perdeler', parentUrl: '/urunler/motorlu-perdeler' },
   'motorlu-perdeler/motorlu-dikey-perdeler': { name: 'Motorlu Dikey Perdeler', parentName: 'Motorlu Perdeler', parentUrl: '/urunler/motorlu-perdeler' },
+  [PERDE_BORDURLERI_SLUG]: { name: 'Perde Bordürleri', parentName: 'Perde Aksesuarları', parentUrl: '/urunler/perde-aksesuarlari' },
 }
 
 export default async function DynamicUrunGalleryPage({ params }: DynamicGalleryPageProps) {
@@ -51,6 +81,7 @@ export default async function DynamicUrunGalleryPage({ params }: DynamicGalleryP
   const title = buildDynamicGalleryTitle(slug)
   const slugPath = slug.join('/')
   const activeBreadcrumb = activeProductBreadcrumbs[slugPath]
+  const isPerdeBordurleri = slugPath === PERDE_BORDURLERI_SLUG
   const canonicalUrl = `https://pileperde.com.tr/urunler/${slugPath}`
   const seoBreadcrumbItems: BreadcrumbItem[] | undefined = activeBreadcrumb ? [
     { name: 'Ana Sayfa', url: '/' },
@@ -58,6 +89,13 @@ export default async function DynamicUrunGalleryPage({ params }: DynamicGalleryP
     { name: activeBreadcrumb.parentName, url: activeBreadcrumb.parentUrl },
     { name: activeBreadcrumb.name, url: `/urunler/${slugPath}` },
   ] : undefined
+  const fallbackHeroCopy: ProductGalleryHeroCopy | undefined = isPerdeBordurleri ? {
+    breadcrumbLabel: 'Perde Bordürleri',
+    eyebrow: 'Perde Bordürleri Koleksiyonu',
+    title: 'Perde Bordürleri',
+    highlightedTitle: 'Modelleri',
+    description: 'Perde Bordürleri uygulama görselleri.',
+  } : undefined
 
   return (
     <ManagedProductGalleryPage
@@ -71,6 +109,8 @@ export default async function DynamicUrunGalleryPage({ params }: DynamicGalleryP
       ]}
       seoBreadcrumbItems={seoBreadcrumbItems}
       breadcrumbCanonicalUrl={activeBreadcrumb ? canonicalUrl : undefined}
+      fallbackHeroCopy={fallbackHeroCopy}
+      galleryTitle={isPerdeBordurleri ? 'Perde Bordürleri Modelleri' : undefined}
     />
   )
 }

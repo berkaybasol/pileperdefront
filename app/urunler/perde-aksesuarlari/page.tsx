@@ -3,7 +3,7 @@ import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 import MekanizmaliPerdelerContent from '@/components/MekanizmaliPerdelerContent'
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
-import { productDetailDefaults } from '@/lib/productDetailContent'
+import { getProductDetailContent, productDetailDefaults } from '@/lib/productDetailContent'
 
 const pageKey = 'product-perde-aksesuarlari'
 
@@ -21,9 +21,11 @@ const fallbackMetadata: Metadata = {
 
 export const generateMetadata = () => getCmsPageMetadata(pageKey, fallbackMetadata)
 
-export default function PerdeAksesuarlariPage() {
+export default async function PerdeAksesuarlariPage() {
+  const initialContent = await getProductDetailContent(pageKey)
+
   return <>
     <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
-    <MekanizmaliPerdelerContent pageKey={pageKey} fallbackContent={productDetailDefaults[pageKey]} breadcrumbItems={breadcrumbItems} canonicalUrl={canonicalUrl} />
+    <MekanizmaliPerdelerContent pageKey={pageKey} fallbackContent={initialContent || productDetailDefaults[pageKey]} breadcrumbItems={breadcrumbItems} canonicalUrl={canonicalUrl} />
   </>
 }
