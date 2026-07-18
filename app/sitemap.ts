@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next'
 import { getIndexableBlogPosts } from '@/lib/blogContent'
-import { englishArticles, englishPages } from '@/lib/englishContent'
 
 type SitemapEntry = {
   path: string
@@ -162,19 +161,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  const englishPageEntries: MetadataRoute.Sitemap = Object.keys(englishPages).map((key) => ({
-    url: `${baseUrl}/en${key ? `/${key}` : ''}`,
-    changeFrequency: 'monthly',
-    priority: key === '' ? 0.9 : key === 'products' ? 0.85 : 0.7,
-  }))
-  const englishBlogEntries: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/en/journal`, changeFrequency: 'weekly', priority: 0.7 },
-    ...Object.keys(englishArticles).map((slug) => ({
-      url: `${baseUrl}/en/blog/${slug}`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.65,
-    })),
-  ]
-
-  return [...englishPageEntries, ...englishBlogEntries, ...staticEntries, ...blogEntries]
+  return [...staticEntries, ...blogEntries]
 }

@@ -3,7 +3,6 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import GoogleTagManager from "@/components/GoogleAnalytics";
 import SiteShell from "@/components/SiteShell";
-import { headers } from "next/headers";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -103,19 +102,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = (await headers()).get('x-site-locale') === 'en' ? 'en' : 'tr';
-
   return (
-    <html
-      lang={locale}
-      translate={locale === 'en' ? 'no' : undefined}
-      className={locale === 'en' ? 'notranslate' : undefined}
-    >
+    <html lang="tr">
       <body suppressHydrationWarning className={`${poppins.className} antialiased`}>
         <GoogleTagManager />
 

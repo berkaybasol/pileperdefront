@@ -6,8 +6,6 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import SiteSearch from '@/components/SiteSearch'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
-import { englishNavigation, englishPages, englishProductCards } from '@/lib/englishContent'
 
 const socialLinks = [
   { name: 'WhatsApp', href: 'https://wa.me/905335127272' },
@@ -35,7 +33,6 @@ const Header = () => {
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
-  const isEnglish = pathname === '/en' || pathname?.startsWith('/en/')
 
   useEffect(() => {
     const handleScroll = () => {
@@ -143,25 +140,7 @@ const Header = () => {
     { name: 'İletişim', href: '/iletisim' },
   ]
 
-  const activeNavigation = isEnglish
-    ? englishNavigation.map((item) => ('items' in item
-      ? {
-          name: item.name,
-          href: item.href,
-          megaMenu: true,
-          content: {
-            categories: item.items.map(([title, href]) => ({
-              title,
-              href,
-              image: englishPages[href.replace(/^\/en\/?/, '')]?.image
-                || englishProductCards.find(([, cardHref]) => cardHref === href)?.[3]
-                || '/api/public/media/images/8cecc447-bb34-4dec-a8ac-dc8ab189fe81/file',
-              items: [],
-            })),
-          },
-        }
-      : item))
-    : navigation
+  const activeNavigation = navigation
 
   return (
     <>
@@ -176,7 +155,7 @@ const Header = () => {
           <div className="flex items-center justify-between h-16 lg:h-20">
 
             {/* Logo */}
-            <Link href={isEnglish ? '/en' : '/'} className="relative z-10">
+            <Link href="/" className="relative z-10">
               <Image
                 src="/pile_perde_logo-1.png"
                 alt="Pile Perde"
@@ -274,7 +253,7 @@ const Header = () => {
                                 href={item.href}
                                 className="group relative inline-flex items-center justify-center w-full py-3 bg-white text-black overflow-hidden transition-all duration-300"
                               >
-                                <span className="relative z-10 font-medium">{isEnglish ? `View All ${item.name === 'Commercial' ? 'Commercial Solutions' : item.name}` : 'Tüm Ürünleri Görüntüle'}</span>
+                                <span className="relative z-10 font-medium">Tüm Ürünleri Görüntüle</span>
                                 <svg className="relative z-10 w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
@@ -366,9 +345,8 @@ const Header = () => {
 
             <div className="flex items-center">
               <SiteSearch />
-              <LanguageSwitcher />
 
-            <div className="hidden lg:flex items-center gap-0.5 mr-2" aria-label={isEnglish ? 'Social media links' : 'Sosyal medya bağlantıları'}>
+            <div className="hidden lg:flex items-center gap-0.5 mr-2" aria-label="Sosyal medya bağlantıları">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -388,10 +366,10 @@ const Header = () => {
             {/* CTA Button */}
             <div className="hidden lg:block">
               <Link
-                href={isEnglish ? '/en/contact' : '/iletisim'}
+                href="/iletisim"
                 className="whitespace-nowrap px-4 py-2 bg-white text-[#1d1d1f] text-sm font-normal hover:bg-gray-100 transition-all duration-300"
               >
-                {isEnglish ? 'Contact Us' : 'İletişime Geç'}
+                İletişime Geç
               </Link>
             </div>
 
@@ -399,9 +377,7 @@ const Header = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen
-                ? (isEnglish ? 'Close mobile menu' : 'Mobil menüyü kapat')
-                : (isEnglish ? 'Open mobile menu' : 'Mobil menüyü aç')}
+              aria-label={mobileMenuOpen ? 'Mobil menüyü kapat' : 'Mobil menüyü aç'}
               aria-expanded={mobileMenuOpen}
               className="lg:hidden inline-flex h-11 w-11 items-center justify-center text-white"
             >
@@ -521,7 +497,7 @@ const Header = () => {
                                       className="block py-3 mt-3 text-center bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-medium rounded-xl hover:bg-white hover:text-black transition-all"
                                       onClick={() => setMobileMenuOpen(false)}
                                     >
-                                      {isEnglish ? `View All ${item.name === 'Commercial' ? 'Commercial Solutions' : item.name} →` : 'Tüm Ürünleri Görüntüle →'}
+                                      Tüm Ürünleri Görüntüle →
                                     </Link>
                                   </>
                                 )}
@@ -593,11 +569,11 @@ const Header = () => {
                 className="flex-shrink-0 mt-8 z-20"
               >
                 <Link
-                  href={isEnglish ? '/en/contact' : '/iletisim'}
+                  href="/iletisim"
                   className="group relative block w-full py-4 bg-white text-black text-center text-sm font-medium tracking-wider uppercase overflow-hidden transition-all duration-300"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <span className="relative z-10">{isEnglish ? 'Contact Us' : 'İletişime Geç'}</span>
+                  <span className="relative z-10">İletişime Geç</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
                 </Link>
 

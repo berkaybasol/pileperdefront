@@ -13,7 +13,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 export const metadata = {
   title: "İletişim - Pile Perde Ankara Çayyolu",
   description: "Pile Perde ile iletişime geçin. Ankara Çayyolu, Beytepe, Bilkent, Yaşamkent, Ümitköy bölgelerinde ücretsiz keşif ve ölçüm hizmeti. ☎️ 0312 241 72 72",
-  alternates: turkishLocaleAlternates('/iletisim', '/en/contact'),
+  alternates: turkishLocaleAlternates('/iletisim'),
 };
 
 export default function ContactPage() {

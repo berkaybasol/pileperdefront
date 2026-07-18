@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Blog - Perde Dekorasyon Tavsiyeleri',
   description: 'Perde modelleri, dekorasyon önerileri ve ev tekstili hakkında uzman tavsiyeleri. Ankara Pile Perde blog yazıları ile evinize ilham alın.',
   keywords: 'perde blogu, dekorasyon blogu, perde tavsiyeleri, ev tekstili, iç mimari, ankara dekorasyon',
-  alternates: turkishLocaleAlternates('/blog', '/en/blog'),
+  alternates: turkishLocaleAlternates('/blog'),
   openGraph: {
     title: 'Blog - Perde Dekorasyon Tavsiyeleri Ankara',
     description: 'Perde modelleri, dekorasyon önerileri ve ev tekstili hakkında uzman tavsiyeleri.',

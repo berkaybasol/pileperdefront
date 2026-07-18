@@ -14,10 +14,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-site-locale", request.nextUrl.pathname === "/en" || request.nextUrl.pathname.startsWith("/en/") ? "en" : "tr");
-
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return NextResponse.next();
 }
 
 export const config = {

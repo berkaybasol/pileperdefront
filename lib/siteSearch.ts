@@ -5,7 +5,6 @@ import {
 } from '@/lib/catalogContent'
 import { getPublicBlogPosts } from '@/lib/blogContent'
 import { productDetailDefaults } from '@/lib/productDetailContent'
-import { englishArticles, englishPages } from '@/lib/englishContent'
 
 export type SearchContentType =
   | 'product'
@@ -17,7 +16,7 @@ export type SearchContentType =
 
 export type SearchDocument = {
   id: string
-  locale: 'tr' | 'en'
+  locale: 'tr'
   type: SearchContentType
   title: string
   description: string
@@ -210,32 +209,6 @@ export async function getSiteSearchDocuments(): Promise<SearchDocument[]> {
       }
     })
 
-  const englishPageDocuments: SearchDocument[] = Object.entries(englishPages).map(([key, page], index) => ({
-    id: `english-page-${index}`,
-    locale: 'en',
-    type: key.startsWith('products/') ? 'product-category' : 'corporate-solution',
-    title: page.title,
-    description: page.description,
-    category: key.startsWith('products') ? 'Products' : 'Pile Perde',
-    slug: key || 'home',
-    href: `/en${key ? `/${key}` : ''}`,
-    content: page.paragraphs.join(' ').slice(0, MAX_CONTENT_LENGTH),
-    enabled: true,
-  }))
-
-  const englishArticleDocuments: SearchDocument[] = Object.entries(englishArticles).map(([slug, article], index) => ({
-    id: `english-article-${index}`,
-    locale: 'en',
-    type: 'blog',
-    title: article.title,
-    description: article.description,
-    category: article.category,
-    slug,
-    href: `/en/blog/${slug}`,
-    content: article.paragraphs.join(' ').slice(0, MAX_CONTENT_LENGTH),
-    enabled: true,
-  }))
-
   return dedupeDocuments([
     ...categoryDocuments,
     ...productDocuments,
@@ -243,8 +216,6 @@ export async function getSiteSearchDocuments(): Promise<SearchDocument[]> {
     ...modelDocuments,
     ...corporateDocuments,
     ...blogDocuments,
-    ...englishPageDocuments,
-    ...englishArticleDocuments,
   ])
 }
 
@@ -308,7 +279,7 @@ export function searchSiteDocuments(
   documents: SearchDocument[],
   rawQuery: string,
   limit = 10,
-  locale: 'tr' | 'en' = 'tr',
+  locale: 'tr' = 'tr',
 ): SearchResult[] {
   const query = normalizeSearchText(rawQuery)
   if (query.length < 2) return []

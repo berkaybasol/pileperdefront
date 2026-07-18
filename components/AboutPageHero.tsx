@@ -38,21 +38,12 @@ const fallbackHero: AboutHeroContent = {
 type AboutPageHeroProps = {
   breadcrumbItems: BreadcrumbItem[]
   canonicalUrl: string
-  locale?: 'tr' | 'en'
 }
 
-const englishHero: AboutHeroContent = {
-  eyebrow: 'COMPANY',
-  title: 'About Us',
-  description: '35 years of expertise in curtains and interior textiles',
-}
-
-const AboutPageHero = ({ breadcrumbItems, canonicalUrl, locale = 'tr' }: AboutPageHeroProps) => {
-  const isEnglish = locale === 'en'
-  const [hero, setHero] = useState(isEnglish ? englishHero : fallbackHero)
+const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) => {
+  const [hero, setHero] = useState(fallbackHero)
 
   useEffect(() => {
-    if (isEnglish) return
     const loadHero = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/about`)
@@ -77,7 +68,7 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl, locale = 'tr' }: AboutPa
     }
 
     void loadHero()
-  }, [isEnglish])
+  }, [])
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black">

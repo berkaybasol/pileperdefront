@@ -19,7 +19,7 @@ const fallbackMetadata: Metadata = {
 
 export const generateMetadata = async () => ({
   ...(await getCmsPageMetadata("home", fallbackMetadata)),
-  alternates: turkishLocaleAlternates('/', '/en'),
+  alternates: turkishLocaleAlternates('/'),
 });
 
 export default function Home() {

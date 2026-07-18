@@ -6,7 +6,6 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import type { BreadcrumbItem } from '@/lib/breadcrumbs';
 import { getAllBlogPosts, getPublicBlogPostBySlug, getPublicBlogPosts } from '@/lib/blogContent';
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
-import { localeRoutePairs } from '@/lib/siteLocales';
 import { getPublicSiteSettings, normalizePhoneHref, normalizeWhatsAppNumber } from '@/lib/siteSettings';
 
 const SITE_URL = 'https://pileperde.com.tr';
@@ -85,20 +84,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const canonicalUrl = `https://pileperde.com.tr/blog/${post.slug}`;
-  const englishPath = localeRoutePairs.get(`/blog/${post.slug}`);
-
   return {
     title: `${post.title} - Pile Perde Blog`,
     description: post.excerpt,
     alternates: {
       canonical: canonicalUrl,
-      ...(englishPath ? {
-        languages: {
-          'tr-TR': canonicalUrl,
-          en: `https://pileperde.com.tr${englishPath}`,
-          'x-default': canonicalUrl,
-        },
-      } : {}),
+      languages: {
+        'tr-TR': canonicalUrl,
+        'x-default': canonicalUrl,
+      },
     },
   };
 }

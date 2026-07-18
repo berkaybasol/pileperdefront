@@ -19,7 +19,7 @@ const fallbackMetadata: Metadata = {
 
 export const generateMetadata = async () => ({
   ...(await getCmsPageMetadata("products", fallbackMetadata)),
-  alternates: turkishLocaleAlternates('/urunler', '/en/products'),
+  alternates: turkishLocaleAlternates('/urunler'),
 });
 
 export default async function ProductsPage() {

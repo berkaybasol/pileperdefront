@@ -22,7 +22,7 @@ const fallbackMetadata: Metadata = {
 
 export const generateMetadata = async () => ({
   ...(await getCmsPageMetadata(pageKey, fallbackMetadata)),
-  alternates: turkishLocaleAlternates('/urunler/motorlu-perdeler', '/en/products/motorised-window-treatments'),
+  alternates: turkishLocaleAlternates('/urunler/motorlu-perdeler'),
 })
 
 export default function MotorluPerdelerPage() {
