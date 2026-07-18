@@ -33,7 +33,7 @@ export default function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        aria-label="Dil seçimi"
+        aria-label={isEnglish ? 'Choose language' : 'Dil seçimi'}
         aria-haspopup="menu"
         aria-expanded={open}
         className="flex h-11 min-w-12 items-center justify-center gap-1.5 px-2 text-xs font-medium tracking-[0.12em] text-gray-300 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
@@ -45,7 +45,7 @@ export default function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div role="menu" aria-label="Dil seçenekleri" className="absolute right-0 top-full z-[110] mt-2 w-36 overflow-hidden rounded-lg border border-white/10 bg-[#111113]/95 p-1.5 shadow-2xl backdrop-blur-xl">
+        <div role="menu" aria-label={isEnglish ? 'Language options' : 'Dil seçenekleri'} className="absolute right-0 top-full z-[110] mt-2 w-36 overflow-hidden rounded-lg border border-white/10 bg-[#111113]/95 p-1.5 shadow-2xl backdrop-blur-xl">
           <Link
             role="menuitem"
             href={isEnglish ? alternative.href : pathname}
@@ -54,18 +54,24 @@ export default function LanguageSwitcher() {
             onClick={() => setOpen(false)}
             className={`block rounded-md px-3 py-2.5 text-sm transition-colors ${!isEnglish ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/[0.06] hover:text-white'}`}
           >
-            Türkçe
+            {isEnglish ? 'Turkish' : 'Türkçe'}
           </Link>
-          <Link
-            role="menuitem"
-            href={isEnglish ? pathname : alternative.href}
-            lang="en"
-            hrefLang="en"
-            onClick={() => setOpen(false)}
-            className={`block rounded-md px-3 py-2.5 text-sm transition-colors ${isEnglish ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/[0.06] hover:text-white'}`}
-          >
-            English
-          </Link>
+          {isEnglish || alternative.available ? (
+            <Link
+              role="menuitem"
+              href={isEnglish ? pathname : alternative.href}
+              lang="en"
+              hrefLang="en"
+              onClick={() => setOpen(false)}
+              className={`block rounded-md px-3 py-2.5 text-sm transition-colors ${isEnglish ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/[0.06] hover:text-white'}`}
+            >
+              English
+            </Link>
+          ) : (
+            <span role="menuitem" aria-disabled="true" lang="en" className="block cursor-not-allowed rounded-md px-3 py-2.5 text-sm text-gray-600">
+              English
+            </span>
+          )}
         </div>
       )}
     </div>

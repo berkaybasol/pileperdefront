@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import SiteSearch from '@/components/SiteSearch'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { englishNavigation, englishPages, englishProductCards } from '@/lib/englishContent'
 
 const socialLinks = [
   { name: 'WhatsApp', href: 'https://wa.me/905335127272' },
@@ -142,14 +143,25 @@ const Header = () => {
     { name: 'İletişim', href: '/iletisim' },
   ]
 
-  const activeNavigation = isEnglish ? [
-    { name: 'Home', href: '/en' },
-    { name: 'About', href: '/en/about' },
-    { name: 'Products', href: '/en/products' },
-    { name: 'Motorisation', href: '/en/products/motorised-window-treatments' },
-    { name: 'Journal', href: '/en/blog' },
-    { name: 'Contact', href: '/en/contact' },
-  ] : navigation
+  const activeNavigation = isEnglish
+    ? englishNavigation.map((item) => ('items' in item
+      ? {
+          name: item.name,
+          href: item.href,
+          megaMenu: true,
+          content: {
+            categories: item.items.map(([title, href]) => ({
+              title,
+              href,
+              image: englishPages[href.replace(/^\/en\/?/, '')]?.image
+                || englishProductCards.find(([, cardHref]) => cardHref === href)?.[3]
+                || '/api/public/media/images/8cecc447-bb34-4dec-a8ac-dc8ab189fe81/file',
+              items: [],
+            })),
+          },
+        }
+      : item))
+    : navigation
 
   return (
     <>
@@ -259,10 +271,10 @@ const Header = () => {
                             {/* Tüm Ürünler Butonu */}
                             <div className="border-t border-white/10 pt-4">
                               <Link
-                                href="/urunler"
+                                href={item.href}
                                 className="group relative inline-flex items-center justify-center w-full py-3 bg-white text-black overflow-hidden transition-all duration-300"
                               >
-                                <span className="relative z-10 font-medium">Tüm Ürünleri Görüntüle</span>
+                                <span className="relative z-10 font-medium">{isEnglish ? `View All ${item.name === 'Commercial' ? 'Commercial Solutions' : item.name}` : 'Tüm Ürünleri Görüntüle'}</span>
                                 <svg className="relative z-10 w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
@@ -356,7 +368,7 @@ const Header = () => {
               <SiteSearch />
               <LanguageSwitcher />
 
-            <div className="hidden lg:flex items-center gap-0.5 mr-2" aria-label="Sosyal medya bağlantıları">
+            <div className="hidden lg:flex items-center gap-0.5 mr-2" aria-label={isEnglish ? 'Social media links' : 'Sosyal medya bağlantıları'}>
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -387,7 +399,9 @@ const Header = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Mobil menüyü kapat' : 'Mobil menüyü aç'}
+              aria-label={mobileMenuOpen
+                ? (isEnglish ? 'Close mobile menu' : 'Mobil menüyü kapat')
+                : (isEnglish ? 'Open mobile menu' : 'Mobil menüyü aç')}
               aria-expanded={mobileMenuOpen}
               className="lg:hidden p-2 text-white"
             >
@@ -503,11 +517,11 @@ const Header = () => {
                                       </Link>
                                     ))}
                                     <Link
-                                      href="/urunler"
+                                      href={item.href}
                                       className="block py-3 mt-3 text-center bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-medium rounded-xl hover:bg-white hover:text-black transition-all"
                                       onClick={() => setMobileMenuOpen(false)}
                                     >
-                                      Tüm Ürünleri Görüntüle →
+                                      {isEnglish ? `View All ${item.name === 'Commercial' ? 'Commercial Solutions' : item.name} →` : 'Tüm Ürünleri Görüntüle →'}
                                     </Link>
                                   </>
                                 )}

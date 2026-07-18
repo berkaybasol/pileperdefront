@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getIndexableBlogPosts } from '@/lib/blogContent'
+import { englishArticles, englishPages } from '@/lib/englishContent'
 
 type SitemapEntry = {
   path: string
@@ -10,20 +11,6 @@ type SitemapEntry = {
 const baseUrl = 'https://pileperde.com.tr'
 
 const sitemapEntries: SitemapEntry[] = [
-  { path: '/en', changeFrequency: 'monthly', priority: 0.9 },
-  { path: '/en/about', changeFrequency: 'monthly', priority: 0.7 },
-  { path: '/en/contact', changeFrequency: 'monthly', priority: 0.7 },
-  { path: '/en/products', changeFrequency: 'monthly', priority: 0.85 },
-  { path: '/en/products/blinds-and-shades', changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/en/products/sheer-and-drapery', changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/en/products/upholstery-fabrics', changeFrequency: 'monthly', priority: 0.75 },
-  { path: '/en/products/motorised-window-treatments', changeFrequency: 'monthly', priority: 0.85 },
-  { path: '/en/products/curtain-accessories', changeFrequency: 'monthly', priority: 0.7 },
-  { path: '/en/products/metal-chain-curtains', changeFrequency: 'monthly', priority: 0.7 },
-  { path: '/en/blog', changeFrequency: 'weekly', priority: 0.7 },
-  { path: '/en/blog/wooden-venetian-blinds-guide', changeFrequency: 'monthly', priority: 0.65 },
-  { path: '/en/blog/motorised-window-treatments-guide', changeFrequency: 'monthly', priority: 0.65 },
-  { path: '/en/blog/how-to-choose-living-room-curtains', changeFrequency: 'monthly', priority: 0.65 },
   { path: '/', changeFrequency: 'yearly', priority: 1 },
   { path: '/hakkimizda', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/iletisim', changeFrequency: 'monthly', priority: 0.8 },
@@ -175,5 +162,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   })
 
-  return [...staticEntries, ...blogEntries]
+  const englishPageEntries: MetadataRoute.Sitemap = Object.keys(englishPages).map((key) => ({
+    url: `${baseUrl}/en${key ? `/${key}` : ''}`,
+    changeFrequency: 'monthly',
+    priority: key === '' ? 0.9 : key === 'products' ? 0.85 : 0.7,
+  }))
+  const englishBlogEntries: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}/en/journal`, changeFrequency: 'weekly', priority: 0.7 },
+    ...Object.keys(englishArticles).map((slug) => ({
+      url: `${baseUrl}/en/blog/${slug}`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.65,
+    })),
+  ]
+
+  return [...englishPageEntries, ...englishBlogEntries, ...staticEntries, ...blogEntries]
 }

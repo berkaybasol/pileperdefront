@@ -111,7 +111,11 @@ export default async function RootLayout({
   const locale = (await headers()).get('x-site-locale') === 'en' ? 'en' : 'tr';
 
   return (
-    <html lang={locale}>
+    <html
+      lang={locale}
+      translate={locale === 'en' ? 'no' : undefined}
+      className={locale === 'en' ? 'notranslate' : undefined}
+    >
       <body suppressHydrationWarning className={`${poppins.className} antialiased`}>
         <GoogleTagManager />
 
