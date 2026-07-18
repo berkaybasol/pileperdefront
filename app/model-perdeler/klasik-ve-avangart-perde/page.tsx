@@ -301,7 +301,7 @@ export default function KlasikAvangartPerdePage() {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extralight text-white mb-6">
-              {heroCopy.title}
+              Klasik
               <span className="block font-thin text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-white">
                 {heroCopy.highlightedTitle}
               </span>
