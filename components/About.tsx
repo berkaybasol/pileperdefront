@@ -96,18 +96,18 @@ const fallbackAboutContent: AboutContent = {
 const englishAboutContent: AboutContent = {
   eyebrow: 'ABOUT PILE PERDE',
   title: '35 Years of Expertise in Curtains and Interior Textiles',
-  lead: 'At Pile Perde, we work with leading textile companies in Türkiye and Europe to offer our clients the highest-quality curtains and upholstery fabrics.',
+  lead: 'At Pile Perde, we work with leading textile houses in Türkiye and Europe to offer our clients the highest-quality curtains and upholstery fabrics.',
   image: fallbackAboutContent.image,
   imageAlt: 'Pile Perde showroom in Ankara',
   experienceLabel: 'Years of Experience',
   ctaLabel: 'Learn More About Us',
   ctaHref: '/en/about',
   tabs: [
-    { key: 'mission', title: 'Our Mission', content: 'To enhance our clients’ living and working spaces and make them more functional by providing bespoke curtain and upholstery-fabric solutions for homes, offices, hotels, restaurants, cafés and public institutions.' },
-    { key: 'vision', title: 'Our Vision', content: 'Drawing on 35 years of experience, our vision is to remain at the forefront of the sector as Türkiye’s leading interior decoration brand, with solutions spanning classic, semi-classic, modern, country and avant-garde styles.' },
-    { key: 'values', title: 'Our Values', content: 'To be a trusted partner to interior designers, guided by quality products, on-time delivery, an expert team and a commitment to 100% customer satisfaction.' },
+    { key: 'mission', title: 'Our Mission', content: 'To enhance our clients’ living and working spaces, making them more beautiful and functional through bespoke curtains and upholstery fabrics for homes, offices, hotels, restaurants, cafés and public institutions.' },
+    { key: 'vision', title: 'Our Vision', content: 'Drawing on 35 years of experience, our vision is to remain at the forefront of the sector as Türkiye’s leading interiors brand, offering solutions in classic, semi-classic, modern, country and avant-garde styles.' },
+    { key: 'values', title: 'Our Values', content: 'To be a trusted partner to interior designers, guided by quality products, punctual delivery, an expert team and a commitment to 100% customer satisfaction.' },
   ],
-  services: ['Complimentary site survey', 'Flawless installation, guaranteed', 'A trusted partner to interior designers'],
+  services: ['Complimentary site survey', 'Guaranteed flawless installation', 'A trusted partner to interior designers'],
   stats: [
     { number: '35', label: 'Years of Experience', suffix: '' },
     { number: '5000', label: 'Completed Projects', suffix: '+' },

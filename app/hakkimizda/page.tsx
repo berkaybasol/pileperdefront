@@ -28,7 +28,7 @@ export default function AboutPage() {
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
       <div>
         <AboutPageHero breadcrumbItems={breadcrumbItems} canonicalUrl={canonicalUrl} />
-        <About />
+        <About showCta={false} />
       </div>
     </main>
   );
