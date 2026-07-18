@@ -24,7 +24,7 @@ export function Breadcrumbs({ items, canonicalUrl, className = '' }: Breadcrumbs
               {isLast ? (
                 <span aria-current="page" className="text-gray-300">{item.name}</span>
               ) : (
-                <Link href={item.url} className="transition-colors hover:text-white">{item.name}</Link>
+                <Link href={item.url} className="inline-flex min-h-11 items-center transition-colors hover:text-white">{item.name}</Link>
               )}
             </li>
           )

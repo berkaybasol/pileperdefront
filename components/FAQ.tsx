@@ -3,10 +3,11 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 
-const FAQ = () => {
+const FAQ = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
+  const isEnglish = locale === 'en'
   const [openQuestion, setOpenQuestion] = useState<number | null>(null)
 
-  const faqs = [
+  const turkishFaqs = [
     {
       id: 1,
       question: "Ölçü alma ve montaj ücreti var mı?",
@@ -48,6 +49,16 @@ const FAQ = () => {
       answer: "Evet, otel, hastane, okul, ofis gibi kurumsal projelere özel çözümler sunuyoruz. Toplu alımlarda özel fiyatlandırma, proje bazlı üretim ve profesyonel proje yönetimi hizmetlerimiz mevcuttur."
     }
   ]
+  const faqs = isEnglish ? [
+    { id: 1, question: 'Do you charge for measuring and installation?', answer: 'Measuring and installation are complimentary within Ankara. Our experienced team visits your property, takes precise measurements and completes the installation with care.' },
+    { id: 2, question: 'How long will my order take?', answer: 'Our usual lead time for standard orders is 7–10 working days. Bespoke designs and larger projects may require longer; we confirm a clear delivery programme at the outset.' },
+    { id: 3, question: 'Which payment methods do you accept?', answer: 'We accept cash, credit cards and bank transfers. Instalment options may also be available depending on the card provider and order value.' },
+    { id: 4, question: 'Can you help me choose the right fabric and design?', answer: 'Certainly. We consider your interior, practical requirements and budget before recommending suitable fabrics, curtain headings, blinds and finishes. More than 500 fabric options can be viewed in our showroom.' },
+    { id: 5, question: 'What warranty do you provide?', answer: 'Our fabrics and workmanship are covered for two years. Selected motors and operating systems carry warranties of up to five years. We also provide competitively priced servicing outside the warranty period.' },
+    { id: 6, question: 'Can I place an order remotely?', answer: 'You can share photographs and approximate measurements through WhatsApp for an initial discussion. For the best result, we recommend a showroom consultation or our professional measuring service.' },
+    { id: 7, question: 'Can you alter or refurbish existing curtains?', answer: 'Depending on their condition, existing curtains may be altered, cleaned or remade. We will inspect the fabric and construction before recommending the most worthwhile approach.' },
+    { id: 8, question: 'Do you undertake commercial projects?', answer: 'Yes. We provide project-specific curtains, blinds and shading systems for hotels, healthcare settings, schools, offices and hospitality interiors, including specification, production and installation.' },
+  ] : turkishFaqs
 
   const toggleQuestion = (id: number) => {
     setOpenQuestion(openQuestion === id ? null : id)
@@ -78,15 +89,15 @@ const FAQ = () => {
           <div className="inline-block mb-4">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="w-12 h-[1px] bg-gray-700"></span>
-              <span className="uppercase tracking-[0.2em] font-light">SIKÇA SORULAN SORULAR</span>
+              <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'FREQUENTLY ASKED QUESTIONS' : 'SIKÇA SORULAN SORULAR'}</span>
               <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
           </div>
           <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-            Merak <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">Edilenler</span>
+            {isEnglish ? <>Questions <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">Answered</span></> : <>Merak <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">Edilenler</span></>}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto font-light">
-            Sizden gelen soruları yanıtladık
+            {isEnglish ? 'Practical guidance on consultation, ordering and installation.' : 'Sizden gelen soruları yanıtladık'}
           </p>
         </motion.div>
 

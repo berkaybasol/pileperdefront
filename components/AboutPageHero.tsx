@@ -38,12 +38,21 @@ const fallbackHero: AboutHeroContent = {
 type AboutPageHeroProps = {
   breadcrumbItems: BreadcrumbItem[]
   canonicalUrl: string
+  locale?: 'tr' | 'en'
 }
 
-const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) => {
-  const [hero, setHero] = useState(fallbackHero)
+const englishHero: AboutHeroContent = {
+  eyebrow: 'COMPANY',
+  title: 'About Us',
+  description: '35 years of expertise in curtains and interior textiles',
+}
+
+const AboutPageHero = ({ breadcrumbItems, canonicalUrl, locale = 'tr' }: AboutPageHeroProps) => {
+  const isEnglish = locale === 'en'
+  const [hero, setHero] = useState(isEnglish ? englishHero : fallbackHero)
 
   useEffect(() => {
+    if (isEnglish) return
     const loadHero = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/about`)
@@ -68,7 +77,7 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) =>
     }
 
     void loadHero()
-  }, [])
+  }, [isEnglish])
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black">
@@ -76,7 +85,7 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) =>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900/20 via-black to-black" />
         <div className="absolute inset-0 bg-grid-white/[0.02]" />
       </div>
-      <div className="relative container mx-auto px-4 lg:px-8 py-20">
+      <div className="relative container mx-auto px-4 lg:px-8 py-16 sm:py-20">
         <div className="text-center">
           <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
           <div className="inline-block mb-4">
@@ -86,8 +95,8 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) =>
               <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-extralight text-white mb-4">{hero.title}</h1>
-          <p className="text-gray-400 font-light text-base">{hero.description}</p>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extralight text-white mb-4 break-words">{hero.title}</h1>
+          <p className="mx-auto max-w-2xl text-gray-400 font-light text-sm sm:text-base leading-relaxed">{hero.description}</p>
         </div>
       </div>
     </section>

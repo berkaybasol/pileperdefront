@@ -87,9 +87,32 @@ const fallbackAboutContent: AboutContent = {
   ],
   stats: [
     { number: '35', label: 'Yıllık Deneyim', suffix: '' },
-    { number: '1482', label: 'Tamamlanan Proje', suffix: '+' },
+    { number: '5000', label: 'Tamamlanan Proje', suffix: '+' },
     { number: '15', label: 'Mutlu Müşteri', suffix: 'K+' },
     { number: '99', label: 'Müşteri Memnuniyeti', suffix: '%' },
+  ],
+}
+
+const englishAboutContent: AboutContent = {
+  eyebrow: 'ABOUT PILE PERDE',
+  title: '35 Years of Expertise in Curtains and Interior Textiles',
+  lead: 'At Pile Perde, we work with leading textile companies in Türkiye and Europe to offer our clients the highest-quality curtains and upholstery fabrics.',
+  image: fallbackAboutContent.image,
+  imageAlt: 'Pile Perde showroom in Ankara',
+  experienceLabel: 'Years of Experience',
+  ctaLabel: 'Learn More About Us',
+  ctaHref: '/en/about',
+  tabs: [
+    { key: 'mission', title: 'Our Mission', content: 'To enhance our clients’ living and working spaces and make them more functional by providing bespoke curtain and upholstery-fabric solutions for homes, offices, hotels, restaurants, cafés and public institutions.' },
+    { key: 'vision', title: 'Our Vision', content: 'Drawing on 35 years of experience, our vision is to remain at the forefront of the sector as Türkiye’s leading interior decoration brand, with solutions spanning classic, semi-classic, modern, country and avant-garde styles.' },
+    { key: 'values', title: 'Our Values', content: 'To be a trusted partner to interior designers, guided by quality products, on-time delivery, an expert team and a commitment to 100% customer satisfaction.' },
+  ],
+  services: ['Complimentary site survey', 'Flawless installation, guaranteed', 'A trusted partner to interior designers'],
+  stats: [
+    { number: '35', label: 'Years of Experience', suffix: '' },
+    { number: '5000', label: 'Completed Projects', suffix: '+' },
+    { number: '15', label: 'Happy Clients', suffix: 'K+' },
+    { number: '99', label: 'Client Satisfaction', suffix: '%' },
   ],
 }
 
@@ -131,9 +154,11 @@ const parseAboutContent = (section: CmsSection | null): AboutContent => {
   }
 }
 
-const About = () => {
-  const [activeTab, setActiveTab] = useState(fallbackAboutContent.tabs[0].key)
-  const [aboutContent, setAboutContent] = useState(fallbackAboutContent)
+const About = ({ locale = 'tr', showCta = true }: { locale?: 'tr' | 'en', showCta?: boolean }) => {
+  const isEnglish = locale === 'en'
+  const initialContent = isEnglish ? englishAboutContent : fallbackAboutContent
+  const [activeTab, setActiveTab] = useState(initialContent.tabs[0].key)
+  const [aboutContent, setAboutContent] = useState(initialContent)
 
   useEffect(() => {
     const loadAboutContent = async () => {
@@ -145,7 +170,18 @@ const About = () => {
 
         const body = await response.json() as ApiResponse<CmsPage>
         const section = body.data.sections.find((item) => item.sectionKey === 'about.main' && item.enabled) || null
-        const nextContent = parseAboutContent(section)
+        const cmsContent = parseAboutContent(section)
+        const nextContent = isEnglish
+          ? {
+              ...englishAboutContent,
+              image: cmsContent.image,
+              stats: englishAboutContent.stats.map((stat, index) => ({
+                ...stat,
+                number: cmsContent.stats[index]?.number || stat.number,
+                suffix: cmsContent.stats[index]?.suffix ?? stat.suffix,
+              })),
+            }
+          : cmsContent
         setAboutContent(nextContent)
         setActiveTab(nextContent.tabs[0]?.key || fallbackAboutContent.tabs[0].key)
       } catch {
@@ -153,7 +189,7 @@ const About = () => {
     }
 
     void loadAboutContent()
-  }, [])
+  }, [isEnglish])
 
   const selectedTab = useMemo(
     () => aboutContent.tabs.find((tab) => tab.key === activeTab) || aboutContent.tabs[0],
@@ -192,12 +228,12 @@ const About = () => {
             </p>
 
             <div className="mb-8">
-              <div className="flex space-x-1 mb-6 border-b border-white/10 overflow-x-auto">
+              <div className="grid grid-cols-3 mb-6 border-b border-white/10">
                 {aboutContent.tabs.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`px-4 lg:px-6 py-3 text-xs lg:text-sm font-light uppercase tracking-wider transition-all duration-300 relative whitespace-nowrap ${
+                    className={`min-h-12 px-1.5 sm:px-3 lg:px-6 py-3 text-[10px] sm:text-xs lg:text-sm font-light uppercase tracking-[0.08em] sm:tracking-wider transition-all duration-300 relative break-words ${
                       activeTab === tab.key
                         ? 'text-white'
                         : 'text-gray-500 hover:text-gray-400'
@@ -227,8 +263,8 @@ const About = () => {
 
             <div className="space-y-3 mb-8">
               {aboutContent.services.map((service) => (
-                <div key={service} className="group flex items-center gap-3 transition-all duration-300 hover:translate-x-2">
-                  <div className="w-5 h-5 rounded-full bg-white/5 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white/10">
+                <div key={service} className="group flex items-start gap-3 transition-all duration-300 hover:translate-x-2">
+                  <div className="w-5 h-5 mt-0.5 shrink-0 rounded-full bg-white/5 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white/10">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
                   <span className="text-gray-400 font-light group-hover:text-white">{service}</span>
@@ -236,16 +272,18 @@ const About = () => {
               ))}
             </div>
 
-            <Link
-              href={aboutContent.ctaHref}
-              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black overflow-hidden transition-all duration-300"
-            >
-              <span className="relative z-10 font-medium">{aboutContent.ctaLabel}</span>
-              <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
-            </Link>
+            {showCta && (
+              <Link
+                href={aboutContent.ctaHref}
+                className="group relative inline-flex min-h-12 max-w-full items-center gap-3 px-6 sm:px-8 py-4 bg-white text-black overflow-hidden transition-all duration-300"
+              >
+                <span className="relative z-10 font-medium">{aboutContent.ctaLabel}</span>
+                <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
+              </Link>
+            )}
           </motion.div>
 
           <motion.div
@@ -283,15 +321,15 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-8 mt-20 pt-20 border-t border-white/10"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-8 sm:gap-8 mt-16 lg:mt-20 pt-16 lg:pt-20 border-t border-white/10"
         >
           {aboutContent.stats.map((stat, index) => (
             <div key={`${stat.label}-${index}`} className="text-center group">
-              <div className="text-4xl lg:text-5xl font-extralight text-white mb-2 transition-colors duration-300 group-hover:text-gray-400">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-extralight text-white mb-2 transition-colors duration-300 group-hover:text-gray-400">
                 {stat.number}
                 <span className="text-2xl lg:text-3xl text-gray-500">{stat.suffix}</span>
               </div>
-              <div className="text-sm text-gray-500 font-light uppercase tracking-[0.15em]">{stat.label}</div>
+              <div className="px-1 text-[10px] sm:text-xs lg:text-sm text-gray-500 font-light uppercase leading-relaxed tracking-[0.08em] sm:tracking-[0.15em] break-words">{stat.label}</div>
             </div>
           ))}
         </motion.div>

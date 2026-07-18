@@ -13,10 +13,18 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
-const Blog = () => {
-  const [latestPosts, setLatestPosts] = useState(defaultBlogPosts.slice(0, 3))
+const englishPosts = [
+  { id: 1001, title: 'Wooden Venetian Blinds: Design, Performance and Specification', excerpt: 'A considered guide to timber finishes, slat proportions, light control and professional installation.', content: '', category: 'Materials & Specification', date: '18 February 2026', image: defaultBlogPosts[0]?.image, readTime: '6 min read', href: '/en/blog/wooden-venetian-blinds-guide', slug: 'wooden-venetian-blinds-guide' },
+  { id: 1002, title: 'A Designer’s Guide to Motorised Window Treatments', excerpt: 'How to coordinate motors, controls, fabrics and architectural detailing for a discreet automated scheme.', content: '', category: 'Motorisation', date: '12 February 2026', image: defaultBlogPosts[1]?.image, readTime: '7 min read', href: '/en/blog/motorised-window-treatments-guide', slug: 'motorised-window-treatments-guide' },
+  { id: 1003, title: 'How to Choose Curtains for a Living Room', excerpt: 'A practical approach to sheers, decorative curtains, tracks, fabric weight and layered light control.', content: '', category: 'Design Advice', date: '6 February 2026', image: defaultBlogPosts[2]?.image, readTime: '5 min read', href: '/en/blog/how-to-choose-living-room-curtains', slug: 'how-to-choose-living-room-curtains' },
+]
+
+const Blog = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
+  const isEnglish = locale === 'en'
+  const [latestPosts, setLatestPosts] = useState(isEnglish ? englishPosts : defaultBlogPosts.slice(0, 3))
 
   useEffect(() => {
+    if (isEnglish) return
     let isMounted = true
 
     getPublicBlogPosts().then((posts) => {
@@ -28,7 +36,7 @@ const Blog = () => {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [isEnglish])
 
   return (
     <section className="py-20 lg:py-32 bg-gradient-to-b from-black via-gray-950 to-zinc-950 relative overflow-hidden">
@@ -49,16 +57,15 @@ const Blog = () => {
           <div className="inline-block mb-4">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="w-12 h-[1px] bg-gray-700"></span>
-              <span className="uppercase tracking-[0.2em] font-light">BLOG</span>
+              <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'JOURNAL' : 'BLOG'}</span>
               <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
           </div>
           <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-            Dekorasyon <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">Önerileri</span>
+            {isEnglish ? <>Curtains, Blinds & <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">Interior Design</span></> : <>Dekorasyon <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600">Önerileri</span></>}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto font-light">
-            Perde seçimi, bakımı ve dekorasyon trendleri hakkında
-            uzman önerilerimizi keşfedin.
+            {isEnglish ? 'Professional guidance on materials, motorisation and beautifully resolved window treatments.' : 'Perde seçimi, bakımı ve dekorasyon trendleri hakkında uzman önerilerimizi keşfedin.'}
           </p>
         </motion.div>
 
@@ -107,7 +114,7 @@ const Blog = () => {
                     </p>
 
                     <div className="flex items-center text-sm text-white font-medium group-hover:text-gray-300 transition-colors">
-                      <span>Devamını Oku</span>
+                      <span>{isEnglish ? 'Read the Article' : 'Devamını Oku'}</span>
                       <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>
@@ -184,7 +191,7 @@ const Blog = () => {
                         </p>
 
                         <div className="flex items-center text-sm text-white font-medium">
-                          <span>Devamını Oku</span>
+                          <span>{isEnglish ? 'Read the Article' : 'Devamını Oku'}</span>
                           <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                           </svg>
@@ -221,10 +228,10 @@ const Blog = () => {
           className="text-center mt-12 lg:mt-16"
         >
           <Link
-            href="/blog"
+            href={isEnglish ? '/en/journal' : '/blog'}
             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black overflow-hidden transition-all duration-300"
           >
-            <span className="relative z-10 font-medium">Tüm Yazıları Görüntüle</span>
+            <span className="relative z-10 font-medium">{isEnglish ? 'View All Journal Articles' : 'Tüm Yazıları Görüntüle'}</span>
             <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

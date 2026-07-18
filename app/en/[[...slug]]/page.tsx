@@ -2,7 +2,12 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
+import EnglishProductGallery from '@/components/EnglishProductGallery'
+import EnglishHome from '@/components/EnglishHome'
+import About from '@/components/About'
+import AboutPageHero from '@/components/AboutPageHero'
 import { englishArticles, englishPages, englishProductCards, getEnglishChildPages, getEnglishParentKey } from '@/lib/englishContent'
+import { getPublicProductGallery, getPublicProductGalleryVideo, type ProductGalleryImage } from '@/lib/productGalleryContent'
 import { localeAlternates, SITE_URL } from '@/lib/siteLocales'
 
 type Params = { slug?: string[] }
@@ -121,6 +126,8 @@ export default async function EnglishPage({ params }: { params: Promise<Params> 
   const content = article || englishPages[key]
   if (!content) notFound()
 
+  if (key === '') return <EnglishHome />
+
   const englishPath = `/en${key ? `/${key}` : ''}`
   const breadcrumbs = article
     ? [
@@ -129,7 +136,57 @@ export default async function EnglishPage({ params }: { params: Promise<Params> 
         { name: content.title, item: `${SITE_URL}${englishPath}` },
       ]
     : breadcrumbsFor(key, content.title)
+  if (key === 'about') {
+    const aboutBreadcrumbs = breadcrumbs.map((item) => ({
+      name: item.name,
+      url: item.item.replace(SITE_URL, ''),
+    }))
+    return (
+      <main className="min-h-screen bg-black text-white overflow-x-clip">
+        <JsonLd value={{ '@context': 'https://schema.org', '@type': 'AboutPage', '@id': `${SITE_URL}${englishPath}#primary`, url: `${SITE_URL}${englishPath}`, name: content.title, description: content.description, inLanguage: 'en-GB', isPartOf: { '@id': `${SITE_URL}/#website` } }} />
+        <JsonLd value={{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', '@id': `${SITE_URL}${englishPath}#breadcrumb`, itemListElement: breadcrumbs.map((item, index) => ({ '@type': 'ListItem', position: index + 1, ...item })) }} />
+        <AboutPageHero breadcrumbItems={aboutBreadcrumbs} canonicalUrl={`${SITE_URL}${englishPath}`} locale="en" />
+        <About locale="en" showCta={false} />
+      </main>
+    )
+  }
   const childPages = article ? [] : getEnglishChildPages(key)
+  const galleryCategoryKeys = new Set([
+    'products/blinds-and-shades',
+    'products/sheer-and-drapery',
+    'products/upholstery-fabrics',
+    'products/motorised-window-treatments',
+    'products/curtain-accessories',
+    'products/metal-chain-curtains',
+  ])
+  const hasProductGallery = !article
+    && (content.turkishPath.startsWith('/model-perdeler/')
+      || content.turkishPath.startsWith('/kurumsal-urunler/')
+      || (content.turkishPath.startsWith('/urunler/') && !galleryCategoryKeys.has(key)))
+  const productGalleryPageKey = `product-gallery-${content.turkishPath.replace(/^\/+|\/+$/g, '').replaceAll('/', '-')}`
+  const productGalleryFallback: ProductGalleryImage[] = [{
+    id: 1,
+    src: content.image || SOCIAL_IMAGE,
+    alt: `${content.title} gallery image 1`,
+    title: `${content.title} 1`,
+  }]
+  const productGalleryImages = hasProductGallery
+    ? (await getPublicProductGallery(productGalleryPageKey, productGalleryFallback)).map((image, index) => ({
+        ...image,
+        alt: `${content.title} gallery image ${index + 1}`,
+        title: `${content.title} ${index + 1}`,
+      }))
+    : []
+  const productGalleryVideo = hasProductGallery
+    ? await getPublicProductGalleryVideo(productGalleryPageKey)
+    : undefined
+  const englishProductGalleryVideo = productGalleryVideo?.enabled !== false && productGalleryVideo?.youtubeUrl
+    ? {
+        ...productGalleryVideo,
+        title: `How ${content.title} Operate`,
+        description: `Watch how this ${content.title.toLowerCase()} solution operates and see the principal specification details.`,
+      }
+    : undefined
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-950 to-black text-white">
@@ -175,6 +232,10 @@ export default async function EnglishPage({ params }: { params: Promise<Params> 
           {content.image && <div className="relative min-h-80 overflow-hidden rounded-2xl"><Image src={content.image} alt={content.title} fill className="object-cover" /></div>}
         </div>
       </section>
+
+      {hasProductGallery && (
+        <EnglishProductGallery key={productGalleryPageKey} title={content.title} initialImages={productGalleryImages} video={englishProductGalleryVideo} />
+      )}
 
       {(key === '' || key === 'products') && (
         <section className="border-t border-white/10 px-6 py-20">

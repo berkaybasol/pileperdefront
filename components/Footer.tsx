@@ -8,7 +8,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="relative bg-gradient-to-b from-black to-gray-950 pt-20 pb-8 border-t border-white/5">
+    <footer className="relative bg-gradient-to-b from-black to-gray-950 pt-20 pb-8 border-t border-white/5 [&_a]:min-h-11">
       {/* Dark Glassmorphism Background Pattern */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-gray-900/10 via-black to-black" />

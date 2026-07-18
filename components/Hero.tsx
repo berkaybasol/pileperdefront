@@ -64,10 +64,12 @@ const normalizeVerifiedStats = (stats: HeroStat[]) => stats.map((stat) =>
     : stat
 )
 
-const Hero = () => {
+const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
+  const isEnglish = locale === 'en'
   const [heroContent, setHeroContent] = useState<HeroCmsContent | null>(null)
 
   useEffect(() => {
+    if (isEnglish) return
     const loadHeroContent = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/home`, {
@@ -112,9 +114,42 @@ const Hero = () => {
     }
 
     void loadHeroContent()
-  }, [])
+  }, [isEnglish])
 
-  const fallbackSlides = useMemo(() => [
+  const fallbackSlides = useMemo(() => isEnglish ? [
+    {
+      id: 1,
+      title: 'Contemporary Curtain Designs',
+      subtitle: 'Considered Modern Interiors',
+      description: 'Curtains are the defining final layer of an interior. Our contemporary schemes balance proportion, fabric and daylight to create calm, beautifully resolved rooms.',
+      image: '/api/public/media/images/2ec18b59-7848-4fcf-9b14-e72e00850a47/file',
+      link: '/en/curtain-designs/contemporary',
+    },
+    {
+      id: 2,
+      title: 'Classic & Ornate Curtain Designs',
+      subtitle: 'Timeless Elegance',
+      description: 'Carefully judged classical details bring depth and individuality to an interior while retaining a refined, balanced character.',
+      image: '/api/public/media/images/1257dce8-6141-47d9-8d0b-b3f4337daf65/file',
+      link: '/en/curtain-designs/classic-and-ornate',
+    },
+    {
+      id: 3,
+      title: 'Made-to-Measure Roller Blinds',
+      subtitle: 'Practical Shading Solutions',
+      description: 'Roller blinds offer precise light control, straightforward operation and an extensive choice of technical and decorative fabrics for residential and commercial interiors.',
+      image: '/api/public/media/images/fba75649-b296-4612-af5b-a2e4feff19d7/file',
+      link: '/en/products/blinds/roller-blinds',
+    },
+    {
+      id: 4,
+      title: 'Cross-over Curtain Designs',
+      subtitle: 'Graceful Decorative Drapery',
+      description: 'Cross-over curtains create an elegant, softly gathered composition with a distinctive decorative presence at the window.',
+      image: '/api/public/media/images/f3dd50c6-fc26-4672-9666-1b1504fb1982/file',
+      link: '/en/curtain-designs/cross-over',
+    },
+  ] : [
     {
       id: 1,
       title: heroContent?.title || 'Modern Perde',
@@ -147,14 +182,16 @@ const Hero = () => {
       image: '/api/public/media/images/f3dd50c6-fc26-4672-9666-1b1504fb1982/file',
       link: '/model-perdeler/kruvaze-perde/'
     }
-  ], [heroContent])
+  ], [heroContent, isEnglish])
 
   const slides = heroContent?.slides?.length ? heroContent.slides : fallbackSlides
-  const stats = heroContent?.stats?.length ? heroContent.stats : fallbackStats
+  const stats = isEnglish
+    ? [{ number: '500', suffix: '+', label: 'Projects' }, { number: '35', suffix: '+', label: 'Years of Experience' }, { number: '100', suffix: '%', label: 'Satisfaction' }]
+    : heroContent?.stats?.length ? heroContent.stats : fallbackStats
 
   return (
     <>
-      <h1 className="sr-only">Ankara’da Özel Ölçü Perde ve Motorlu Perde Sistemleri</h1>
+      <h1 className="sr-only">{isEnglish ? 'Made-to-measure curtains, blinds and motorised window treatments in Ankara' : 'Ankara’da Özel Ölçü Perde ve Motorlu Perde Sistemleri'}</h1>
 
       {/* Desktop Hero */}
       <section className="hidden lg:block relative w-full h-[85vh] bg-gradient-to-b from-gray-950 to-black overflow-hidden">
@@ -222,7 +259,7 @@ const Hero = () => {
                           href={slide.link}
                           className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black overflow-hidden transition-all duration-300"
                         >
-                          <span className="relative z-10 font-medium">Detayları İncele</span>
+                          <span className="relative z-10 font-medium">{isEnglish ? 'View Details' : 'Detayları İncele'}</span>
                           <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -231,10 +268,10 @@ const Hero = () => {
                         </Link>
 
                         <Link
-                          href="/iletisim"
+                          href={isEnglish ? '/en/contact' : '/iletisim'}
                           className="inline-flex items-center justify-center px-8 py-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
                         >
-                          İletişime Geç
+                          {isEnglish ? 'Contact Us' : 'İletişime Geç'}
                         </Link>
                       </div>
 
@@ -375,14 +412,14 @@ const Hero = () => {
                           href={slide.link}
                           className="flex-1 inline-flex items-center justify-center px-4 py-2.5 text-xs bg-white text-black font-medium transition-all duration-300"
                         >
-                          Detaylar
+                          {isEnglish ? 'View Details' : 'Detaylar'}
                         </Link>
 
                         <Link
-                          href="/iletisim"
+                          href={isEnglish ? '/en/contact' : '/iletisim'}
                           className="flex-1 inline-flex items-center justify-center px-4 py-2.5 text-xs border border-white/20 text-white font-medium transition-all duration-300"
                         >
-                          İletişim
+                          {isEnglish ? 'Contact Us' : 'İletişim'}
                         </Link>
                       </div>
 

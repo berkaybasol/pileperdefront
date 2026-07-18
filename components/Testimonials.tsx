@@ -8,7 +8,8 @@ import { Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 
-const Testimonials = () => {
+const Testimonials = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
+  const isEnglish = locale === 'en'
   const [expandedReview, setExpandedReview] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -23,7 +24,7 @@ const Testimonials = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const reviews = [
+  const turkishReviews = [
     {
       id: 1,
       name: "Züleyha Akduman",
@@ -67,6 +68,14 @@ const Testimonials = () => {
       comment: "Evimizin balkon jaluzilerini, salon fonunu ve perdesini yaptırdık. Burak bey çok ilgiliydi tam söyleyenen sürede teslim etti tahmin ettiğimden çok daha güzel ve modern durdu. Yapılan dikişler, montaj yapan arkadaşların kibarlığı, kumaşların kalitesi çok güzeldi. Son dönemde hiç bu kadar ilgili firma görmemiştim. Çok içime sinen memnun kaldığım bir iş oldu…"
     }
   ]
+  const reviews = isEnglish ? [
+    { id: 1, name: 'Züleyha Akduman', date: 'a week ago', rating: 5, comment: 'The team worked tirelessly to achieve an excellent result and kept us informed throughout. Pile Perde combines warmth and courtesy with meticulous delivery and installation. My thanks to Burak and the team for the superb materials and workmanship in a particularly challenging space.' },
+    { id: 2, name: 'Berk Ayan', date: '2 months ago', rating: 5, comment: 'Burak was exceptionally courteous and helped with both the curtain selection and pricing. The curtains were delivered on schedule and beautifully made. Mustafa also handled the measuring and installation with great care and worked very cleanly.' },
+    { id: 3, name: 'Ayten Oz', date: '3 months ago', rating: 5, comment: 'A professional and dependable company offering an extensive range of quality curtains for different tastes and budgets. Necla and Burak made the selection process straightforward with thoughtful advice, accurate measuring and careful assessment. The making, fit and punctual delivery were all excellent.' },
+    { id: 4, name: 'Ceren Fatma Köksal Algın', date: '6 months ago', rating: 5, comment: 'We chose Pile Perde after reading their Google reviews. Burak gave us generous time, answered every technical question and helped us refine the design without pressure. The measuring and installation team arrived exactly when promised and worked very cleanly. They also developed an excellent solution for our unusually high ceilings; the finished curtains made the house feel complete.' },
+    { id: 5, name: 'Güldalı Kılıç', date: '6 months ago', rating: 5, comment: 'We are delighted that we entrusted the curtains throughout our home to Pile Perde. Burak and his team listened carefully to every request and approached the work with remarkable dedication. The showroom selection, workmanship and help with the missing curtain tracks were all excellent.' },
+    { id: 6, name: 'Elif Özdil Pelvan', date: '7 months ago', rating: 5, comment: 'Pile Perde made the Venetian blinds for our balcony as well as the sheers and decorative curtains for our living room. Delivery was exactly on time and the result looks even more elegant and contemporary than expected. The sewing, fabrics and considerate installation team were all excellent.' },
+  ] : turkishReviews
 
   const toggleExpand = (id: number) => {
     setExpandedReview(expandedReview === id ? null : id)
@@ -120,7 +129,7 @@ const Testimonials = () => {
             onClick={() => toggleExpand(review.id)}
             className="mt-4 text-left text-gray-500 hover:text-white text-sm transition-colors"
           >
-            {isExpanded ? 'Daha az göster' : 'Devamını oku'}
+            {isExpanded ? (isEnglish ? 'Show less' : 'Daha az göster') : (isEnglish ? 'Read more' : 'Devamını oku')}
           </button>
         )}
 
@@ -163,15 +172,15 @@ const Testimonials = () => {
           <div className="inline-block mb-4">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="w-12 h-[1px] bg-gray-700"></span>
-              <span className="uppercase tracking-[0.2em] font-light">MÜŞTERİ YORUMLARI</span>
+              <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'GOOGLE REVIEWS' : 'MÜŞTERİ YORUMLARI'}</span>
               <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
           </div>
           <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-            Müşterilerimizin Görüşleri
+            {isEnglish ? 'What Our Clients Say' : 'Müşterilerimizin Görüşleri'}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto font-light">
-            Google yorumlarından alınan gerçek müşteri deneyimleri
+            {isEnglish ? 'Genuine client experiences shared on Google.' : 'Google yorumlarından alınan gerçek müşteri deneyimleri'}
           </p>
         </motion.div>
 
@@ -220,7 +229,7 @@ const Testimonials = () => {
             rel="noopener noreferrer"
             className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black overflow-hidden transition-all duration-300"
           >
-            <span className="relative z-10 font-medium">Tüm Yorumları Google&apos;da Görüntüle</span>
+            <span className="relative z-10 font-medium">{isEnglish ? 'View All Reviews on Google' : <>Tüm Yorumları Google&apos;da Görüntüle</>}</span>
             <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>

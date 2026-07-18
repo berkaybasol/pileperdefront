@@ -21,17 +21,20 @@ interface ProductsProps {
   showSwiper?: boolean
   initialItems?: CatalogItem[]
   initialCopy?: ProductSectionCopy
+  loadCms?: boolean
 }
 
 const Products = ({
   showSwiper = true,
   initialItems = defaultProductItems,
   initialCopy = defaultProductSectionCopy,
+  loadCms = true,
 }: ProductsProps) => {
   const [products, setProducts] = useState(initialItems)
   const [copy, setCopy] = useState(initialCopy)
 
   useEffect(() => {
+    if (!loadCms) return
     let isMounted = true
 
     getPublicProductsPageContent().then((content) => {
@@ -50,7 +53,7 @@ const Products = ({
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [loadCms])
 
   return (
     <section className="relative bg-gradient-to-b from-zinc-950 to-black py-12 lg:py-32">

@@ -14,12 +14,17 @@ import 'swiper/css/pagination'
 
 interface CorporateProps {
   showSwiper?: boolean;
+  initialItems?: typeof defaultCorporateItems;
+  locale?: 'tr' | 'en';
+  loadCms?: boolean;
 }
 
-const Corporate = ({ showSwiper = true }: CorporateProps) => {
-  const [corporateProducts, setCorporateProducts] = useState(defaultCorporateItems)
+const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, locale = 'tr', loadCms = true }: CorporateProps) => {
+  const isEnglish = locale === 'en'
+  const [corporateProducts, setCorporateProducts] = useState(initialItems)
 
   useEffect(() => {
+    if (!loadCms) return
     let isMounted = true
 
     getPublicCorporateItems().then((items) => {
@@ -31,7 +36,7 @@ const Corporate = ({ showSwiper = true }: CorporateProps) => {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [loadCms])
 
   return (
     <section className="py-20 lg:py-32 bg-gradient-to-b from-stone-950 to-black relative overflow-hidden">
@@ -53,16 +58,15 @@ const Corporate = ({ showSwiper = true }: CorporateProps) => {
           <div className="inline-block mb-4">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="w-12 h-[1px] bg-gray-700"></span>
-              <span className="uppercase tracking-[0.2em] font-light">KURUMSAL ÜRÜNLER</span>
+              <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'COMMERCIAL SOLUTIONS' : 'KURUMSAL ÜRÜNLER'}</span>
               <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
           </div>
           <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-            Profesyonel Mekanlar İçin <span className="text-gray-400">Özel Çözümler</span>
+            {isEnglish ? <>Made-to-measure Solutions for <span className="text-gray-400">Professional Interiors</span></> : <>Profesyonel Mekanlar İçin <span className="text-gray-400">Özel Çözümler</span></>}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto font-light">
-            Otelden hastaneye, restorandan ofise kadar tüm kurumsal projeleriniz için
-            özel üretim perde ve dekorasyon çözümleri sunuyoruz.
+            {isEnglish ? 'Bespoke curtains, blinds and shading systems for hotels, healthcare settings, restaurants, cafés and workplaces.' : 'Otelden hastaneye, restorandan ofise kadar tüm kurumsal projeleriniz için özel üretim perde ve dekorasyon çözümleri sunuyoruz.'}
           </p>
         </motion.div>
 
@@ -83,7 +87,7 @@ const Corporate = ({ showSwiper = true }: CorporateProps) => {
                   {/* Badge */}
                   <div className="absolute top-6 left-6 z-20">
                     <span className="px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 text-xs text-white/90 uppercase tracking-wider rounded-full">
-                      {product.badge || 'Kurumsal'}
+                      {isEnglish ? 'Commercial' : product.badge || 'Kurumsal'}
                     </span>
                   </div>
 
@@ -111,7 +115,7 @@ const Corporate = ({ showSwiper = true }: CorporateProps) => {
 
                       {/* Unique arrow style for corporate */}
                       <div className="flex items-center gap-3 text-white/60 group-hover:text-white transition-colors duration-300">
-                        <span className="text-sm uppercase tracking-widest font-light">Keşfet</span>
+                        <span className="text-sm uppercase tracking-widest font-light">{isEnglish ? 'Explore' : 'Keşfet'}</span>
                         <div className="flex items-center gap-1">
                           <div className="w-8 h-[1px] bg-white/40 group-hover:w-12 transition-all duration-500" />
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,7 +166,7 @@ const Corporate = ({ showSwiper = true }: CorporateProps) => {
                         {/* Badge */}
                         <div className="absolute top-4 left-4 z-20">
                           <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-xs text-white/90 uppercase tracking-wider rounded-full">
-                            {product.badge || 'Kurumsal'}
+                            {isEnglish ? 'Commercial' : product.badge || 'Kurumsal'}
                           </span>
                         </div>
 
@@ -187,7 +191,7 @@ const Corporate = ({ showSwiper = true }: CorporateProps) => {
                           </p>
 
                           <div className="flex items-center gap-3 text-white/60">
-                            <span className="text-xs uppercase tracking-widest font-light">Keşfet</span>
+                            <span className="text-xs uppercase tracking-widest font-light">{isEnglish ? 'Explore' : 'Keşfet'}</span>
                             <div className="flex items-center gap-1">
                               <div className="w-6 h-[1px] bg-white/40" />
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,24 +219,24 @@ const Corporate = ({ showSwiper = true }: CorporateProps) => {
         >
           <div className="inline-flex flex-col items-center">
             <p className="text-gray-400 text-sm mb-6">
-              Kurumsal projeleriniz için özel çözümler sunuyoruz
+              {isEnglish ? 'Discuss a tailored window-treatment package for your project.' : 'Kurumsal projeleriniz için özel çözümler sunuyoruz'}
             </p>
             <div className="flex gap-4">
               <Link
-                href="/iletisim"
+                href={isEnglish ? '/en/contact' : '/iletisim'}
                 className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black overflow-hidden transition-all duration-300"
               >
-                <span className="relative z-10 font-medium">Teklif Alın</span>
+                <span className="relative z-10 font-medium">{isEnglish ? 'Request a Quote' : 'Teklif Alın'}</span>
                 <svg className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
               </Link>
               <Link
-                href="/kurumsal-urunler"
+                href={isEnglish ? '/en/commercial' : '/kurumsal-urunler'}
                 className="inline-flex items-center gap-3 px-8 py-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
               >
-                Tüm Çözümler
+                {isEnglish ? 'View All Solutions' : 'Tüm Çözümler'}
               </Link>
             </div>
           </div>

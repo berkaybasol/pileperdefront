@@ -403,7 +403,7 @@ const Header = () => {
                 ? (isEnglish ? 'Close mobile menu' : 'Mobil menüyü kapat')
                 : (isEnglish ? 'Open mobile menu' : 'Mobil menüyü aç')}
               aria-expanded={mobileMenuOpen}
-              className="lg:hidden p-2 text-white"
+              className="lg:hidden inline-flex h-11 w-11 items-center justify-center text-white"
             >
               <div className="w-6 h-5 flex flex-col justify-between">
                 <span className={`block w-full h-0.5 bg-white transition-all duration-300 ${

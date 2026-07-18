@@ -16,9 +16,12 @@ interface ModelsProps {
   showSwiper?: boolean;
   showCTA?: boolean;
   initialItems?: CatalogItem[];
+  locale?: 'tr' | 'en';
+  loadCms?: boolean;
 }
 
-const Models = ({ showSwiper = true, showCTA = true, initialItems }: ModelsProps) => {
+const Models = ({ showSwiper = true, showCTA = true, initialItems, locale = 'tr', loadCms = true }: ModelsProps) => {
+  const isEnglish = locale === 'en'
   const models = [
     {
       id: 1,
@@ -110,6 +113,7 @@ const Models = ({ showSwiper = true, showCTA = true, initialItems }: ModelsProps
   const displayedModels = cmsModels || models
 
   useEffect(() => {
+    if (!loadCms) return
     let isMounted = true
 
     getPublicModelItems().then((items) => {
@@ -121,7 +125,7 @@ const Models = ({ showSwiper = true, showCTA = true, initialItems }: ModelsProps
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [loadCms])
 
   return (
     <section className="relative py-12 lg:py-32 bg-gradient-to-b from-neutral-950 to-black">
@@ -142,16 +146,15 @@ const Models = ({ showSwiper = true, showCTA = true, initialItems }: ModelsProps
             <div className="inline-block mb-4">
               <div className="flex items-center space-x-3 text-xs text-gray-500">
                 <span className="w-12 h-[1px] bg-gray-700"></span>
-                <span className="uppercase tracking-[0.2em] font-light">PERDE MODELLERİ</span>
+                <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'CURTAIN DESIGNS' : 'PERDE MODELLERİ'}</span>
                 <span className="w-12 h-[1px] bg-gray-700"></span>
               </div>
             </div>
             <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-              Tarzınıza Uygun Perde Modelleri
+              {isEnglish ? 'Curtain Designs Tailored to Your Interior' : 'Tarzınıza Uygun Perde Modelleri'}
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto font-light">
-              Klasikten moderne, minimalistten gösterişliye kadar geniş model
-              yelpazemizle mekanlarınıza değer katıyoruz
+              {isEnglish ? 'Explore compositions ranging from restrained contemporary schemes to richly layered classical designs.' : 'Klasikten moderne, minimalistten gösterişliye kadar geniş model yelpazemizle mekanlarınıza değer katıyoruz'}
             </p>
           </motion.div>
         )}
@@ -293,10 +296,10 @@ const Models = ({ showSwiper = true, showCTA = true, initialItems }: ModelsProps
             className="text-center mt-12"
           >
             <Link
-              href="/perde-modelleri"
+              href={isEnglish ? '/en/curtain-designs' : '/perde-modelleri'}
               className="inline-flex items-center gap-3 px-6 py-3 bg-white text-[#0f0f11] text-sm font-normal transition-all duration-300 hover:bg-gray-100"
             >
-              Tüm Modelleri Görüntüle
+              {isEnglish ? 'View All Curtain Designs' : 'Tüm Modelleri Görüntüle'}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
