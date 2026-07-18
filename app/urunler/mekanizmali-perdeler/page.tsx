@@ -1,6 +1,16 @@
 import type { Metadata } from 'next'
+import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 import MekanizmaliPerdelerContent from '@/components/MekanizmaliPerdelerContent'
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
+import { turkishLocaleAlternates } from '@/lib/siteLocales'
+
+const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler'
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: 'Ana Sayfa', url: '/' },
+  { name: 'Ürünler', url: '/urunler' },
+  { name: 'Mekanizmalı Perdeler', url: '/urunler/mekanizmali-perdeler' },
+]
 
 const fallbackMetadata: Metadata = {
   title: 'Mekanizmalı Perde Sistemleri - Dikey, Zebra, Plise Perde Ankara',
@@ -15,9 +25,14 @@ const fallbackMetadata: Metadata = {
   },
 }
 
-export const generateMetadata = () =>
-  getCmsPageMetadata('product-mekanizmali-perdeler', fallbackMetadata)
+export const generateMetadata = async () => ({
+  ...(await getCmsPageMetadata('product-mekanizmali-perdeler', fallbackMetadata)),
+  alternates: turkishLocaleAlternates('/urunler/mekanizmali-perdeler', '/en/products/blinds-and-shades'),
+})
 
 export default function MekanizmaliPerdelerPage() {
-  return <MekanizmaliPerdelerContent />
+  return <>
+    <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
+    <MekanizmaliPerdelerContent breadcrumbItems={breadcrumbItems} canonicalUrl={canonicalUrl} />
+  </>
 }

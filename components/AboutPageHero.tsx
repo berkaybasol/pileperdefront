@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
 
@@ -33,7 +35,12 @@ const fallbackHero: AboutHeroContent = {
   description: '35 yıllık tecrübemizle yanınızdayız',
 }
 
-const AboutPageHero = () => {
+type AboutPageHeroProps = {
+  breadcrumbItems: BreadcrumbItem[]
+  canonicalUrl: string
+}
+
+const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) => {
   const [hero, setHero] = useState(fallbackHero)
 
   useEffect(() => {
@@ -71,6 +78,7 @@ const AboutPageHero = () => {
       </div>
       <div className="relative container mx-auto px-4 lg:px-8 py-20">
         <div className="text-center">
+          <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
           <div className="inline-block mb-4">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="w-12 h-[1px] bg-gray-700"></span>

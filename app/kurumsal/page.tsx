@@ -1,4 +1,13 @@
 import Corporate from "@/components/Corporate";
+import { BreadcrumbListJsonLd } from "@/components/BreadcrumbListJsonLd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import type { BreadcrumbItem } from "@/lib/breadcrumbs";
+
+const canonicalUrl = "https://pileperde.com.tr/kurumsal";
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: "Ana Sayfa", url: "/" },
+  { name: "Kurumsal", url: "/kurumsal" },
+];
 
 export const metadata = {
   title: "Kurumsal - Pile Perde",
@@ -8,6 +17,7 @@ export const metadata = {
 export default function CorporatePage() {
   return (
     <main>
+      <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
       <div>
         {/* Page Title - Dark Glassmorphism Style */}
         <section className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black">
@@ -17,6 +27,7 @@ export default function CorporatePage() {
           </div>
           <div className="relative container mx-auto px-6 py-20">
             <div className="text-center">
+              <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
               <div className="inline-block mb-4">
                 <div className="flex items-center space-x-3 text-xs text-gray-500">
                   <span className="w-12 h-[1px] bg-gray-700"></span>

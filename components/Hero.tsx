@@ -54,9 +54,15 @@ type HeroSlide = {
 
 const fallbackStats: HeroStat[] = [
   { number: '500', suffix: '+', label: 'Proje' },
-  { number: '15', suffix: '+', label: 'Yıl Deneyim' },
+  { number: '35', suffix: '+', label: 'Yıl Deneyim' },
   { number: '100', suffix: '%', label: 'Memnuniyet' },
 ]
+
+const normalizeVerifiedStats = (stats: HeroStat[]) => stats.map((stat) =>
+  /deneyim|experience/i.test(stat.label)
+    ? { ...stat, number: '35', suffix: '+' }
+    : stat
+)
 
 const Hero = () => {
   const [heroContent, setHeroContent] = useState<HeroCmsContent | null>(null)
@@ -94,7 +100,7 @@ const Hero = () => {
           description: heroSection.body || undefined,
           primaryCtaHref: contentJson.primaryCtaHref,
           stats: Array.isArray(contentJson.stats) && contentJson.stats.length > 0
-            ? contentJson.stats
+            ? normalizeVerifiedStats(contentJson.stats)
             : undefined,
           slides: Array.isArray(contentJson.slides)
             ? contentJson.slides.filter((slide) => slide.enabled !== false)
@@ -148,6 +154,8 @@ const Hero = () => {
 
   return (
     <>
+      <h1 className="sr-only">Ankara’da Özel Ölçü Perde ve Motorlu Perde Sistemleri</h1>
+
       {/* Desktop Hero */}
       <section className="hidden lg:block relative w-full h-[85vh] bg-gradient-to-b from-gray-950 to-black overflow-hidden">
         {/* Dark Glassmorphism Background Pattern */}
@@ -198,10 +206,10 @@ const Hero = () => {
                       </div>
 
                       {/* Title */}
-                      <h1 className="text-5xl xl:text-6xl font-extralight text-white">
+                      <h2 className="text-5xl xl:text-6xl font-extralight text-white">
                         {slide.title}
                         <span className="text-gray-400">.</span>
-                      </h1>
+                      </h2>
 
                       {/* Description */}
                       <p className="text-lg text-gray-400 font-light leading-relaxed max-w-xl">
@@ -351,10 +359,10 @@ const Hero = () => {
                       </div>
 
                       {/* Title */}
-                      <h1 className="text-2xl sm:text-3xl font-extralight text-white">
+                      <h2 className="text-2xl sm:text-3xl font-extralight text-white">
                         {slide.title}
                         <span className="text-gray-400">.</span>
-                      </h1>
+                      </h2>
 
                       {/* Description */}
                       <p className="text-xs sm:text-sm text-gray-400 font-light leading-relaxed line-clamp-2">

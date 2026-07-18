@@ -4,6 +4,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
+import type { BreadcrumbItem as SeoBreadcrumbItem } from '@/lib/breadcrumbs'
 import {
   defaultProductGalleryVideo,
   getPublicProductGallery,
@@ -28,6 +31,8 @@ type ManagedProductGalleryPageProps = {
   breadcrumbItems?: BreadcrumbItem[]
   eyebrow?: string
   galleryTitle?: string
+  seoBreadcrumbItems?: SeoBreadcrumbItem[]
+  breadcrumbCanonicalUrl?: string
 }
 
 export default function ManagedProductGalleryPage({
@@ -38,6 +43,8 @@ export default function ManagedProductGalleryPage({
   breadcrumbItems,
   eyebrow,
   galleryTitle = `${title} Modelleri`,
+  seoBreadcrumbItems,
+  breadcrumbCanonicalUrl,
 }: ManagedProductGalleryPageProps) {
   const resolvedBreadcrumbItems = useMemo(() => breadcrumbItems || [
     { label: '\u00dcr\u00fcnler', href: '/urunler' },
@@ -130,6 +137,10 @@ export default function ManagedProductGalleryPage({
   }, [currentImageIndex, lightboxOpen])
 
   return (
+    <>
+    {seoBreadcrumbItems && breadcrumbCanonicalUrl && (
+      <BreadcrumbListJsonLd items={seoBreadcrumbItems} canonicalUrl={breadcrumbCanonicalUrl} />
+    )}
     <main className="bg-black">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
       <div className="absolute inset-0 bg-grid-white/[0.02]" />
@@ -137,7 +148,9 @@ export default function ManagedProductGalleryPage({
       <section className="relative overflow-hidden py-20">
         <div className="container mx-auto px-6">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
+            {seoBreadcrumbItems && breadcrumbCanonicalUrl ? (
+              <Breadcrumbs items={seoBreadcrumbItems} canonicalUrl={breadcrumbCanonicalUrl} className="mb-8" />
+            ) : <div className="mb-8 flex flex-wrap items-center justify-center gap-2">
               {resolvedBreadcrumbItems.map((item, index) => {
                 const label = index === resolvedBreadcrumbItems.length - 1 ? heroCopy.breadcrumbLabel : item.label
                 return (
@@ -156,7 +169,7 @@ export default function ManagedProductGalleryPage({
                   )}
                 </div>
               )})}
-            </div>
+            </div>}
 
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
               <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
@@ -366,5 +379,6 @@ export default function ManagedProductGalleryPage({
         )}
       </AnimatePresence>
     </main>
+    </>
   )
 }

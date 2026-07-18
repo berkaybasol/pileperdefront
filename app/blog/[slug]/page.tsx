@@ -1,8 +1,12 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import type { BreadcrumbItem } from '@/lib/breadcrumbs';
 import { getAllBlogPosts, getPublicBlogPostBySlug, getPublicBlogPosts } from '@/lib/blogContent';
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
+import { localeRoutePairs } from '@/lib/siteLocales';
 import { getPublicSiteSettings, normalizePhoneHref, normalizeWhatsAppNumber } from '@/lib/siteSettings';
 
 const SITE_URL = 'https://pileperde.com.tr';
@@ -81,12 +85,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const canonicalUrl = `https://pileperde.com.tr/blog/${post.slug}`;
+  const englishPath = localeRoutePairs.get(`/blog/${post.slug}`);
 
   return {
     title: `${post.title} - Pile Perde Blog`,
     description: post.excerpt,
     alternates: {
       canonical: canonicalUrl,
+      ...(englishPath ? {
+        languages: {
+          'tr-TR': canonicalUrl,
+          en: `https://pileperde.com.tr${englishPath}`,
+          'x-default': canonicalUrl,
+        },
+      } : {}),
     },
   };
 }
@@ -162,8 +174,10 @@ function formatContent(html: string): string {
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const posts = await getPublicBlogPosts();
-  const post = posts.find((item) => item.slug === slug);
+  const [posts, post] = await Promise.all([
+    getPublicBlogPosts(),
+    getPublicBlogPostBySlug(slug),
+  ]);
 
   if (!post) {
     notFound();
@@ -199,6 +213,12 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
   const suggestedPosts = relatedPosts.length > 0 ? relatedPosts : otherPosts;
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`;
+  const useCommonBreadcrumb = post.slug === 'mobilyaya-gore-perde-secimi-nasil-olmali';
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { name: 'Ana Sayfa', url: '/' },
+    { name: 'Blog', url: '/blog' },
+    { name: post.title, url: canonicalUrl },
+  ];
   const datePublished = toIsoPublishedDate(post.date);
   const blogPostingSchema = {
     '@context': 'https://schema.org',
@@ -270,12 +290,14 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
           __html: JSON.stringify(blogPostingSchema).replace(/</g, '\\u003c'),
         }}
       />
-      <script
+      {useCommonBreadcrumb ? (
+        <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
+      ) : <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c'),
         }}
-      />
+      />}
       {/* Hero Section */}
       <div className="relative">
         {/* Background Image */}
@@ -294,7 +316,9 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <div className="absolute bottom-0 left-0 right-0 pb-8 px-6">
           <div className="container mx-auto max-w-5xl">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm mb-6">
+            {useCommonBreadcrumb ? (
+              <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-6" />
+            ) : <nav className="flex items-center gap-2 text-sm mb-6">
               <Link href="/" className="text-gray-400 hover:text-white transition-colors">
                 Ana Sayfa
               </Link>
@@ -304,7 +328,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               </Link>
               <span className="text-gray-600">/</span>
               <span className="text-white truncate max-w-[200px] md:max-w-none">{post.title}</span>
-            </nav>
+            </nav>}
 
             {/* Title */}
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight max-w-4xl">

@@ -2,6 +2,17 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+
+const canonicalUrl = 'https://pileperde.com.tr/urunler/motorlu-perdeler/dis-cephe-jaluzi'
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: 'Ana Sayfa', url: '/' },
+  { name: 'Ürünler', url: '/urunler' },
+  { name: 'Motorlu Perdeler', url: '/urunler/motorlu-perdeler' },
+  { name: 'Dış Cephe Jaluzi', url: '/urunler/motorlu-perdeler/dis-cephe-jaluzi' },
+]
 import {
   defaultProductGalleryVideo,
   getPublicProductGallery,
@@ -181,6 +192,7 @@ export default function ProksiyonPerdePage() {
 
   return (
     <>
+      <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
       <main className="bg-black">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
@@ -190,22 +202,7 @@ export default function ProksiyonPerdePage() {
       <section className="relative overflow-hidden py-20">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-4xl mx-auto">
-            {/* Breadcrumb */}
-            <div className="flex items-center justify-center gap-2 mb-8">
-              <Link href="/urunler" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
-                Ürünler
-              </Link>
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-              <Link href="/urunler/motorlu-perdeler" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
-                Motorlu Perdeler
-              </Link>
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-              <span className="text-sm text-gray-400">{heroCopy.breadcrumbLabel}</span>
-            </div>
+            <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
 
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />

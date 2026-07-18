@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   searchSiteDocuments,
   type SearchContentType,
@@ -17,8 +17,19 @@ const typeLabels: Record<SearchContentType, string> = {
   'project-story': 'Proje Hikâyesi',
 }
 
+const englishTypeLabels: Record<SearchContentType, string> = {
+  product: 'Product',
+  'product-category': 'Category',
+  'curtain-model': 'Curtain Style',
+  'corporate-solution': 'Page',
+  blog: 'Journal',
+  'project-story': 'Project',
+}
+
 const SiteSearch = () => {
   const router = useRouter()
+  const pathname = usePathname()
+  const isEnglish = pathname === '/en' || pathname?.startsWith('/en/')
   const triggerRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
@@ -28,8 +39,8 @@ const SiteSearch = () => {
   const [activeIndex, setActiveIndex] = useState(0)
 
   const results = useMemo(
-    () => searchSiteDocuments(documents, query, 10),
-    [documents, query],
+    () => searchSiteDocuments(documents, query, 10, isEnglish ? 'en' : 'tr'),
+    [documents, isEnglish, query],
   )
 
   const closeSearch = useCallback(() => {
@@ -110,7 +121,7 @@ const SiteSearch = () => {
         ref={triggerRef}
         type="button"
         onClick={openSearch}
-        aria-label="Site içinde ara"
+        aria-label={isEnglish ? 'Search this site' : 'Site içinde ara'}
         aria-haspopup="dialog"
         aria-expanded={open}
         className="inline-flex h-11 w-11 items-center justify-center text-gray-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
@@ -139,7 +150,7 @@ const SiteSearch = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
               </svg>
               <label id="site-search-title" htmlFor="site-search-input" className="sr-only">
-                Site içi arama
+                {isEnglish ? 'Site search' : 'Site içi arama'}
               </label>
               <input
                 ref={inputRef}
@@ -154,13 +165,13 @@ const SiteSearch = () => {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 onKeyDown={handleInputKeyDown}
-                placeholder="Perde modeli, ürün veya proje ara"
+                placeholder={isEnglish ? 'Search curtains, blinds or projects' : 'Perde modeli, ürün veya proje ara'}
                 className="min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-gray-500 sm:text-lg"
               />
               <button
                 type="button"
                 onClick={closeSearch}
-                aria-label="Aramayı kapat"
+                aria-label={isEnglish ? 'Close search' : 'Aramayı kapat'}
                 className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,18 +183,18 @@ const SiteSearch = () => {
             <div className="overflow-y-auto px-3 py-3 sm:px-5 sm:py-5">
               {loading && (
                 <p role="status" className="px-3 py-8 text-center text-sm text-gray-400">
-                  Arama içeriği hazırlanıyor…
+                  {isEnglish ? 'Preparing search content…' : 'Arama içeriği hazırlanıyor…'}
                 </p>
               )}
 
               {!loading && normalizedQueryLength < 2 && (
                 <p className="px-3 py-8 text-center text-sm text-gray-500">
-                  Aramak için en az 2 karakter yazın.
+                  {isEnglish ? 'Enter at least 2 characters to search.' : 'Aramak için en az 2 karakter yazın.'}
                 </p>
               )}
 
               {!loading && results.length > 0 && (
-                <ul id="site-search-results" role="listbox" aria-label="Arama sonuçları" className="space-y-1">
+                <ul id="site-search-results" role="listbox" aria-label={isEnglish ? 'Search results' : 'Arama sonuçları'} className="space-y-1">
                   {results.map((result, index) => (
                     <li key={result.href} role="presentation">
                       <button
@@ -198,7 +209,7 @@ const SiteSearch = () => {
                         }`}
                       >
                         <span className="mb-1 block text-[11px] font-medium uppercase tracking-[0.16em] text-blue-300">
-                          {typeLabels[result.type]}
+                          {(isEnglish ? englishTypeLabels : typeLabels)[result.type]}
                         </span>
                         <span className="block text-base font-medium text-white">{result.title}</span>
                         <span className="mt-1 line-clamp-2 block text-sm leading-relaxed text-gray-400">
@@ -212,9 +223,9 @@ const SiteSearch = () => {
 
               {showEmptyState && (
                 <div role="status" className="px-4 py-10 text-center">
-                  <p className="text-base font-medium text-white">Aramanızla eşleşen bir sonuç bulunamadı.</p>
+                  <p className="text-base font-medium text-white">{isEnglish ? 'No results matched your search.' : 'Aramanızla eşleşen bir sonuç bulunamadı.'}</p>
                   <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                    Farklı bir ürün adı, perde modeli veya proje konumu deneyebilirsiniz.
+                    {isEnglish ? 'Try a different product name, blind type or project term.' : 'Farklı bir ürün adı, perde modeli veya proje konumu deneyebilirsiniz.'}
                   </p>
                 </div>
               )}

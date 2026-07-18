@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 import {
   defaultMekanizmaliPerdelerContent,
   getProductDetailContent,
@@ -13,11 +15,15 @@ import {
 type ManagedProductDetailProps = {
   pageKey?: string
   fallbackContent?: ProductDetailContent
+  breadcrumbItems: BreadcrumbItem[]
+  canonicalUrl: string
 }
 
 export default function MekanizmaliPerdelerContent({
   pageKey = 'product-mekanizmali-perdeler',
   fallbackContent = defaultMekanizmaliPerdelerContent,
+  breadcrumbItems,
+  canonicalUrl,
 }: ManagedProductDetailProps) {
   const [content, setContent] = useState<ProductDetailContent>(fallbackContent)
 
@@ -42,6 +48,8 @@ export default function MekanizmaliPerdelerContent({
         <div className="absolute inset-0 bg-grid-white/[0.02]" />
 
         <div className="container relative mx-auto px-6 py-20">
+          <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
+
           <motion.div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
               <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />

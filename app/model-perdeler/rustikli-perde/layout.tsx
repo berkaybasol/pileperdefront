@@ -16,7 +16,10 @@ const fallbackMetadata: Metadata = {
   }
 }
 
-export const generateMetadata = () => getCmsPageMetadata('product-gallery-model-perdeler-rustikli-perde', fallbackMetadata)
+export const generateMetadata = async () => ({
+  ...await getCmsPageMetadata('product-gallery-model-perdeler-rustikli-perde', fallbackMetadata),
+  title: 'Rustikli Perde Modelleri ve Dekorasyon Fikirleri | Pile Perde',
+})
 
 export default function RustikliPerdeLayout({
   children,

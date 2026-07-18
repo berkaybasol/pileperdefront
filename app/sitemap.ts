@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { getIndexableBlogPosts } from '@/lib/blogContent'
 
 type SitemapEntry = {
   path: string
@@ -9,6 +10,20 @@ type SitemapEntry = {
 const baseUrl = 'https://pileperde.com.tr'
 
 const sitemapEntries: SitemapEntry[] = [
+  { path: '/en', changeFrequency: 'monthly', priority: 0.9 },
+  { path: '/en/about', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/en/contact', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/en/products', changeFrequency: 'monthly', priority: 0.85 },
+  { path: '/en/products/blinds-and-shades', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/en/products/sheer-and-drapery', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/en/products/upholstery-fabrics', changeFrequency: 'monthly', priority: 0.75 },
+  { path: '/en/products/motorised-window-treatments', changeFrequency: 'monthly', priority: 0.85 },
+  { path: '/en/products/curtain-accessories', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/en/products/metal-chain-curtains', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/en/blog', changeFrequency: 'weekly', priority: 0.7 },
+  { path: '/en/blog/wooden-venetian-blinds-guide', changeFrequency: 'monthly', priority: 0.65 },
+  { path: '/en/blog/motorised-window-treatments-guide', changeFrequency: 'monthly', priority: 0.65 },
+  { path: '/en/blog/how-to-choose-living-room-curtains', changeFrequency: 'monthly', priority: 0.65 },
   { path: '/', changeFrequency: 'yearly', priority: 1 },
   { path: '/hakkimizda', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/iletisim', changeFrequency: 'monthly', priority: 0.8 },
@@ -59,7 +74,6 @@ const sitemapEntries: SitemapEntry[] = [
   { path: '/urunler/perde-aksesuarlari/kol-bagi', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/perde-aksesuarlari/bracol', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/metal-zincir-perde', changeFrequency: 'weekly', priority: 0.8 },
-  { path: '/urunler/metal-zincir-perde/metal-zincir-perde', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/metal-zincir-perde/metal-zincir-seperator', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/metal-zincir-perde/pro-collection', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/perde-modelleri', changeFrequency: 'weekly', priority: 0.9 },
@@ -70,7 +84,6 @@ const sitemapEntries: SitemapEntry[] = [
   { path: '/model-perdeler/balon-perde', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/model-perdeler/katlamali-perde', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/model-perdeler/yuksek-tavanli-galeri-perde', changeFrequency: 'weekly', priority: 0.85 },
-  { path: '/model-perdeler/yuksek-tavanli-perde-modelleri', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/model-perdeler/ip-perde', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/model-perdeler/cocuk-perde', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/model-perdeler/cibinlik-perde', changeFrequency: 'weekly', priority: 0.85 },
@@ -83,51 +96,84 @@ const sitemapEntries: SitemapEntry[] = [
   { path: '/kurumsal-urunler/ofis-perdeleri', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/kurumsal-urunler/otel-perdeleri', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/blog', changeFrequency: 'weekly', priority: 0.7 },
-  { path: '/blog/dosemelik-kumas-ve-doseme-hizmetleri', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/dosemelik-kumaslar', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/buyuk-cam-ve-yuksek-tavanli-evler-icin-perde-secim-rehberi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/2026-avrupa-perde-trendler', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/perde-alirken-yapilan-10-buyuk-hata', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/kaliteli-stor-perde-nasil-anlasilir', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/salon-perde-secimi-nasil-yapilir', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/yuksek-tavanli-evlerde-ve-galeri-bosluklarinda-perde-secimi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/s-pile-perde-nedir', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/ahsap-jaluzi-perde-nedir-avantajlari-ve-kullanim-alanlari', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/sunscreen-stor-perde-nedir', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/yatak-odasinda-hangi-perde-kullanilmalidir', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/isik-gecirmeyen-perde-hangisidir', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/yeni-blog-yazisi', changeFrequency: 'weekly', priority: 0.5 },
-  { path: '/blog/rustik-perde-modelleri-ve-kullanim-alanlari', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/mobilyaya-gore-perde-secimi-nasil-olmali', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/incek-veev-kis-bahcesi-motorlu-stor-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/avrupa-mahallesi-ahsap-jaluzi-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/meva-is-merkezi-kocamanlar-aluminyum-ofis-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/rinnova-incek-villa-perde-uygulamasi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/lotus-beytepe-art-deco-daire-perde-uygulamasi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/incek-uptown-konutlari-motorlu-stor-rustik-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/uptown-ankara-dubleks-villa-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/bilkent-bahce-konutlari-perde-uygulamasi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/koc-kuleleri-ankara-ofis-perde-uygulamasi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/incek-uptown-rustik-perde-motorlu-stor-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/alacaatli-ozel-villa-ipek-perde-ve-ozel-tasarim', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/mira-ofis-beytepe-motorlu-perde-sistemleri-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/uskup-turk-buyukelciligi-rezidans-konutu-perde', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/alacaatli-pelit-cayyolu-villalari-perde-uygulamasi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/incek-veev-villa-somfy-motorlu-ahsap-jaluzi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/anadolu-tup-bebek-dikey-ve-hasta-bolucu-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/ani-metal-ankara-motorlu-ahsap-jaluzi-perde-projesi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/the-paragon-sogutozu-ankara-motorlu-sunscreen-perde', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/avend-voven-katlamali-perde-uygulamasi', changeFrequency: 'weekly', priority: 0.65 },
-  { path: '/blog/cayyolu-angora-evleri-ahsap-jaluzi-keten-fon-perde', changeFrequency: 'weekly', priority: 0.65 },
 ]
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date()
+const turkishMonthNumbers: Record<string, number> = {
+  ocak: 1,
+  subat: 2,
+  mart: 3,
+  nisan: 4,
+  mayis: 5,
+  haziran: 6,
+  temmuz: 7,
+  agustos: 8,
+  eylul: 9,
+  ekim: 10,
+  kasim: 11,
+  aralik: 12,
+}
 
-  return sitemapEntries.map((entry) => ({
+const normalizeTurkishDate = (value: string) => value
+  .toLocaleLowerCase('tr-TR')
+  .replaceAll('ı', 'i')
+  .replaceAll('ş', 's')
+  .replaceAll('ğ', 'g')
+  .replaceAll('ç', 'c')
+  .replaceAll('ö', 'o')
+  .replaceAll('ü', 'u')
+  .trim()
+
+const createValidatedDate = (year: number, month: number, day: number) => {
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year
+    && date.getUTCMonth() === month - 1
+    && date.getUTCDate() === day
+    ? date
+    : undefined
+}
+
+const parseReliableDate = (value: string) => {
+  const normalized = normalizeTurkishDate(value)
+  const namedDate = normalized.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/)
+  if (namedDate) {
+    const month = turkishMonthNumbers[namedDate[2]]
+    return month
+      ? createValidatedDate(Number(namedDate[3]), month, Number(namedDate[1]))
+      : undefined
+  }
+
+  const numericDate = normalized.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/)
+  if (numericDate) {
+    return createValidatedDate(
+      Number(numericDate[3]),
+      Number(numericDate[2]),
+      Number(numericDate[1]),
+    )
+  }
+
+  const isoDate = normalized.match(/^(\d{4})-(\d{2})-(\d{2})(?:t.*)?$/)
+  return isoDate
+    ? createValidatedDate(Number(isoDate[1]), Number(isoDate[2]), Number(isoDate[3]))
+    : undefined
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const blogPosts = await getIndexableBlogPosts()
+  const staticEntries: MetadataRoute.Sitemap = sitemapEntries.map((entry) => ({
     url: entry.path === '/' ? baseUrl : `${baseUrl}${entry.path}`,
-    lastModified,
     changeFrequency: entry.changeFrequency,
     priority: entry.priority,
   }))
+
+  const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => {
+    const lastModified = parseReliableDate(post.date)
+    return {
+      url: `${baseUrl}/blog/${post.slug}`,
+      ...(lastModified ? { lastModified } : {}),
+      changeFrequency: 'weekly',
+      priority: 0.65,
+    }
+  })
+
+  return [...staticEntries, ...blogEntries]
 }

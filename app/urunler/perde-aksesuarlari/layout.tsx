@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
+import { turkishLocaleAlternates } from '@/lib/siteLocales'
 
 export const metadata: Metadata = {
   title: 'Perde Aksesuarları - Modern ve Klasik Modeller ',
   description: 'Perde aksesuarları ile detayda fark yaratın. Fırfır, püskül, bağlama, ray sistemleri. Geniş ürün yelpazesi. Ankara\'da hızlı teslimat.',
   keywords: 'perde aksesuarları, rustik, braçol, renso, perde kolbağı, sarkıt, püskül ponpon, ahşap rustik, krom rustik, ankara perde aksesuarı, pile perde',
-  alternates: {
-    canonical: 'https://pileperde.com.tr/urunler/perde-aksesuarlari'
-  },
+  alternates: turkishLocaleAlternates('/urunler/perde-aksesuarlari', '/en/products/curtain-accessories'),
   openGraph: {
     title: 'Perde Aksesuarları - Modern ve Klasik Modeller ',
     description: 'Modern, klasik ve avangart perde aksesuarları. Rustik, braçol, renso, sarkıt, püskül ponpon modelleri.',

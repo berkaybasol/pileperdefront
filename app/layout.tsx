@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import GoogleTagManager from "@/components/GoogleAnalytics";
 import SiteShell from "@/components/SiteShell";
+import { headers } from "next/headers";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -63,7 +64,7 @@ export const metadata: Metadata = {
     url: 'https://pileperde.com.tr',
     siteName: 'Pile Perde',
     title: 'Pile Perde - Ankara Perde, Jaluzi ve Stor Perde Sistemleri',
-    description: 'Ankara\'da 20+ yıllık tecrübe ile perde, jaluzi, stor perde sistemleri. Profesyonel montaj, garantili hizmet.',
+    description: 'Ankara\'da 35 yıllık tecrübe ile perde, jaluzi, stor perde sistemleri. Profesyonel montaj, garantili hizmet.',
     images: [
       {
         url: '/api/public/media/images/8cecc447-bb34-4dec-a8ac-dc8ab189fe81/file',
@@ -76,7 +77,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Pile Perde - Ankara Perde ve Jaluzi Sistemleri',
-    description: 'Ankara\'da perde, jaluzi, stor perde sistemleri. 20+ yıllık tecrübe, profesyonel montaj.',
+    description: 'Ankara\'da perde, jaluzi, stor perde sistemleri. 35 yıllık tecrübe, profesyonel montaj.',
     images: ['/api/public/media/images/8cecc447-bb34-4dec-a8ac-dc8ab189fe81/file'],
   },
   robots: {
@@ -102,16 +103,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = (await headers()).get('x-site-locale') === 'en' ? 'en' : 'tr';
+
   return (
-    <html lang="tr">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-      </head>
+    <html lang={locale}>
       <body suppressHydrationWarning className={`${poppins.className} antialiased`}>
         <GoogleTagManager />
 

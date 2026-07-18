@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -15,7 +16,16 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
+const canonicalUrl = 'https://pileperde.com.tr/urunler/metal-zincir-perde/pro-collection'
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: 'Ana Sayfa', url: '/' },
+  { name: 'Ürünler', url: '/urunler' },
+  { name: 'Metal Zincir Perde', url: '/urunler/metal-zincir-perde' },
+  { name: 'Pro Collection', url: '/urunler/metal-zincir-perde/pro-collection' },
+]
+
 const fallbackMetadata: Metadata = {
+  alternates: { canonical: 'https://pileperde.com.tr/urunler/metal-zincir-perde/pro-collection' },
   title: 'Pro Collection Galerisi - Pile Perde',
   description: 'Metal zincir perde Pro Collection uygulama görselleri.',
 }
@@ -29,6 +39,8 @@ export default function ProCollectionPage() {
       title="Pro Collection"
       description="Ticari ve mimari projeler için dekoratif metal zincir uygulama görselleri."
       fallbackImages={fallbackImages}
+      seoBreadcrumbItems={breadcrumbItems}
+      breadcrumbCanonicalUrl={canonicalUrl}
       breadcrumbItems={[
         { label: 'Ürünler', href: '/urunler' },
         { label: 'Metal Zincir Perde', href: '/urunler/metal-zincir-perde' },

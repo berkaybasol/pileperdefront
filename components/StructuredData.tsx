@@ -1,60 +1,115 @@
 import Script from 'next/script'
+import { getPublicSiteSettings, normalizePhoneHref, normalizeWhatsAppNumber } from '@/lib/siteSettings'
 
-interface LocalBusinessSchemaProps {
-  name?: string
-  description?: string
-  telephone?: string
-  address?: {
-    streetAddress?: string
-    addressLocality: string
-    addressRegion: string
-    postalCode?: string
+const SITE_URL = 'https://pileperde.com.tr'
+const ORGANIZATION_ID = `${SITE_URL}/#organization`
+const LOCAL_BUSINESS_ID = `${SITE_URL}/#localbusiness`
+const WEBSITE_ID = `${SITE_URL}/#website`
+const LOGO_URL = `${SITE_URL}/pile_perde_logo-1.png`
+
+const extractHours = (value: string, fallbackOpens: string, fallbackCloses: string) => {
+  const match = value.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/)
+  return {
+    opens: match?.[1] || fallbackOpens,
+    closes: match?.[2] || fallbackCloses,
   }
 }
 
-export function LocalBusinessSchema({
-  name = 'Pile Perde',
-  description = 'Ankara\'da jaluzi perde, stor perde ve tüm perde sistemleri',
-  telephone = '+90-312-241-72-72',
-  address = {
-    addressLocality: 'Ankara',
-    addressRegion: 'Ankara',
-  }
-}: LocalBusinessSchemaProps) {
+export async function BusinessStructuredData() {
+  const settings = await getPublicSiteSettings()
+  const telephone = normalizePhoneHref(settings['company.phone.primary'])
+  const whatsappNumber = normalizeWhatsAppNumber(settings['company.whatsapp.primary'])
+  const email = settings['company.email']
+  const addressText = settings['company.address.showroom'].replace(/\r?\n/g, ', ')
+  const postalCode = settings['company.address.showroom'].match(/\b\d{5}\b/)?.[0] || '06810'
+  const weekdayHours = extractHours(settings['company.hours.weekday'], '10:00', '19:30')
+
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name,
-    description,
-    url: 'https://pileperde.com.tr',
-    telephone,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: address.streetAddress,
-      addressLocality: address.addressLocality,
-      addressRegion: address.addressRegion,
-      postalCode: address.postalCode,
-      addressCountry: 'TR'
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: '39.9334',
-      longitude: '32.8597'
-    },
-    openingHours: 'Mo-Sa 09:00-18:00',
-    priceRange: '$$'
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': ORGANIZATION_ID,
+        name: 'Pile Perde',
+        url: SITE_URL,
+        description: 'Pile Perde, 35 yıllık tecrübesiyle Ankara’da özel ölçü perde, jaluzi, motorlu perde sistemleri ve iç mekân tekstili çözümleri sunar.',
+        logo: {
+          '@type': 'ImageObject',
+          '@id': `${SITE_URL}/#logo`,
+          url: LOGO_URL,
+          contentUrl: LOGO_URL,
+          caption: 'Pile Perde',
+        },
+        email,
+        telephone,
+        sameAs: ['https://www.instagram.com/pile.perde/'],
+        location: { '@id': LOCAL_BUSINESS_ID },
+      },
+      {
+        '@type': 'LocalBusiness',
+        '@id': LOCAL_BUSINESS_ID,
+        name: 'Pile Perde',
+        url: SITE_URL,
+        description: 'Pile Perde, 35 yıllık tecrübesiyle Ankara’da özel ölçü perde ve motorlu perde sistemleri sunan perde mağazasıdır.',
+        image: LOGO_URL,
+        logo: { '@id': `${SITE_URL}/#logo` },
+        parentOrganization: { '@id': ORGANIZATION_ID },
+        telephone,
+        email,
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: addressText,
+          addressLocality: 'Çankaya',
+          addressRegion: 'Ankara',
+          postalCode,
+          addressCountry: 'TR',
+        },
+        hasMap: settings['company.maps.url'],
+        openingHoursSpecification: [
+          {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            opens: weekdayHours.opens,
+            closes: weekdayHours.closes,
+          },
+        ],
+        contactPoint: [
+          {
+            '@type': 'ContactPoint',
+            telephone,
+            contactType: 'customer service',
+            areaServed: 'TR',
+            availableLanguage: ['tr', 'en'],
+          },
+          {
+            '@type': 'ContactPoint',
+            telephone: `+${whatsappNumber}`,
+            contactType: 'customer service',
+            areaServed: 'TR',
+            availableLanguage: ['tr', 'en'],
+          },
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': WEBSITE_ID,
+        url: `${SITE_URL}/`,
+        name: 'Pile Perde',
+        alternateName: 'Pile Perde Ankara',
+        inLanguage: ['tr-TR', 'en'],
+        publisher: { '@id': ORGANIZATION_ID },
+      },
+    ],
   }
 
   return (
-    <Script
-      id="local-business-schema"
+    <script
+      id="business-structured-data"
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }}
     />
   )
 }
-
 interface ProductSchemaProps {
   name: string
   description: string
@@ -97,46 +152,6 @@ export function ProductSchema({
   return (
     <Script
       id="product-schema"
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
-    />
-  )
-}
-
-interface OrganizationSchemaProps {
-  name?: string
-  description?: string
-}
-
-export function OrganizationSchema({
-  name = 'Pile Perde',
-  description = 'Ankara\'da 20+ yıllık tecrübe ile perde ve jaluzi sistemleri'
-}: OrganizationSchemaProps) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name,
-    description,
-    url: 'https://pileperde.com.tr',
-    logo: 'https://pileperde.com.tr/logo.png',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+90-312-241-72-72',
-      contactType: 'customer service',
-      areaServed: 'TR',
-      availableLanguage: 'Turkish'
-    },
-    sameAs: [
-      // Sosyal medya linkleri buraya eklenebilir
-      // 'https://www.facebook.com/pileperde',
-      // 'https://www.instagram.com/pileperde',
-    ]
-  }
-
-  return (
-    <Script
-      id="organization-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       strategy="afterInteractive"

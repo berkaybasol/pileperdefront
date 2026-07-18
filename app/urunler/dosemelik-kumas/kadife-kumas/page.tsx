@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -15,7 +16,16 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
+const canonicalUrl = 'https://pileperde.com.tr/urunler/dosemelik-kumas/kadife-kumas'
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: 'Ana Sayfa', url: '/' },
+  { name: 'Ürünler', url: '/urunler' },
+  { name: 'Döşemelik Kumaş', url: '/urunler/dosemelik-kumas' },
+  { name: 'Kadife Kumaş', url: '/urunler/dosemelik-kumas/kadife-kumas' },
+]
+
 const fallbackMetadata: Metadata = {
+  alternates: { canonical: 'https://pileperde.com.tr/urunler/dosemelik-kumas/kadife-kumas' },
   title: 'Kadife Kumaş Galerisi - Pile Perde',
   description: 'Kadife döşemelik kumaş modelleri ve uygulama görselleri.',
 }
@@ -29,6 +39,8 @@ export default function KadifeKumasPage() {
       title="Kadife Kumaş"
       description="Yumuşak dokulu ve şık oturum alanları için kadife kumaş uygulama görselleri."
       fallbackImages={fallbackImages}
+      seoBreadcrumbItems={breadcrumbItems}
+      breadcrumbCanonicalUrl={canonicalUrl}
       breadcrumbItems={[
         { label: 'Ürünler', href: '/urunler' },
         { label: 'Döşemelik Kumaş', href: '/urunler/dosemelik-kumas' },

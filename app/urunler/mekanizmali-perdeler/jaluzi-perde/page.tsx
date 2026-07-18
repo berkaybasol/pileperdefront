@@ -3,6 +3,17 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+
+const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler/jaluzi-perde'
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: 'Ana Sayfa', url: '/' },
+  { name: 'Ürünler', url: '/urunler' },
+  { name: 'Mekanizmalı Perdeler', url: '/urunler/mekanizmali-perdeler' },
+  { name: 'Jaluzi Perde', url: '/urunler/mekanizmali-perdeler/jaluzi-perde' },
+]
 
 const jaluziTypes = [
   {
@@ -30,7 +41,9 @@ const jaluziTypes = [
 
 export default function JaluziPerdePage() {
   return (
-    <main className="bg-black">
+    <>
+      <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
+      <main className="bg-black">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Background Pattern */}
@@ -41,6 +54,7 @@ export default function JaluziPerdePage() {
           <motion.div
             className="text-center max-w-3xl mx-auto"
           >
+            <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6">
               <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
               <span className="text-xs text-gray-400 uppercase tracking-wider">Jaluzi Sistemleri</span>
@@ -168,6 +182,7 @@ export default function JaluziPerdePage() {
           </motion.div>
         </div>
       </section>
-    </main>
+      </main>
+    </>
   )
 }

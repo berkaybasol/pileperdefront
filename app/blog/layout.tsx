@@ -1,12 +1,11 @@
 import { Metadata } from 'next'
+import { turkishLocaleAlternates } from '@/lib/siteLocales'
 
 export const metadata: Metadata = {
   title: 'Blog - Perde Dekorasyon Tavsiyeleri',
   description: 'Perde modelleri, dekorasyon önerileri ve ev tekstili hakkında uzman tavsiyeleri. Ankara Pile Perde blog yazıları ile evinize ilham alın.',
   keywords: 'perde blogu, dekorasyon blogu, perde tavsiyeleri, ev tekstili, iç mimari, ankara dekorasyon',
-  alternates: {
-    canonical: 'https://pileperde.com.tr/blog'
-  },
+  alternates: turkishLocaleAlternates('/blog', '/en/blog'),
   openGraph: {
     title: 'Blog - Perde Dekorasyon Tavsiyeleri Ankara',
     description: 'Perde modelleri, dekorasyon önerileri ve ev tekstili hakkında uzman tavsiyeleri.',

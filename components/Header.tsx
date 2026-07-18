@@ -6,6 +6,27 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import SiteSearch from '@/components/SiteSearch'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+
+const socialLinks = [
+  { name: 'WhatsApp', href: 'https://wa.me/905335127272' },
+  { name: 'Instagram', href: 'https://www.instagram.com/pileperdecayyolu/' },
+  { name: 'Pinterest', href: 'https://tr.pinterest.com/pileperde/' },
+  { name: 'Facebook', href: 'https://www.facebook.com/pileperde' },
+] as const
+
+const SocialIcon = ({ name }: { name: typeof socialLinks[number]['name'] }) => {
+  if (name === 'WhatsApp') {
+    return <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+  }
+  if (name === 'Instagram') {
+    return <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1112.324 0 6.162 6.162 0 01-12.324 0zm2.162 0a4 4 0 108 0 4 4 0 00-8 0zm8.965-6.405a1.44 1.44 0 112.881.001 1.44 1.44 0 01-2.881-.001z" />
+  }
+  if (name === 'Pinterest') {
+    return <path d="M12.017 0C5.396 0 0 5.396 0 12.017c0 5.08 3.158 9.424 7.621 11.174-.105-.949-.2-2.408.042-3.445.219-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.781c0-1.668.968-2.914 2.172-2.914 1.024 0 1.519.769 1.519 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.195.599 2.169 1.777 2.169 2.133 0 3.773-2.249 3.773-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.208 0 1.032.397 2.138.893 2.741.098.119.112.223.083.344-.091.378-.293 1.195-.333 1.362-.053.219-.174.265-.402.159-1.499-.698-2.436-2.888-2.436-4.649 0-3.785 2.75-7.26 7.93-7.26 4.163 0 7.398 2.966 7.398 6.93 0 4.137-2.608 7.465-6.227 7.465-1.216 0-2.36-.632-2.752-1.378l-.748 2.848c-.271 1.042-1.002 2.349-1.492 3.146 1.124.348 2.317.538 3.554.538 6.621 0 12.017-5.396 12.017-12.017C24.034 5.396 18.638 0 12.017 0z" />
+  }
+  return <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.025 1.79-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971h-1.513c-1.49 0-1.956.931-1.956 1.887v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+}
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -13,6 +34,7 @@ const Header = () => {
   const [mobileActiveDropdown, setMobileActiveDropdown] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
+  const isEnglish = pathname === '/en' || pathname?.startsWith('/en/')
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,6 +142,15 @@ const Header = () => {
     { name: 'İletişim', href: '/iletisim' },
   ]
 
+  const activeNavigation = isEnglish ? [
+    { name: 'Home', href: '/en' },
+    { name: 'About', href: '/en/about' },
+    { name: 'Products', href: '/en/products' },
+    { name: 'Motorisation', href: '/en/products/motorised-window-treatments' },
+    { name: 'Journal', href: '/en/blog' },
+    { name: 'Contact', href: '/en/contact' },
+  ] : navigation
+
   return (
     <>
       <header
@@ -133,7 +164,7 @@ const Header = () => {
           <div className="flex items-center justify-between h-16 lg:h-20">
 
             {/* Logo */}
-            <Link href="/" className="relative z-10">
+            <Link href={isEnglish ? '/en' : '/'} className="relative z-10">
               <Image
                 src="/pile_perde_logo-1.png"
                 alt="Pile Perde"
@@ -145,8 +176,8 @@ const Header = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-5">
-              {navigation.map((item) => (
+            <nav className="hidden lg:flex items-center gap-3">
+              {activeNavigation.map((item) => (
                 <div
                   key={item.name}
                   className="relative group"
@@ -323,14 +354,32 @@ const Header = () => {
 
             <div className="flex items-center">
               <SiteSearch />
+              <LanguageSwitcher />
+
+            <div className="hidden lg:flex items-center gap-0.5 mr-2" aria-label="Sosyal medya bağlantıları">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="inline-flex h-9 w-9 items-center justify-center text-gray-500 transition-all duration-200 hover:text-white hover:-translate-y-px"
+                >
+                  <svg aria-hidden="true" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <SocialIcon name={social.name} />
+                  </svg>
+                </a>
+              ))}
+            </div>
 
             {/* CTA Button */}
             <div className="hidden lg:block">
               <Link
-                href="/iletisim"
-                className="px-6 py-2 bg-white text-[#1d1d1f] text-sm font-normal hover:bg-gray-100 transition-all duration-300"
+                href={isEnglish ? '/en/contact' : '/iletisim'}
+                className="whitespace-nowrap px-4 py-2 bg-white text-[#1d1d1f] text-sm font-normal hover:bg-gray-100 transition-all duration-300"
               >
-                İletişime Geç
+                {isEnglish ? 'Contact Us' : 'İletişime Geç'}
               </Link>
             </div>
 
@@ -404,7 +453,7 @@ const Header = () => {
 
               {/* Navigation Items */}
               <nav className="space-y-1 relative z-20 flex-1">
-                {navigation.map((item, index) => (
+                {activeNavigation.map((item, index) => (
                   <motion.div
                     key={item.name}
                     initial={{ opacity: 0.8, x: -15 }}
@@ -530,26 +579,30 @@ const Header = () => {
                 className="flex-shrink-0 mt-8 z-20"
               >
                 <Link
-                  href="/iletisim"
+                  href={isEnglish ? '/en/contact' : '/iletisim'}
                   className="group relative block w-full py-4 bg-white text-black text-center text-sm font-medium tracking-wider uppercase overflow-hidden transition-all duration-300"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <span className="relative z-10">İletişime Geç</span>
+                  <span className="relative z-10">{isEnglish ? 'Contact Us' : 'İletişime Geç'}</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
                 </Link>
 
                 {/* Social Links */}
                 <div className="flex justify-center items-center gap-4 mt-8">
-                  <a href="https://www.instagram.com/pileperde/" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/60 hover:text-white hover:bg-white/20 transition-all duration-300">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
-                    </svg>
-                  </a>
-                  <a href="https://wa.me/905335127272" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/60 hover:text-white hover:bg-white/20 transition-all duration-300">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                    </svg>
-                  </a>
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.name}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/60 transition-all duration-200 hover:-translate-y-px hover:border-white/25 hover:bg-white/10 hover:text-white"
+                    >
+                      <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <SocialIcon name={social.name} />
+                      </svg>
+                    </a>
+                  ))}
                 </div>
               </motion.div>
             </div>

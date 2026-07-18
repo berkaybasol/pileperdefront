@@ -585,7 +585,7 @@ const defaultHeroSlides: HeroSlideForm[] = [
 
 const defaultHeroStats: HeroStatForm[] = [
   { number: '500', suffix: '+', label: 'Proje' },
-  { number: '15', suffix: '+', label: 'Yıl Deneyim' },
+  { number: '35', suffix: '+', label: 'Yıl Deneyim' },
   { number: '100', suffix: '%', label: 'Memnuniyet' },
 ]
 

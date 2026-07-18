@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -15,7 +16,16 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
+const canonicalUrl = 'https://pileperde.com.tr/urunler/perde-aksesuarlari/kol-bagi'
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: 'Ana Sayfa', url: '/' },
+  { name: 'Ürünler', url: '/urunler' },
+  { name: 'Perde Aksesuarları', url: '/urunler/perde-aksesuarlari' },
+  { name: 'Kol Bağı', url: '/urunler/perde-aksesuarlari/kol-bagi' },
+]
+
 const fallbackMetadata: Metadata = {
+  alternates: { canonical: 'https://pileperde.com.tr/urunler/perde-aksesuarlari/kol-bagi' },
   title: 'Kol Bağı Galerisi - Pile Perde',
   description: 'Perde kol bağı aksesuarları ve uygulama görselleri.',
 }
@@ -29,6 +39,8 @@ export default function KolBagiPage() {
       title="Kol Bağı"
       description="Fon perde kullanımını şık biçimde tamamlayan kol bağı aksesuarı uygulama görselleri."
       fallbackImages={fallbackImages}
+      seoBreadcrumbItems={breadcrumbItems}
+      breadcrumbCanonicalUrl={canonicalUrl}
       breadcrumbItems={[
         { label: 'Ürünler', href: '/urunler' },
         { label: 'Perde Aksesuarları', href: '/urunler/perde-aksesuarlari' },

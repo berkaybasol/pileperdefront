@@ -8,21 +8,24 @@ import About from "@/components/About";
 import FAQ from "@/components/FAQ";
 import Blog from "@/components/Blog";
 import Contact from "@/components/Contact";
-import { OrganizationSchema, LocalBusinessSchema } from "@/components/StructuredData";
+import { BusinessStructuredData } from "@/components/StructuredData";
 import { getCmsPageMetadata } from "@/lib/cmsMetadata";
+import { turkishLocaleAlternates } from "@/lib/siteLocales";
 
 const fallbackMetadata: Metadata = {
   title: "Pile Perde Ankara Çayyolu - Perde, Jaluzi, Stor Perde",
   description: "Pile Perde Ankara Çayyolu showroom, perde modelleri ve ölçü hizmetleri.",
 };
 
-export const generateMetadata = () => getCmsPageMetadata("home", fallbackMetadata);
+export const generateMetadata = async () => ({
+  ...(await getCmsPageMetadata("home", fallbackMetadata)),
+  alternates: turkishLocaleAlternates('/', '/en'),
+});
 
 export default function Home() {
   return (
     <>
-      <OrganizationSchema />
-      <LocalBusinessSchema />
+      <BusinessStructuredData />
       <Hero />
       <Products />
       <Models />

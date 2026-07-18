@@ -179,7 +179,7 @@ const Footer = () => {
                 <div className="lg:hidden">
                   <p className="text-xs text-gray-600 font-light uppercase tracking-wider mb-2">Çalışma Saatleri</p>
                   <p className="text-xs text-gray-500 font-light">Pzt-Cmt: 10:00-19:30</p>
-                  <p className="text-xs text-gray-500 font-light">Pazar: 11:30-17:30</p>
+                  <p className="text-xs text-gray-500 font-light">Pazar: Kapalı</p>
                 </div>
               </div>
 
@@ -191,9 +191,9 @@ const Footer = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div className="text-xs lg:text-sm text-gray-500 font-light">
-                    <p>Prof. Dr. A.T. Kışlalı Mah.</p>
-                    <p>B.B. Şeyh M. Rahman Blv.</p>
-                    <p>No:94 H, Çankaya/Ankara</p>
+                    <p>Prof. Dr. Ahmet Taner Kışlalı Mah.</p>
+                    <p>Bangabandhu Bulvarı No:94 H</p>
+                    <p>06810 Çayyolu / Çankaya / Ankara</p>
                   </div>
                 </div>
               </div>
@@ -202,7 +202,7 @@ const Footer = () => {
               <div className="hidden lg:block col-span-2 pt-3 border-t border-white/10">
                 <p className="text-xs text-gray-600 font-light uppercase tracking-wider mb-2">Çalışma Saatleri</p>
                 <p className="text-xs text-gray-500 font-light">Pzt-Cmt: 10:00 - 19:30</p>
-                <p className="text-xs text-gray-500 font-light">Pazar: 11:30 - 17:30</p>
+                <p className="text-xs text-gray-500 font-light">Pazar: Kapalı</p>
               </div>
             </div>
           </motion.div>

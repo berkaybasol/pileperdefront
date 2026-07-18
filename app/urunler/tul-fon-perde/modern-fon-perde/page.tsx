@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
+import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -15,7 +16,16 @@ const fallbackImages: ProductGalleryImage[] = [
   },
 ]
 
+const canonicalUrl = 'https://pileperde.com.tr/urunler/tul-fon-perde/modern-fon-perde'
+const breadcrumbItems: BreadcrumbItem[] = [
+  { name: 'Ana Sayfa', url: '/' },
+  { name: 'Ürünler', url: '/urunler' },
+  { name: 'Tül & Fon Perde', url: '/urunler/tul-fon-perde' },
+  { name: 'Modern Fon Perde', url: '/urunler/tul-fon-perde/modern-fon-perde' },
+]
+
 const fallbackMetadata: Metadata = {
+  alternates: { canonical: 'https://pileperde.com.tr/urunler/tul-fon-perde/modern-fon-perde' },
   title: 'Modern Fon Perde Galerisi - Pile Perde',
   description: 'Modern fon perde modelleri ve uygulama görselleri.',
 }
@@ -29,6 +39,8 @@ export default function ModernFonPerdePage() {
       title="Modern Fon Perde"
       description="Modern yaşam alanları için fon perde uygulama görselleri."
       fallbackImages={fallbackImages}
+      seoBreadcrumbItems={breadcrumbItems}
+      breadcrumbCanonicalUrl={canonicalUrl}
     />
   )
 }

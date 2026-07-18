@@ -7,7 +7,6 @@ Sitemap: https://pileperde.com.tr/sitemap.xml
 
 # Disallow admin or sensitive areas
 Disallow: /api/
-Disallow: /_next/static/
 Disallow: /*.json$
 
 # Allow important crawling

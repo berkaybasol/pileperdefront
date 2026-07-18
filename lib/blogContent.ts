@@ -109,3 +109,30 @@ export const getPublicBlogPostBySlug = async (slug: string) => {
   const posts = await getPublicBlogPosts()
   return posts.find((post) => post.slug === slug) || getBlogPostBySlug(slug)
 }
+
+const activeLegacyBlogSlugs = new Set([
+  'rustik-perde-sevenler-buraya',
+  'zebra-perdeler-nasil-temizlenir',
+  'perdelerde-dogru-renk-secimi',
+  'perdeler-ve-mobilyalarin-uyumu',
+  'perdeler-hakkinda-en-cok-sorulan-sorular',
+  'perde-beyazlatma-yontemleri',
+  'olcuye-gore-perdeler-alirken-dikkat-edilmesi-gerekenler',
+  'is-yerleri-icin-perde-tercihi',
+  'ic-mekanlarda-kirmizi-perde-kullanimi',
+])
+
+export const getIndexableBlogPosts = async () => {
+  const publicPosts = await getPublicBlogPosts()
+  const legacyPosts = defaultBlogPosts.filter(
+    (post) => post.enabled !== false && activeLegacyBlogSlugs.has(post.slug),
+  )
+  const postsByUrl = new Map<string, BlogPost>()
+
+  for (const post of [...publicPosts, ...legacyPosts]) {
+    if (!post.slug || post.enabled === false) continue
+    postsByUrl.set(`/blog/${post.slug}`, post)
+  }
+
+  return Array.from(postsByUrl.values())
+}
