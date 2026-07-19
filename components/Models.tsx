@@ -73,6 +73,13 @@ const Models = ({ showSwiper = true, showCTA = true, initialItems, locale = 'tr'
       description: 'İhtişamlı yüksek tavan çözümleri'
     },
     {
+      id: 13,
+      title: 'Villa Perde Modelleri',
+      image: '/villa-perde-card-placeholder.svg',
+      href: '/perde-modelleri/villa-perde-modelleri',
+      description: 'Villalara özel tasarım ve uygulama çözümleri'
+    },
+    {
       id: 8,
       title: 'İp Perde',
       image: '/api/public/media/images/10c446e9-acdc-487b-8f12-2f962c3b5e37/file',

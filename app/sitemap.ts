@@ -64,6 +64,7 @@ const sitemapEntries: SitemapEntry[] = [
   { path: '/urunler/metal-zincir-perde/metal-zincir-seperator', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/urunler/metal-zincir-perde/pro-collection', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/perde-modelleri', changeFrequency: 'weekly', priority: 0.9 },
+  { path: '/perde-modelleri/villa-perde-modelleri', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/model-perdeler/klasik-ve-avangart-perde', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/model-perdeler/modern-perde', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/model-perdeler/rustikli-perde', changeFrequency: 'weekly', priority: 0.85 },

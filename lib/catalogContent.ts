@@ -171,6 +171,14 @@ export const defaultModelItems: CatalogItem[] = [
     enabled: true,
   },
   {
+    id: 13,
+    title: 'Villa Perde Modelleri',
+    image: '/villa-perde-card-placeholder.svg',
+    href: '/perde-modelleri/villa-perde-modelleri',
+    description: 'Villalara özel tasarım ve uygulama çözümleri',
+    enabled: true,
+  },
+  {
     id: 8,
     title: 'İp Perde',
     image: '/api/public/media/images/10c446e9-acdc-487b-8f12-2f962c3b5e37/file',
@@ -290,6 +298,23 @@ export const parseCatalogItems = (
 
 export const buildCatalogContentJson = (items: CatalogItem[]) => JSON.stringify({ items }, null, 2)
 
+const villaModelItem = defaultModelItems.find(
+  (item) => item.href === '/perde-modelleri/villa-perde-modelleri',
+)
+
+const ensureVillaModelItem = (items: CatalogItem[]) => {
+  if (!villaModelItem || items.some((item) => item.href === villaModelItem.href)) {
+    return items
+  }
+
+  const galleryIndex = items.findIndex(
+    (item) => item.href === '/model-perdeler/yuksek-tavanli-galeri-perde',
+  )
+  const insertAt = galleryIndex >= 0 ? galleryIndex + 1 : items.length
+
+  return [...items.slice(0, insertAt), villaModelItem, ...items.slice(insertAt)]
+}
+
 export const getPublicCatalogItems = async (
   pageKey: string,
   sectionKey: string,
@@ -347,8 +372,10 @@ export const getPublicProductsPageContent = async (): Promise<ProductPageContent
   }
 }
 
-export const getPublicModelItems = () =>
-  getPublicCatalogItems('curtain-models', 'models.grid', defaultModelItems)
+export const getPublicModelItems = async () =>
+  ensureVillaModelItem(
+    await getPublicCatalogItems('curtain-models', 'models.grid', defaultModelItems),
+  )
 
 export const getPublicModelsPageContent = async (): Promise<ModelPageContent> => {
   try {
@@ -367,7 +394,9 @@ export const getPublicModelsPageContent = async (): Promise<ModelPageContent> =>
     return {
       heroTitle: heroSection?.enabled && heroSection.title ? heroSection.title : defaultModelPageCopy.heroTitle,
       heroSubtitle: heroSection?.enabled && heroSection.body ? heroSection.body : defaultModelPageCopy.heroSubtitle,
-      items: gridSection?.enabled ? parseCatalogItems(gridSection.contentJson, defaultModelItems) : defaultModelItems,
+      items: ensureVillaModelItem(
+        gridSection?.enabled ? parseCatalogItems(gridSection.contentJson, defaultModelItems) : defaultModelItems,
+      ),
     }
   } catch {
     return { ...defaultModelPageCopy, items: defaultModelItems }
