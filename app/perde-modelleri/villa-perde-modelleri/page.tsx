@@ -137,8 +137,8 @@ export default function VillaPerdeModelleriPage() {
               <p className="mt-6 font-light leading-8 text-neutral-400">
                 Tek bir salon penceresinden tüm villanın perde planlamasına kadar süreç; tasarım, ölçü, üretim ve montaj adımlarıyla kontrollü biçimde yürütülür.
               </p>
-              <Link href="/kurumsal-urunler/ozel-proje-perdeleri" className="mt-7 inline-flex min-h-11 items-center rounded-full border border-white/20 px-6 text-sm transition-colors hover:bg-white hover:text-black">
-                Özel proje perdelerini inceleyin
+              <Link href="#villa-projeleri" className="mt-7 inline-flex min-h-11 items-center rounded-full border border-white/20 px-6 text-sm transition-colors hover:bg-white hover:text-black">
+                Villa projelerimizi inceleyin
               </Link>
             </div>
             <ol className="grid gap-4 sm:grid-cols-2">
@@ -154,7 +154,7 @@ export default function VillaPerdeModelleriPage() {
         </div>
       </section>
 
-      <section className="border-y border-white/5 bg-neutral-950/70 py-16 lg:py-24">
+      <section id="villa-projeleri" className="scroll-mt-20 border-y border-white/5 bg-neutral-950/70 py-16 lg:py-24">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>

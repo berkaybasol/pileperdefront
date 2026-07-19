@@ -303,16 +303,24 @@ const villaModelItem = defaultModelItems.find(
 )
 
 const ensureVillaModelItem = (items: CatalogItem[]) => {
-  if (!villaModelItem || items.some((item) => item.href === villaModelItem.href)) {
+  if (!villaModelItem) {
     return items
   }
 
-  const galleryIndex = items.findIndex(
-    (item) => item.href === '/model-perdeler/yuksek-tavanli-galeri-perde',
+  const itemsWithoutVilla = items.filter((item) => item.href !== villaModelItem.href)
+  const galleryIndex = itemsWithoutVilla.findIndex(
+    (item) =>
+      item.href === '/model-perdeler/yuksek-tavanli-galeri-perde'
+      || item.href === '/model-perdeler/yuksek-tavanli-perde-modelleri'
+      || item.title.toLocaleLowerCase('tr-TR').includes('yüksek tavan'),
   )
-  const insertAt = galleryIndex >= 0 ? galleryIndex + 1 : items.length
+  const insertAt = galleryIndex >= 0 ? galleryIndex + 1 : itemsWithoutVilla.length
 
-  return [...items.slice(0, insertAt), villaModelItem, ...items.slice(insertAt)]
+  return [
+    ...itemsWithoutVilla.slice(0, insertAt),
+    villaModelItem,
+    ...itemsWithoutVilla.slice(insertAt),
+  ]
 }
 
 export const getPublicCatalogItems = async (
