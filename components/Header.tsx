@@ -123,7 +123,6 @@ const Header = () => {
           { title: 'Balon Perde', image: '/api/public/media/images/0d960ab5-7767-41f7-86e2-674315fa8cfd/file', href: '/model-perdeler/balon-perde' },
           { title: 'Katlamalı Perde', image: '/api/public/media/images/2e01e3a6-79a2-4b09-87f3-48350370e150/file', href: '/model-perdeler/katlamali-perde' },
           { title: 'Yüksek Tavanlı Galeri', image: '/api/public/media/images/334ad8c7-98e2-411c-98e9-d3c74c5a8973/file', href: '/model-perdeler/yuksek-tavanli-galeri-perde' },
-          { title: 'Villa Perde Modelleri', image: '/villa-perde-card-placeholder.svg', href: '/perde-modelleri/villa-perde-modelleri' },
           { title: 'İp Perde', image: '/api/public/media/images/10c446e9-acdc-487b-8f12-2f962c3b5e37/file', href: '/model-perdeler/ip-perde' },
           { title: 'Çocuk Perde', image: '/api/public/media/images/92d067f9-f14e-45da-89fb-901f775d61b3/file', href: '/model-perdeler/cocuk-perde' },
           { title: 'Cibinlik Perde', image: '/api/public/media/images/66a8d307-6542-437e-9781-8626f3f2067e/file', href: '/model-perdeler/cibinlik-perde' },
