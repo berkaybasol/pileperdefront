@@ -418,7 +418,7 @@ const buildBlogArticleContent = (blocks: BlogContentBlock[]) =>
 
 const productDetailAdminPages = [
   { panel: 'mechanized', pageKey: 'product-mekanizmali-perdeler', label: 'Mekanizmalı Perdeler' },
-  { panel: 'tulFon', pageKey: 'product-tul-fon-perde', label: 'Tül & Fon Perde' },
+  { panel: 'tulFon', pageKey: 'product-tul-fon-perde', label: 'Tül ve Fon Perde' },
   { panel: 'dosemelik', pageKey: 'product-dosemelik-kumas', label: 'Döşemelik Kumaş' },
   { panel: 'motorlu', pageKey: 'product-motorlu-perdeler', label: 'Motorlu Perdeler' },
   { panel: 'accessories', pageKey: 'product-perde-aksesuarlari', label: 'Perde Aksesuarları' },

@@ -100,7 +100,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link href="/urunler/tul-fon-perde" className="text-sm text-gray-500 hover:text-white transition-colors font-light">
-                    Tül & Fon Perdeler
+                    Tül ve Fon Perdeler
                   </Link>
                 </li>
                 <li>

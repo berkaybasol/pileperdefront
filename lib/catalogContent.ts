@@ -73,7 +73,7 @@ export const defaultProductItems: CatalogItem[] = [
   },
   {
     id: 2,
-    title: 'Tül & Fon Perdeler',
+    title: 'Tül ve Fon Perdeler',
     image: '/api/public/media/images/ac111c41-9c23-4975-94bb-cab90e242037/file',
     href: '/urunler/tul-fon-perde',
     description: 'Şık ve zarif tül perde modelleri',

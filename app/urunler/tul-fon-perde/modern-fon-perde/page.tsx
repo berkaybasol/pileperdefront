@@ -20,7 +20,7 @@ const canonicalUrl = 'https://pileperde.com.tr/urunler/tul-fon-perde/modern-fon-
 const breadcrumbItems: BreadcrumbItem[] = [
   { name: 'Ana Sayfa', url: '/' },
   { name: 'Ürünler', url: '/urunler' },
-  { name: 'Tül & Fon Perde', url: '/urunler/tul-fon-perde' },
+  { name: 'Tül ve Fon Perde', url: '/urunler/tul-fon-perde' },
   { name: 'Modern Fon Perde', url: '/urunler/tul-fon-perde/modern-fon-perde' },
 ]
 

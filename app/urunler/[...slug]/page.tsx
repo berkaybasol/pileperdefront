@@ -61,11 +61,11 @@ export const generateMetadata = async ({ params }: DynamicGalleryPageProps) => {
 
 const activeProductBreadcrumbs: Record<string, { name: string; parentName: string; parentUrl: string }> = {
   'mekanizmali-perdeler/bambu-perde': { name: 'Bambu Perde', parentName: 'Mekanizmalı Perdeler', parentUrl: '/urunler/mekanizmali-perdeler' },
-  'tul-fon-perde/klasik-fon-perde': { name: 'Klasik Fon Perde', parentName: 'Tül & Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
-  'tul-fon-perde/kadife-fon-perde': { name: 'Kadife Fon Perde', parentName: 'Tül & Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
-  'tul-fon-perde/tasarim-fon-perdeler': { name: 'Tasarım Fon Perdeler', parentName: 'Tül & Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
-  'tul-fon-perde/keten-tul-perdeler': { name: 'Keten Tül Perdeler', parentName: 'Tül & Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
-  'tul-fon-perde/baskili-fon-perdeler': { name: 'Baskılı Fon Perdeler', parentName: 'Tül & Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
+  'tul-fon-perde/klasik-fon-perde': { name: 'Klasik Fon Perde', parentName: 'Tül ve Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
+  'tul-fon-perde/kadife-fon-perde': { name: 'Kadife Fon Perde', parentName: 'Tül ve Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
+  'tul-fon-perde/tasarim-fon-perdeler': { name: 'Tasarım Fon Perdeler', parentName: 'Tül ve Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
+  'tul-fon-perde/keten-tul-perdeler': { name: 'Keten Tül Perdeler', parentName: 'Tül ve Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
+  'tul-fon-perde/baskili-fon-perdeler': { name: 'Baskılı Fon Perdeler', parentName: 'Tül ve Fon Perde', parentUrl: '/urunler/tul-fon-perde' },
   'dosemelik-kumas/outdoor-kumas': { name: 'Outdoor Kumaş', parentName: 'Döşemelik Kumaş', parentUrl: '/urunler/dosemelik-kumas' },
   'dosemelik-kumas/deri-kumas': { name: 'Deri Kumaş', parentName: 'Döşemelik Kumaş', parentUrl: '/urunler/dosemelik-kumas' },
   'dosemelik-kumas/leopar-desenli-dosemelik-kumaslar': { name: 'Leopar Desenli Döşemelik Kumaşlar', parentName: 'Döşemelik Kumaş', parentUrl: '/urunler/dosemelik-kumas' },

@@ -20,7 +20,7 @@ const canonicalUrl = 'https://pileperde.com.tr/urunler/tul-fon-perde/keten-fon-p
 const breadcrumbItems: BreadcrumbItem[] = [
   { name: 'Ana Sayfa', url: '/' },
   { name: 'Ürünler', url: '/urunler' },
-  { name: 'Tül & Fon Perde', url: '/urunler/tul-fon-perde' },
+  { name: 'Tül ve Fon Perde', url: '/urunler/tul-fon-perde' },
   { name: 'Keten Fon Perde', url: '/urunler/tul-fon-perde/keten-fon-perde' },
 ]
 
