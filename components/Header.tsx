@@ -117,17 +117,17 @@ const Header = () => {
       content: {
         models: [
           { title: 'Klasik Perde Modelleri', image: '/api/public/media/images/df6a191d-3db6-4645-a083-f71422f49200/file', href: '/model-perdeler/klasik-ve-avangart-perde' },
-          { title: 'Modern Perde', image: '/api/public/media/images/d70ef178-4553-4734-b023-80b297f1e695/file', href: '/model-perdeler/modern-perde' },
-          { title: 'Rustikli Perde', image: '/api/public/media/images/4b0f28ee-b79d-44e0-880d-5aec64bb13e3/file', href: '/model-perdeler/rustikli-perde' },
-          { title: 'Kruvaze Perde', image: '/api/public/media/images/fa4be5de-409b-407c-adc6-44df3d5c712b/file', href: '/model-perdeler/kruvaze-perde' },
-          { title: 'Balon Perde', image: '/api/public/media/images/0d960ab5-7767-41f7-86e2-674315fa8cfd/file', href: '/model-perdeler/balon-perde' },
-          { title: 'Katlamalı Perde', image: '/api/public/media/images/2e01e3a6-79a2-4b09-87f3-48350370e150/file', href: '/model-perdeler/katlamali-perde' },
-          { title: 'Yüksek Tavanlı Galeri', image: '/api/public/media/images/334ad8c7-98e2-411c-98e9-d3c74c5a8973/file', href: '/model-perdeler/yuksek-tavanli-galeri-perde' },
+          { title: 'Modern Perde Modelleri', image: '/api/public/media/images/d70ef178-4553-4734-b023-80b297f1e695/file', href: '/model-perdeler/modern-perde' },
+          { title: 'Rustik Perde Modelleri', image: '/api/public/media/images/4b0f28ee-b79d-44e0-880d-5aec64bb13e3/file', href: '/model-perdeler/rustikli-perde' },
+          { title: 'Kruvaze Perde Modelleri', image: '/api/public/media/images/fa4be5de-409b-407c-adc6-44df3d5c712b/file', href: '/model-perdeler/kruvaze-perde' },
+          { title: 'Balon Perde Modelleri', image: '/api/public/media/images/0d960ab5-7767-41f7-86e2-674315fa8cfd/file', href: '/model-perdeler/balon-perde' },
+          { title: 'Katlamalı Perde Modelleri', image: '/api/public/media/images/2e01e3a6-79a2-4b09-87f3-48350370e150/file', href: '/model-perdeler/katlamali-perde' },
+          { title: 'Yüksek Tavan Perde Modelleri', image: '/api/public/media/images/334ad8c7-98e2-411c-98e9-d3c74c5a8973/file', href: '/model-perdeler/yuksek-tavanli-galeri-perde' },
           { title: 'İp Perde', image: '/api/public/media/images/10c446e9-acdc-487b-8f12-2f962c3b5e37/file', href: '/model-perdeler/ip-perde' },
           { title: 'Çocuk Perde', image: '/api/public/media/images/92d067f9-f14e-45da-89fb-901f775d61b3/file', href: '/model-perdeler/cocuk-perde' },
           { title: 'Cibinlik Perde', image: '/api/public/media/images/66a8d307-6542-437e-9781-8626f3f2067e/file', href: '/model-perdeler/cibinlik-perde' },
           { title: 'Çatı Katı Perde', image: '/api/public/media/images/9bfdadba-520b-43d8-8ccb-c9256523b8a9/file', href: '/model-perdeler/cati-kati-perde' },
-          { title: 'Kış Bahçesi Perde', image: '/api/public/media/images/3f3e07b0-8d36-4b49-8b21-1f0f4d439d90/file', href: '/model-perdeler/kis-bahcesi-perde' },
+          { title: 'Kış Bahçesi Perde Modelleri', image: '/api/public/media/images/3f3e07b0-8d36-4b49-8b21-1f0f4d439d90/file', href: '/model-perdeler/kis-bahcesi-perde' },
         ]
       }
     },
@@ -287,7 +287,7 @@ const Header = () => {
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                                   </div>
-                                  <h3 className="text-xs font-extralight text-white group-hover/item:text-gray-400 transition-colors uppercase tracking-wider">
+                                  <h3 className="text-xs font-extralight text-white group-hover/item:text-gray-400 transition-colors tracking-wider">
                                     {model.title}
                                   </h3>
                                 </Link>
@@ -537,7 +537,7 @@ const Header = () => {
                                       <Link
                                         key={model.title}
                                         href={model.href}
-                                        className="block py-2 text-base font-extralight text-white/60 hover:text-white hover:translate-x-2 transition-all uppercase tracking-wide"
+                                        className="block py-2 text-base font-extralight text-white/60 hover:text-white hover:translate-x-2 transition-all tracking-wide"
                                         onClick={() => setMobileMenuOpen(false)}
                                       >
                                         {model.title}
