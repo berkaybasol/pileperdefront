@@ -235,7 +235,7 @@ const Header = () => {
                                       />
                                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                                     </div>
-                                    <h3 className="text-xs font-extralight text-white mb-2 group-hover/item:text-gray-400 transition-colors uppercase tracking-wider">
+                                    <h3 className="text-xs font-extralight text-white mb-2 group-hover/item:text-gray-400 transition-colors tracking-wider">
                                       {category.title}
                                     </h3>
                                   </Link>
@@ -516,7 +516,7 @@ const Header = () => {
                                       <Link
                                         key={category.title}
                                         href={category.href}
-                                        className="block py-2 text-base font-extralight text-white/60 hover:text-white hover:translate-x-2 transition-all uppercase tracking-wide"
+                                        className="block py-2 text-base font-extralight text-white/60 hover:text-white hover:translate-x-2 transition-all tracking-wide"
                                         onClick={() => setMobileMenuOpen(false)}
                                       >
                                         {category.title}
