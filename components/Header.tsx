@@ -186,7 +186,7 @@ const Header = () => {
                 >
                   {item.megaMenu ? (
                     <button
-                      className={`text-sm font-extralight uppercase tracking-[0.15em] transition-all duration-300 flex items-center gap-2 py-2 ${
+                      className={`text-sm font-extralight tracking-[0.15em] transition-all duration-300 flex items-center gap-2 py-2 ${
                         pathname?.startsWith(item.href) ? 'text-white' : 'text-gray-400 hover:text-white'
                       }`}
                     >
@@ -198,7 +198,7 @@ const Header = () => {
                   ) : (
                     <Link
                       href={item.href}
-                      className={`text-sm font-extralight uppercase tracking-[0.15em] transition-all duration-300 py-2 relative group ${
+                      className={`text-sm font-extralight tracking-[0.15em] transition-all duration-300 py-2 relative group ${
                         pathname === item.href ? 'text-white' : 'text-gray-400 hover:text-white'
                       }`}
                     >
@@ -486,7 +486,7 @@ const Header = () => {
                           onClick={() => setMobileActiveDropdown(mobileActiveDropdown === item.name ? null : item.name)}
                           className="w-full flex items-center justify-between py-3 group"
                         >
-                          <span className="text-xl font-extralight text-white/80 group-hover:text-white transition-colors uppercase tracking-wider">
+                          <span className="text-xl font-extralight text-white/80 group-hover:text-white transition-colors tracking-wider">
                             {item.name}
                           </span>
                           <svg
@@ -581,7 +581,7 @@ const Header = () => {
                     ) : (
                       <Link
                         href={item.href}
-                        className="block py-3 text-xl font-extralight text-white/80 hover:text-white hover:translate-x-2 transition-all uppercase tracking-wider"
+                        className="block py-3 text-xl font-extralight text-white/80 hover:text-white hover:translate-x-2 transition-all tracking-wider"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {item.name}
