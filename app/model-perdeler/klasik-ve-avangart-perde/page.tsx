@@ -1,7 +1,7 @@
 'use client'
 
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
-import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
+import { parseProductGalleryHeroCopy, parseProductGalleryImages } from '@/lib/productGalleryContent'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -225,10 +225,12 @@ type KlasikAvangartPerdePageProps = {
 }
 
 export default function KlasikAvangartPerdePage({ previewLayout = false }: KlasikAvangartPerdePageProps) {
-  const [galleryImages, setGalleryImages] = useState(productImages)
-  const [selectedImage, setSelectedImage] = useState(productImages[0])
+  const initialContentJson = useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery')
+  const initialGalleryImages = parseProductGalleryImages(initialContentJson, productImages)
+  const [galleryImages, setGalleryImages] = useState(initialGalleryImages)
+  const [selectedImage, setSelectedImage] = useState(initialGalleryImages[0])
   const initialHeroCopy = parseProductGalleryHeroCopy(
-    useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery'),
+    initialContentJson,
     defaultHeroCopy,
   )
   const [heroCopy, setHeroCopy] = useState(initialHeroCopy)
@@ -295,13 +297,13 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
   return (
     <>
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
-      <main className={`bg-black flex flex-col ${previewLayout ? '' : styles.realPremiumPage}`}>
+      <main className={`bg-black ${previewLayout ? '' : styles.realPremiumPage}`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
       <div className="absolute inset-0 bg-grid-white/[0.02]" />
 
       {/* Hero Section */}
-      <section className="relative order-1 overflow-hidden py-20">
+      <section className={`relative overflow-hidden py-20 ${styles.heroSection}`}>
         <div className="container mx-auto px-6">
           <div className="text-center max-w-4xl mx-auto">
             {/* Breadcrumb */}
@@ -326,7 +328,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
         </div>
       </section>
 
-      <section className="relative order-2 pb-14">
+      <section className={`relative pb-14 ${styles.contactSection}`}>
           <div className="container mx-auto px-6">
             <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-5 text-center backdrop-blur-md">
               <p className="mb-4 text-sm font-light tracking-wide text-gray-300">
@@ -343,7 +345,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
                   Hemen Arayın
                 </Link>
                 <Link
-                  href="https://wa.me/905325034424"
+                href="https://wa.me/905335127272"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-700/50 bg-emerald-950/60 px-4 py-2 text-sm font-medium text-emerald-100 transition-colors hover:bg-emerald-900/70"
@@ -359,7 +361,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
       </section>
 
       {/* Full Product Gallery - Dark Glassmorphism Grid */}
-      <section className="relative order-3 border-t border-white/5 py-20">
+      <section className={`relative border-t border-white/5 py-20 ${styles.gallerySection}`}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
@@ -420,7 +422,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
       </section>
 
       {/* Compact Product Info Section */}
-      <section className="relative order-4 border-t border-white/5 py-16">
+      <section className="relative border-t border-white/5 py-16">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-8">
 
@@ -504,7 +506,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
                 </Link>
 
                                 <Link
-                  href="https://wa.me/905325034424"
+                  href="https://wa.me/905335127272"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-all duration-300 rounded-lg text-sm"
@@ -521,7 +523,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
       </section>
 
       {/* Product Features - Dark Glassmorphism Cards */}
-      <section className="relative order-5 border-t border-white/5 py-20">
+      <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12">
 
@@ -582,7 +584,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
       </section>
 
       {/* Contact CTA */}
-      <section className="relative order-6 border-t border-white/5 py-20">
+      <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6 text-center">
           <div
           >
@@ -605,7 +607,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
               </Link>
                             <Link
-                href="https://wa.me/905325034424"
+                  href="https://wa.me/905335127272"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-2 px-8 py-4 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-all duration-300 rounded-xl"
@@ -641,6 +643,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
           >
               {/* Close Button */}
               <button
+                aria-label="Galeriyi kapat"
                 onClick={() => setLightboxOpen(false)}
                 className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
               >
@@ -651,6 +654,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
 
               {/* Previous Button */}
               <button
+                aria-label="Önceki görsel"
                 onClick={goToPrevious}
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
               >
@@ -661,6 +665,7 @@ export default function KlasikAvangartPerdePage({ previewLayout = false }: Klasi
 
               {/* Next Button */}
               <button
+                aria-label="Sonraki görsel"
                 onClick={goToNext}
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
               >

@@ -312,7 +312,7 @@ export default function ManagedProductGalleryPage({
             </Link>
 
             <Link
-              href="https://wa.me/905325034424"
+              href="https://wa.me/905335127272"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-8 py-4 text-white transition-all duration-300 hover:bg-[#20BA5A]"

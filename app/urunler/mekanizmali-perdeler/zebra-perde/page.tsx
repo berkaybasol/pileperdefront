@@ -292,7 +292,7 @@ export default function ZebraPerdePage() {
                 </Link>
 
                                 <Link
-                  href="https://wa.me/905325034424"
+                href="https://wa.me/905335127272"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-all duration-300 rounded-lg text-sm"
@@ -454,7 +454,7 @@ export default function ZebraPerdePage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
               </Link>
                             <Link
-                href="https://wa.me/905325034424"
+                  href="https://wa.me/905335127272"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-2 px-8 py-4 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-all duration-300 rounded-xl"
