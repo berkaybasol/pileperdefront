@@ -1,7 +1,7 @@
 'use client'
 
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
-import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
+import { parseProductGalleryHeroCopy, parseProductGalleryImages } from '@/lib/productGalleryContent'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,6 +11,7 @@ import { getPublicProductGallery, getPublicProductGalleryHeroCopy, getProductGal
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import styles from './page.module.css'
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-model-perdeler-katlamali-perde'
 
@@ -161,10 +162,12 @@ const staggerContainerVariants = {
 }
 
 export default function ModernPerdePage() {
-  const [galleryImages, setGalleryImages] = useState(productImages)
-  const [selectedImage, setSelectedImage] = useState(productImages[0])
+  const initialContentJson = useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery')
+  const initialGalleryImages = parseProductGalleryImages(initialContentJson, productImages)
+  const [galleryImages, setGalleryImages] = useState(initialGalleryImages)
+  const [selectedImage, setSelectedImage] = useState(initialGalleryImages[0])
   const initialHeroCopy = parseProductGalleryHeroCopy(
-    useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery'),
+    initialContentJson,
     defaultHeroCopy,
   )
   const [heroCopy, setHeroCopy] = useState(initialHeroCopy)
@@ -229,11 +232,11 @@ export default function ModernPerdePage() {
   return (
     <>
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
-      <main className="bg-black">
+      <main className={`bg-black ${styles.realPremiumPage}`}>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
       <div className="absolute inset-0 bg-grid-white/[0.02]" />
 
-      <section className="relative overflow-hidden py-20">
+      <section className={`relative overflow-hidden py-20 ${styles.heroSection}`}>
         <div className="container mx-auto px-6">
           <div className="text-center max-w-4xl mx-auto">
             <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
@@ -253,6 +256,78 @@ export default function ModernPerdePage() {
             <p className="text-lg text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">
               {heroCopy.description}
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className={`relative pb-14 ${styles.contactSection}`}>
+        <div className="container mx-auto px-6">
+          <div className="max-w-xl mx-auto text-center p-5 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/10">
+            <p className="text-sm text-gray-300 font-light mb-3">
+              Özel ölçü ve fiyat bilgisi için bize ulaşın.
+            </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+              <Link
+                href="tel:+903122417272"
+                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-white/15 bg-white text-black text-sm font-medium transition-colors hover:bg-gray-200"
+              >
+                Hemen Arayın
+              </Link>
+              <Link
+                href="https://wa.me/905335127272"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-emerald-400/20 bg-emerald-950/70 text-emerald-100 text-sm font-medium transition-colors hover:bg-emerald-900/80"
+              >
+                WhatsApp’tan Yazın
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={`relative py-20 border-t border-white/5 ${styles.gallerySection}`}>
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
+            <h2 className="text-3xl md:text-4xl font-extralight text-white">
+              Katlamalı Perde Modelleri
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryImages.map((image) => (
+              <div key={image.id} className="group">
+                <div
+                  className="relative h-[400px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer"
+                  onClick={() => {
+                    setSelectedImage(image)
+                    setLightboxOpen(true)
+                  }}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-110 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <div className="flex items-end justify-between">
+                      <div />
+                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300 flex-shrink-0 ml-4">
+                        <svg className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full filter blur-3xl" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -348,62 +423,6 @@ export default function ModernPerdePage() {
                 </Link>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
-            <h2 className="text-3xl md:text-4xl font-extralight text-white">
-              Katlamalı Perde Modelleri
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryImages.map((image, index) => (
-              <div
-                key={image.id}
-                className="group"
-              >
-                <div
-                  className="relative h-[400px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer"
-                  onClick={() => {
-                    setSelectedImage(image)
-                    setLightboxOpen(true)
-                  }}
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-110 transition-all duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-
-                  <div className="absolute inset-x-0 bottom-0 p-6">
-                    <div className="flex items-end justify-between">
-                      <div></div>
-                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300 flex-shrink-0 ml-4">
-                        <svg
-                          className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300 group-hover:translate-x-0.5 transition-transform"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full filter blur-3xl" />
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -521,6 +540,7 @@ export default function ModernPerdePage() {
             transition={{ duration: 0.3 }}
           >
               <button
+                aria-label="Galeriyi kapat"
                 onClick={() => setLightboxOpen(false)}
                 className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
               >
@@ -530,6 +550,7 @@ export default function ModernPerdePage() {
               </button>
 
               <button
+                aria-label="Önceki görsel"
                 onClick={goToPrevious}
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
               >
@@ -539,6 +560,7 @@ export default function ModernPerdePage() {
               </button>
 
               <button
+                aria-label="Sonraki görsel"
                 onClick={goToNext}
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300 z-10"
               >
