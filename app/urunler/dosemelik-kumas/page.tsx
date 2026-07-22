@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
-import MekanizmaliPerdelerContent from '@/components/MekanizmaliPerdelerContent'
+import MekanizmaliPerdelerContent from '@/components/CmsProductDetailPage'
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 import { productDetailDefaults } from '@/lib/productDetailContent'
 

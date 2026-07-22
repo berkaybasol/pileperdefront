@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem as SeoBreadcrumbItem } from '@/lib/breadcrumbs'
 import {
   defaultProductGalleryVideo,
@@ -13,6 +14,9 @@ import {
   getPublicProductGalleryHeroCopy,
   getPublicProductGalleryVideo,
   getYouTubeEmbedUrl,
+  parseProductGalleryHeroCopy,
+  parseProductGalleryImages,
+  parseProductGalleryVideo,
   type ProductGalleryHeroCopy,
   type ProductGalleryImage,
   type ProductGalleryVideo,
@@ -53,8 +57,6 @@ export default function ManagedProductGalleryPage({
     { label: 'T\u00fcl & Fon Perde', href: '/urunler/tul-fon-perde' },
     { label: title },
   ], [breadcrumbItems, title])
-  const [images, setImages] = useState<ProductGalleryImage[]>(fallbackImages)
-  const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(fallbackImages[0])
   const resolvedFallbackHeroCopy = useMemo<ProductGalleryHeroCopy>(() => fallbackHeroCopy || ({
     breadcrumbLabel: resolvedBreadcrumbItems[resolvedBreadcrumbItems.length - 1]?.label || title,
     eyebrow: eyebrow || `${title} Koleksiyonu`,
@@ -62,8 +64,23 @@ export default function ManagedProductGalleryPage({
     highlightedTitle: '',
     description,
   }), [description, eyebrow, fallbackHeroCopy, resolvedBreadcrumbItems, title])
-  const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>(resolvedFallbackHeroCopy)
-  const [productVideo, setProductVideo] = useState<ProductGalleryVideo>(defaultProductGalleryVideo)
+  const initialContentJson = useCmsSectionJson(pageKey, 'product.gallery')
+  const initialImages = useMemo(
+    () => parseProductGalleryImages(initialContentJson, fallbackImages),
+    [fallbackImages, initialContentJson],
+  )
+  const initialHeroCopy = useMemo(
+    () => parseProductGalleryHeroCopy(initialContentJson, resolvedFallbackHeroCopy),
+    [initialContentJson, resolvedFallbackHeroCopy],
+  )
+  const initialVideo = useMemo(
+    () => parseProductGalleryVideo(initialContentJson, defaultProductGalleryVideo),
+    [initialContentJson],
+  )
+  const [images, setImages] = useState<ProductGalleryImage[]>(initialImages)
+  const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(initialImages[0])
+  const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>(initialHeroCopy)
+  const [productVideo, setProductVideo] = useState<ProductGalleryVideo>(initialVideo)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {

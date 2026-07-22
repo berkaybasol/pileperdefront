@@ -1,4 +1,4 @@
-import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
+import ManagedProductGalleryPage from '@/components/CmsManagedProductGalleryPage'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 import {

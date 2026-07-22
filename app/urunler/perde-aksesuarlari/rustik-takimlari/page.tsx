@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
+import ManagedProductGalleryPage from '@/components/CmsManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
@@ -30,10 +30,8 @@ const fallbackMetadata: Metadata = {
   description: 'Rustik perde aksesuarları ve uygulama görselleri.',
 }
 
-export const generateMetadata = async () => ({
-  ...await getCmsPageMetadata('product-gallery-urunler-perde-aksesuarlari-rustik-takimlari', fallbackMetadata),
-  title: 'Rustik Perde Aksesuarları ve Rustik Takımları | Pile Perde Ankara',
-})
+export const generateMetadata = () =>
+  getCmsPageMetadata('product-gallery-urunler-perde-aksesuarlari-rustik-takimlari', fallbackMetadata)
 
 export default function RustikTakimlariPage() {
   return (

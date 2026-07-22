@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import About from "@/components/About";
 import AboutPageHero from "@/components/AboutPageHero";
+import CmsPageBoundary from "@/components/CmsPageBoundary";
 import { BreadcrumbListJsonLd } from "@/components/BreadcrumbListJsonLd";
 import type { BreadcrumbItem } from "@/lib/breadcrumbs";
 import { getCmsPageMetadata } from "@/lib/cmsMetadata";
@@ -24,6 +25,7 @@ export const generateMetadata = async () => ({
 
 export default function AboutPage() {
   return (
+    <CmsPageBoundary pageKey="about">
     <main>
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
       <div>
@@ -31,5 +33,6 @@ export default function AboutPage() {
         <About showCta={false} />
       </div>
     </main>
+    </CmsPageBoundary>
   );
 }

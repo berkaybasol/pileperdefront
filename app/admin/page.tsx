@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   buildCatalogContentJson,
   defaultCorporateItems,
@@ -34,6 +34,8 @@ import {
   type ProductGalleryHeroCopy,
   type ProductGalleryVideo,
 } from '@/lib/productGalleryContent'
+import { runVerifiedSave, SaveVerificationError } from '@/lib/adminVerifiedSave'
+import { revalidateCmsPage } from './actions'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
 
@@ -925,10 +927,12 @@ const AdminPage = () => {
   const [pageForm, setPageForm] = useState({
     slug: '',
     title: '',
-    seoTitle: '',
-    seoDescription: '',
     status: 'DRAFT' as CmsPageStatus,
   })
+  const [savedSeoTitle, setSavedSeoTitle] = useState('')
+  const [savedSeoDescription, setSavedSeoDescription] = useState('')
+  const [draftSeoTitle, setDraftSeoTitle] = useState('')
+  const [draftSeoDescription, setDraftSeoDescription] = useState('')
   const [heroSlides, setHeroSlides] = useState<HeroSlideForm[]>(defaultHeroSlides)
   const [heroStats, setHeroStats] = useState<HeroStatForm[]>(defaultHeroStats)
   const [productsPageCopy, setProductsPageCopy] = useState<ProductsPageCopyForm>(defaultProductSectionCopy)
@@ -968,6 +972,13 @@ const AdminPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [seoPreviewOpen, setSeoPreviewOpen] = useState(false)
+  const [publicSeoResults, setPublicSeoResults] = useState<Record<string, {
+    state: 'same' | 'different' | 'error'
+    publicSeoTitle: string
+    publicSeoDescription: string
+  }>>({})
+  const pageLoadRequestId = useRef(0)
 
   const authHeader = useMemo(() => {
     if (!authToken) {
@@ -1051,48 +1062,54 @@ const AdminPage = () => {
     return body.data
   }
 
-  const loadMediaAssets = async (header = authHeader) => {
+  const readMediaAssets = async (header = authHeader) => {
     if (!header) {
-      return
+      throw new Error('Admin oturumu bulunamadı')
     }
 
+    const response = await fetch(`${API_BASE_URL}/api/admin/media/images?size=200&sort=createdAt,desc`, {
+      cache: 'no-store',
+      headers: { Authorization: header },
+    })
+    if (!response.ok) throw new Error('Gorseller yuklenemedi')
+    const body = await response.json() as ApiResponse<PageResult<MediaAsset>>
+    return body.data.content
+  }
+
+  const loadMediaAssets = async (header = authHeader) => {
+    if (!header) return
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images?size=200&sort=createdAt,desc`, {
-        headers: {
-          Authorization: header,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Gorseller yuklenemedi')
-      }
-
-      const body = await response.json() as ApiResponse<PageResult<MediaAsset>>
-      setMediaAssets(body.data.content.filter((asset) => asset.status === 'READY'))
+      const assets = await readMediaAssets(header)
+      setMediaAssets(assets.filter((asset) => asset.status === 'READY'))
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gorseller yuklenemedi')
     }
   }
 
-  const loadSettings = async (header = authHeader) => {
+  const readSettings = async (header = authHeader) => {
     if (!header) {
-      return
+      throw new Error('Admin oturumu bulunamadı')
     }
 
+    const response = await fetch(`${API_BASE_URL}/api/admin/settings`, {
+      cache: 'no-store',
+      headers: { Authorization: header },
+    })
+    if (!response.ok) {
+      throw new Error('Ayarlar yuklenemedi')
+    }
+    const body = await response.json() as ApiResponse<SiteSetting[]>
+    return body.data
+  }
+
+  const loadSettings = async (header = authHeader) => {
+    if (!header) return
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/settings`, {
-        headers: {
-          Authorization: header,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Ayarlar yuklenemedi')
-      }
-
-      const body = await response.json() as ApiResponse<SiteSetting[]>
-      setSettings(body.data)
-      setSettingsForm(Object.fromEntries(body.data.map((setting) => [setting.settingKey, setting.settingValue])))
+      const data = await readSettings(header)
+      setSettings(data)
+      setSettingsForm(Object.fromEntries(data.map((setting) => [setting.settingKey, setting.settingValue])))
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Ayarlar yuklenemedi')
     }
@@ -1155,6 +1172,7 @@ const AdminPage = () => {
 
       const body = await response.json() as ApiResponse<CmsPageSummary[]>
       setPages(body.data)
+      void refreshSeoStatuses(body.data)
 
       if (!selectedPage && body.data.length > 0) {
         const preferredPage = body.data.find((page) => page.pageKey === 'home') || body.data[0]
@@ -1167,62 +1185,6 @@ const AdminPage = () => {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const createProductGalleryPage = async (
-    galleryPage: ProductGalleryAdminPage,
-    header = authHeader,
-  ) => {
-    if (!header) {
-      return null
-    }
-
-    const heroCopy = getDefaultProductGalleryHeroCopy(galleryPage.label)
-    const video = getDefaultProductGalleryVideo(galleryPage.label)
-    const pageResponse = await fetch(`${API_BASE_URL}/api/admin/cms/pages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: header,
-      },
-      body: JSON.stringify({
-        pageKey: galleryPage.pageKey,
-        slug: galleryPage.href || `/${galleryPage.pageKey.replace(/^product-gallery-/, '')}`,
-        title: galleryPage.label,
-        seoTitle: `${galleryPage.label} Galerisi - Pile Perde`,
-        seoDescription: `${galleryPage.label} uygulama gorselleri.`,
-        status: 'PUBLISHED',
-      }),
-    })
-
-    if (!pageResponse.ok) {
-      throw new Error(await readErrorMessage(pageResponse, 'Galeri sayfasi olusturulamadi'))
-    }
-
-    const pageBody = await pageResponse.json() as ApiResponse<CmsPageDetail>
-    const sectionResponse = await fetch(`${API_BASE_URL}/api/admin/cms/pages/${pageBody.data.id}/sections`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: header,
-      },
-      body: JSON.stringify({
-        sectionKey: 'product.gallery',
-        sectionType: 'gallery',
-        title: galleryPage.label,
-        subtitle: heroCopy.eyebrow,
-        body: heroCopy.description,
-        contentJson: buildProductGalleryContentJson([], heroCopy, video),
-        sortOrder: 1,
-        enabled: true,
-      }),
-    })
-
-    if (!sectionResponse.ok) {
-      throw new Error(await readErrorMessage(sectionResponse, 'Galeri bolumu olusturulamadi'))
-    }
-
-    return pageBody.data
   }
 
   const loadPageByKey = async (
@@ -1259,11 +1221,7 @@ const AdminPage = () => {
     }
 
     if (fallbackGalleryPage && pageKey.startsWith('product-gallery-')) {
-      const createdPage = await createProductGalleryPage(fallbackGalleryPage, header)
-      if (createdPage) {
-        await loadPages(header)
-        await loadPage(createdPage.id, header)
-      }
+      throw new Error(`${fallbackGalleryPage.label} için CMS kaydı bulunamadı. Otomatik kayıt oluşturma güvenlik nedeniyle kapalıdır.`)
     }
   }
 
@@ -1272,8 +1230,21 @@ const AdminPage = () => {
       return
     }
 
+    const requestId = ++pageLoadRequestId.current
     setIsLoading(true)
     setErrorMessage(null)
+    setStatusMessage(null)
+    setSeoPreviewOpen(false)
+    setSelectedPage(null)
+    setPageForm({
+      slug: '',
+      title: '',
+      status: 'DRAFT',
+    })
+    setSavedSeoTitle('')
+    setSavedSeoDescription('')
+    setDraftSeoTitle('')
+    setDraftSeoDescription('')
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/cms/pages/${pageId}`, {
@@ -1287,6 +1258,9 @@ const AdminPage = () => {
       }
 
       const body = await response.json() as ApiResponse<CmsPageDetail>
+      if (requestId !== pageLoadRequestId.current) {
+        return
+      }
       const page = body.data
       const loadedProductGalleryPage = productGalleryPages.find((item) => item.pageKey === page.pageKey) || activeProductGalleryPage
       setSelectedPage(page)
@@ -1303,10 +1277,12 @@ const AdminPage = () => {
       setPageForm({
         slug: page.slug,
         title: page.title,
-        seoTitle: page.seoTitle || '',
-        seoDescription: page.seoDescription || '',
         status: page.status,
       })
+      setSavedSeoTitle(page.seoTitle || '')
+      setSavedSeoDescription(page.seoDescription || '')
+      setDraftSeoTitle(page.seoTitle || '')
+      setDraftSeoDescription(page.seoDescription || '')
 
       if (heroSection) {
         setHeroSlides(parseHeroSlides(heroSection.contentJson || ''))
@@ -1357,9 +1333,13 @@ const AdminPage = () => {
         setProductGalleryVideo(getDefaultProductGalleryVideo(loadedProductGalleryPage.label))
       }
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Sayfa yuklenemedi')
+      if (requestId === pageLoadRequestId.current) {
+        setErrorMessage(error instanceof Error ? error.message : 'Sayfa yuklenemedi')
+      }
     } finally {
-      setIsLoading(false)
+      if (requestId === pageLoadRequestId.current) {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -1403,6 +1383,66 @@ const AdminPage = () => {
     setStatusMessage(null)
   }
 
+  const uploadMediaAssetVerified = async (file: File, originalName = file.name) => {
+    if (!authHeader) throw new Error('Admin oturumu bulunamadı')
+
+    const intendedTitle = originalName
+    const intendedAltText = originalName.replace(/\.[^.]+$/, '')
+    let writtenAsset: MediaAsset | null = null
+
+    const result = await runVerifiedSave({
+      write: async () => {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('title', intendedTitle)
+        formData.append('altText', intendedAltText)
+        const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
+          method: 'POST',
+          headers: { Authorization: authHeader },
+          body: formData,
+        })
+        if (!response.ok) throw new Error(await readErrorMessage(response, 'Gorsel yuklenemedi'))
+        const body = await response.json() as ApiResponse<MediaAsset>
+        writtenAsset = body.data
+      },
+      readBack: async () => {
+        if (!writtenAsset) throw new Error('Yüklenen görsel kimliği alınamadı')
+        const response = await fetch(`${API_BASE_URL}/api/admin/media/images/${writtenAsset.id}`, {
+          cache: 'no-store',
+          headers: { Authorization: authHeader },
+        })
+        if (!response.ok) throw new Error('Görsel geri okuma isteği başarısız oldu')
+        const body = await response.json() as ApiResponse<MediaAsset>
+        return body.data
+      },
+      cmsMatches: (actual) => Boolean(
+        writtenAsset
+        && actual.id === writtenAsset.id
+        && actual.publicUrl === writtenAsset.publicUrl
+        && actual.title === intendedTitle
+        && actual.altText === intendedAltText
+        && actual.status === 'READY'
+      ),
+      readPublic: async () => {
+        if (!writtenAsset) return null
+        const response = await fetch(`${API_BASE_URL}/api/public/media/images?size=200&sort=createdAt,desc`, { cache: 'no-store' })
+        if (!response.ok) throw new Error('Public medya doğrulaması başarısız oldu')
+        const body = await response.json() as ApiResponse<PageResult<MediaAsset>>
+        return body.data.content.find((asset) => asset.id === writtenAsset?.id) || null
+      },
+      publicMatches: (actual, verified) => Boolean(
+        actual
+        && actual.id === verified.id
+        && actual.publicUrl === verified.publicUrl
+        && actual.title === verified.title
+        && actual.altText === verified.altText
+      ),
+    })
+
+    await loadMediaAssets()
+    return result.cmsValue
+  }
+
   const updateHeroSlide = (slideId: number, updates: Partial<HeroSlideForm>) => {
     const nextSlides = heroSlides.map((slide) =>
       slide.id === slideId ? { ...slide, ...updates } : slide
@@ -1420,27 +1460,9 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('title', file.name)
-      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Gorsel yuklenemedi'))
-      }
-
-      const body = await response.json() as ApiResponse<MediaAsset>
-      updateHeroSlide(slideId, { image: body.data.publicUrl })
-      await loadMediaAssets()
-      setStatusMessage('Gorsel yuklendi')
+      const asset = await uploadMediaAssetVerified(file)
+      updateHeroSlide(slideId, { image: asset.publicUrl })
+      setStatusMessage('Görsel CMS ve public dosyayla doğrulanarak yüklendi')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gorsel yuklenemedi')
     } finally {
@@ -1458,31 +1480,13 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('title', file.name)
-      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Gorsel yuklenemedi'))
-      }
-
-      const body = await response.json() as ApiResponse<MediaAsset>
+      const asset = await uploadMediaAssetVerified(file)
       setAboutForm((current) => ({
         ...current,
-        image: body.data.publicUrl,
-        imageAlt: current.imageAlt || body.data.altText || body.data.fileName,
+        image: asset.publicUrl,
+        imageAlt: current.imageAlt || asset.altText || asset.fileName,
       }))
-      await loadMediaAssets()
-      setStatusMessage('Hakkimizda gorseli yuklendi')
+      setStatusMessage('Hakkımızda görseli CMS ve public dosyayla doğrulanarak yüklendi')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Hakkimizda gorseli yuklenemedi')
     } finally {
@@ -1500,29 +1504,11 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('title', file.name)
-      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Gorsel yuklenemedi'))
-      }
-
-      const body = await response.json() as ApiResponse<MediaAsset>
+      const asset = await uploadMediaAssetVerified(file)
       setBlogPosts((current) =>
-        current.map((post) => post.id === postId ? { ...post, image: body.data.publicUrl } : post)
+        current.map((post) => post.id === postId ? { ...post, image: asset.publicUrl } : post)
       )
-      await loadMediaAssets()
-      setStatusMessage('Blog gorseli yuklendi')
+      setStatusMessage('Blog görseli CMS ve public dosyayla doğrulanarak yüklendi')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Blog gorseli yuklenemedi')
     } finally {
@@ -1540,31 +1526,13 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('title', file.name)
-      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Gorsel yuklenemedi'))
-      }
-
-      const body = await response.json() as ApiResponse<MediaAsset>
+      const asset = await uploadMediaAssetVerified(file)
       updateProductGalleryImage(imageId, {
-        src: body.data.publicUrl,
-        alt: body.data.altText || body.data.fileName,
-        title: body.data.title || body.data.fileName,
+        src: asset.publicUrl,
+        alt: asset.altText || asset.fileName,
+        title: asset.title || asset.fileName,
       })
-      await loadMediaAssets()
-      setStatusMessage('Galeri gorseli yuklendi')
+      setStatusMessage('Galeri görseli CMS ve public dosyayla doğrulanarak yüklendi')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Galeri gorseli yuklenemedi')
     } finally {
@@ -1588,42 +1556,19 @@ const AdminPage = () => {
 
       for (const file of files) {
         const uploadFile = await prepareImageFileForUpload(file)
-        const formData = new FormData()
-        formData.append('file', uploadFile)
-        formData.append('title', file.name)
-        formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
-
-        let response: Response
-        try {
-          response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-            method: 'POST',
-            headers: {
-              Authorization: authHeader,
-            },
-            body: formData,
-          })
-        } catch {
-          throw new Error(`${file.name} yuklenemedi. Baglanti kesildi veya dosya boyutu sunucu limitini asti.`)
-        }
-
-        if (!response.ok) {
-          throw new Error(await readErrorMessage(response, `${file.name} yuklenemedi`))
-        }
-
-        const body = await response.json() as ApiResponse<MediaAsset>
+        const asset = await uploadMediaAssetVerified(uploadFile, file.name)
         uploadedImages.push({
           id: nextId,
-          src: body.data.publicUrl,
-          alt: body.data.altText || body.data.fileName,
-          title: body.data.title || body.data.fileName,
+          src: asset.publicUrl,
+          alt: asset.altText || asset.fileName,
+          title: asset.title || asset.fileName,
           enabled: true,
         })
         nextId += 1
       }
 
       setProductGalleryImages((current) => [...current, ...uploadedImages])
-      await loadMediaAssets()
-      setStatusMessage(`${uploadedImages.length} galeri gorseli yuklendi`)
+      setStatusMessage(`${uploadedImages.length} galeri görseli CMS ve public dosyayla doğrulanarak yüklendi`)
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Galeri gorselleri yuklenemedi')
     } finally {
@@ -1646,27 +1591,9 @@ const AdminPage = () => {
 
     try {
       const uploadFile = await prepareImageFileForUpload(file)
-      const formData = new FormData()
-      formData.append('file', uploadFile)
-      formData.append('title', file.name)
-      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Kart gorseli yuklenemedi'))
-      }
-
-      const body = await response.json() as ApiResponse<MediaAsset>
-      applyImage(body.data.publicUrl)
-      await loadMediaAssets()
-      setStatusMessage('Kart gorseli yuklendi')
+      const asset = await uploadMediaAssetVerified(uploadFile, file.name)
+      applyImage(asset.publicUrl)
+      setStatusMessage('Kart görseli CMS ve public dosyayla doğrulanarak yüklendi')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Kart gorseli yuklenemedi')
     } finally {
@@ -1684,25 +1611,8 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('title', file.name)
-      formData.append('altText', file.name.replace(/\.[^.]+$/, ''))
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images`, {
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Gorsel yuklenemedi'))
-      }
-
-      await loadMediaAssets()
-      setStatusMessage('Gorsel kutuphaneye eklendi')
+      await uploadMediaAssetVerified(file)
+      setStatusMessage('Görsel CMS ve public dosyayla doğrulanarak kütüphaneye eklendi')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gorsel yuklenemedi')
     } finally {
@@ -1729,19 +1639,45 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/media/images/${assetId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: authHeader,
+      const baselineAsset = mediaAssets.find((asset) => asset.id === assetId)
+      if (!baselineAsset) throw new Error('Arşivlenecek görselin doğrulanmış kaydı bulunamadı')
+      await runVerifiedSave({
+        write: async () => {
+          const response = await fetch(`${API_BASE_URL}/api/admin/media/images/${assetId}`, {
+            method: 'DELETE',
+            headers: { Authorization: authHeader },
+          })
+          if (!response.ok) throw new Error(await readErrorMessage(response, 'Gorsel arsivlenemedi'))
         },
+        readBack: async () => {
+          const response = await fetch(`${API_BASE_URL}/api/admin/media/images/${assetId}`, {
+            cache: 'no-store',
+            headers: { Authorization: authHeader },
+          })
+          if (!response.ok) throw new Error('Arşivlenen görsel geri okunamadı')
+          const body = await response.json() as ApiResponse<MediaAsset>
+          return body.data
+        },
+        cmsMatches: (actual) => actual.id === baselineAsset.id
+          && actual.fileName === baselineAsset.fileName
+          && actual.mimeType === baselineAsset.mimeType
+          && actual.sizeBytes === baselineAsset.sizeBytes
+          && actual.width === baselineAsset.width
+          && actual.height === baselineAsset.height
+          && actual.title === baselineAsset.title
+          && actual.altText === baselineAsset.altText
+          && actual.publicUrl === baselineAsset.publicUrl
+          && actual.status !== 'READY',
+        onCmsRead: async () => { await loadMediaAssets() },
+        readPublic: async () => {
+          const response = await fetch(`${API_BASE_URL}/api/public/media/images?size=200`, { cache: 'no-store' })
+          if (!response.ok) throw new Error('Public medya listesi doğrulanamadı')
+          const body = await response.json() as ApiResponse<PageResult<MediaAsset>>
+          return body.data.content
+        },
+        publicMatches: (actual) => !actual.some((asset) => asset.id === assetId),
       })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Gorsel arsivlenemedi'))
-      }
-
-      await loadMediaAssets()
-      setStatusMessage('Gorsel arsivlendi')
+      setStatusMessage('Görsel CMS ve public listeyle doğrulanarak arşivlendi')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gorsel arsivlenemedi')
     } finally {
@@ -1776,30 +1712,65 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const existingKeys = new Set(settings.map((setting) => setting.settingKey))
-      const updates = editableSettingKeys
-        .filter((settingKey) => existingKeys.has(settingKey))
-        .map(async (settingKey) => {
-          const response = await fetch(`${API_BASE_URL}/api/admin/settings/${encodeURIComponent(settingKey)}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: authHeader,
-            },
-            body: JSON.stringify({
-              settingValue: settingsForm[settingKey] || '',
-            }),
-          })
+      const savedByKey = Object.fromEntries(settings.map((setting) => [setting.settingKey, setting.settingValue]))
+      const changedKeys = editableSettingKeys.filter((settingKey) =>
+        Object.hasOwn(savedByKey, settingKey)
+        && (settingsForm[settingKey] || '') !== (savedByKey[settingKey] || '')
+      )
+      if (changedKeys.length === 0) {
+        setStatusMessage('Kaydedilecek değişiklik bulunamadı')
+        return
+      }
+      const changedKeySet = new Set<string>(changedKeys)
 
-          if (!response.ok) {
-            throw new Error(await readErrorMessage(response, 'Ayar kaydedilemedi'))
+      await runVerifiedSave({
+        write: async () => {
+          for (const settingKey of changedKeys) {
+            const response = await fetch(`${API_BASE_URL}/api/admin/settings/${encodeURIComponent(settingKey)}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: authHeader,
+              },
+              body: JSON.stringify({ settingValue: settingsForm[settingKey] || '' }),
+            })
+            if (!response.ok) {
+              throw new Error(await readErrorMessage(response, 'Ayar kaydedilemedi'))
+            }
           }
-        })
-
-      await Promise.all(updates)
-      await loadSettings()
-      setStatusMessage('Site ayarlari kaydedildi')
+        },
+        readBack: () => readSettings(authHeader),
+        cmsMatches: (actual) => actual.length === settings.length
+          && settings.every((baselineSetting) => {
+            const actualSetting = actual.find((setting) => setting.settingKey === baselineSetting.settingKey)
+            if (!actualSetting) return false
+            const expectedValue = changedKeySet.has(baselineSetting.settingKey)
+              ? settingsForm[baselineSetting.settingKey] || ''
+              : baselineSetting.settingValue
+            return actualSetting.id === baselineSetting.id
+              && actualSetting.settingValue === expectedValue
+              && actualSetting.valueType === baselineSetting.valueType
+              && actualSetting.groupName === baselineSetting.groupName
+              && actualSetting.description === baselineSetting.description
+          }),
+        onCmsRead: (actual) => {
+          setSettings(actual)
+          setSettingsForm(Object.fromEntries(actual.map((setting) => [setting.settingKey, setting.settingValue])))
+        },
+        readPublic: async () => {
+          const response = await fetch(`${API_BASE_URL}/api/public/settings`, { cache: 'no-store' })
+          if (!response.ok) throw new Error('Public ayar doğrulaması başarısız oldu')
+          const body = await response.json() as ApiResponse<Record<string, string>>
+          return body.data
+        },
+        publicMatches: (actual, verified) => changedKeys.every((settingKey) => {
+          const cmsValue = verified.find((setting) => setting.settingKey === settingKey)?.settingValue || ''
+          return (actual[settingKey] || '') === cmsValue
+        }),
+      })
+      setStatusMessage('Site ayarları CMS ve public çıktıyla doğrulanarak kaydedildi')
     } catch (error) {
+      await loadSettings()
       setErrorMessage(error instanceof Error ? error.message : 'Ayarlar kaydedilemedi')
     } finally {
       setIsLoading(false)
@@ -1816,26 +1787,50 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/contact-requests/${selectedContactRequestId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authHeader,
+      const requestId = selectedContactRequestId
+      const requested = { ...contactRequestForm }
+      const baselineRequest = selectedContactRequest
+      if (!baselineRequest) throw new Error('Talebin doğrulanmış temel kaydı bulunamadı')
+      await runVerifiedSave({
+        write: async () => {
+          const response = await fetch(`${API_BASE_URL}/api/admin/contact-requests/${requestId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: authHeader,
+            },
+            body: JSON.stringify(requested),
+          })
+          if (!response.ok) {
+            throw new Error(await readErrorMessage(response, 'Talep kaydedilemedi'))
+          }
         },
-        body: JSON.stringify(contactRequestForm),
+        readBack: async () => {
+          const response = await fetch(`${API_BASE_URL}/api/admin/contact-requests/${requestId}`, {
+            cache: 'no-store',
+            headers: { Authorization: authHeader },
+          })
+          if (!response.ok) throw new Error('Talep geri okuma isteği başarısız oldu')
+          const body = await response.json() as ApiResponse<ContactRequestItem>
+          return body.data
+        },
+        cmsMatches: (actual) => actual.id === baselineRequest.id
+          && actual.name === baselineRequest.name
+          && actual.phone === baselineRequest.phone
+          && actual.email === baselineRequest.email
+          && actual.message === baselineRequest.message
+          && actual.sourcePage === baselineRequest.sourcePage
+          && actual.createdAt === baselineRequest.createdAt
+          && actual.status === requested.status
+          && (actual.adminNote || '') === requested.adminNote,
+        onCmsRead: (actual) => {
+          setContactRequests((current) => current.map((item) => item.id === actual.id ? actual : item))
+          selectContactRequest(actual)
+        },
       })
-
-      if (!response.ok) {
-        throw new Error(await readErrorMessage(response, 'Talep kaydedilemedi'))
-      }
-
-      const body = await response.json() as ApiResponse<ContactRequestItem>
-      setContactRequests((current) =>
-        current.map((requestItem) => requestItem.id === body.data.id ? body.data : requestItem)
-      )
-      selectContactRequest(body.data)
-      setStatusMessage('Talep güncellendi')
+      setStatusMessage('Talep CMS’den geri okunarak doğrulandı ve kaydedildi')
     } catch (error) {
+      await loadContactRequests()
       setErrorMessage(error instanceof Error ? error.message : 'Talep kaydedilemedi')
     } finally {
       setIsLoading(false)
@@ -1849,7 +1844,13 @@ const AdminPage = () => {
 
     return request<CmsPageDetail>(`/api/admin/cms/pages/${selectedPage.id}`, {
       method: 'PATCH',
-      body: JSON.stringify(pageForm),
+      body: JSON.stringify({
+        slug: selectedPage.slug,
+        title: selectedPage.title,
+        seoTitle: draftSeoTitle,
+        seoDescription: draftSeoDescription,
+        status: selectedPage.status,
+      }),
     })
   }
 
@@ -1867,6 +1868,357 @@ const AdminPage = () => {
     )
   }
 
+  const refreshSeoStatuses = async (items: CmsPageSummary[]) => {
+    try {
+      const response = await fetch('/api/seo-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pages: items.map((page) => ({ pageKey: page.pageKey, slug: page.slug })) }),
+      })
+      if (!response.ok) return null
+      const body = await response.json() as {
+        statuses: Array<{
+          pageKey: string
+          state: 'same' | 'different' | 'error'
+          publicTitle?: string
+          publicDescription?: string
+        }>
+      }
+      const results = Object.fromEntries(body.statuses.map((item) => [item.pageKey, {
+        state: item.state,
+        publicSeoTitle: item.publicTitle || '',
+        publicSeoDescription: item.publicDescription || '',
+      }]))
+      setPublicSeoResults(results)
+      return results
+    } catch {
+      return null
+    }
+  }
+
+  const readCmsPage = async (pageId: string) => {
+    if (!authHeader) {
+      throw new Error('Admin oturumu bulunamadı')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/cms/pages/${pageId}`, {
+      cache: 'no-store',
+      headers: { Authorization: authHeader },
+    })
+    if (!response.ok) {
+      throw new Error('Kayıt sonrası CMS doğrulama isteği başarısız oldu')
+    }
+    const body = await response.json() as ApiResponse<CmsPageDetail>
+    return body.data
+  }
+
+  const readPublicCmsPage = async (pageKey: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${encodeURIComponent(pageKey)}`, {
+      cache: 'no-store',
+    })
+    if (!response.ok) {
+      throw new Error('Public CMS doğrulama isteği başarısız oldu')
+    }
+    const body = await response.json() as ApiResponse<CmsPageDetail>
+    return body.data
+  }
+
+  const sectionMatchesRequest = (section: CmsSection | undefined, requestBody: CmsSectionForm) => Boolean(
+    section
+    && section.sectionType === requestBody.sectionType
+    && (section.title || '') === requestBody.title
+    && (section.subtitle || '') === requestBody.subtitle
+    && (section.body || '') === requestBody.body
+    && (section.contentJson || '') === requestBody.contentJson
+    && section.sortOrder === requestBody.sortOrder
+    && section.enabled === requestBody.enabled
+  )
+
+  const sectionsEqual = (left: CmsSection | undefined, right: CmsSection | undefined) => Boolean(
+    left
+    && right
+    && left.id === right.id
+    && left.sectionKey === right.sectionKey
+    && left.sectionType === right.sectionType
+    && (left.title || '') === (right.title || '')
+    && (left.subtitle || '') === (right.subtitle || '')
+    && (left.body || '') === (right.body || '')
+    && (left.contentJson || '') === (right.contentJson || '')
+    && left.sortOrder === right.sortOrder
+    && left.enabled === right.enabled
+  )
+
+  const pageMatchesIsolatedChanges = (
+    actual: CmsPageDetail,
+    baseline: CmsPageDetail,
+    pageChanges: Partial<Pick<CmsPageDetail, 'title' | 'seoTitle' | 'seoDescription'>> = {},
+    sectionChanges: Array<{ sectionKey: string; requestBody: CmsSectionForm }> = [],
+  ) => {
+    const changedSections = new Map(sectionChanges.map((change) => [change.sectionKey, change.requestBody]))
+    return actual.id === baseline.id
+      && actual.pageKey === baseline.pageKey
+      && actual.slug === baseline.slug
+      && actual.status === baseline.status
+      && actual.title === (pageChanges.title ?? baseline.title)
+      && (actual.seoTitle || '') === (pageChanges.seoTitle ?? baseline.seoTitle ?? '')
+      && (actual.seoDescription || '') === (pageChanges.seoDescription ?? baseline.seoDescription ?? '')
+      && actual.sections.length === baseline.sections.length
+      && baseline.sections.every((baselineSection) => {
+        const actualSection = actual.sections.find((section) => section.sectionKey === baselineSection.sectionKey)
+        const requestedSection = changedSections.get(baselineSection.sectionKey)
+        return requestedSection
+          ? sectionMatchesRequest(actualSection, requestedSection)
+          : sectionsEqual(actualSection, baselineSection)
+      })
+  }
+
+  const applySectionReadback = (page: CmsPageDetail, sectionKeys: string[]) => {
+    const keys = new Set(sectionKeys)
+    setSelectedPage(page)
+
+    if (keys.has('home.hero')) {
+      const section = page.sections.find((item) => item.sectionKey === 'home.hero')
+      if (section) {
+        setHeroSlides(parseHeroSlides(section.contentJson || ''))
+        setHeroStats(parseHeroStats(section.contentJson || ''))
+      }
+    }
+
+    if (keys.has('about.main')) {
+      const section = page.sections.find((item) => item.sectionKey === 'about.main')
+      if (section) setAboutForm(parseAboutForm(section))
+    }
+
+    const productsHero = page.sections.find((item) => item.sectionKey === 'products.hero')
+    const productsGrid = page.sections.find((item) => item.sectionKey === 'products.grid')
+    if (keys.has('products.hero')) {
+      setProductsPageCopy((current) => ({
+        ...current,
+        heroTitle: productsHero?.title || defaultProductSectionCopy.heroTitle,
+        heroSubtitle: productsHero?.body || defaultProductSectionCopy.heroSubtitle,
+      }))
+    }
+    if (keys.has('products.grid')) {
+      setProductsPageCopy((current) => ({
+        ...current,
+        sectionEyebrow: productsGrid?.subtitle || defaultProductSectionCopy.sectionEyebrow,
+        sectionTitle: productsGrid?.title || defaultProductSectionCopy.sectionTitle,
+        sectionDescription: productsGrid?.body || defaultProductSectionCopy.sectionDescription,
+      }))
+      if (productsGrid) setProductItems(parseCatalogItems(productsGrid.contentJson))
+    }
+
+    const modelsHero = page.sections.find((item) => item.sectionKey === 'models.hero')
+    const modelsGrid = page.sections.find((item) => item.sectionKey === 'models.grid')
+    if (keys.has('models.hero')) {
+      setModelsPageCopy((current) => ({
+        ...current,
+        heroTitle: modelsHero?.title || defaultModelPageCopy.heroTitle,
+        heroSubtitle: modelsHero?.body || defaultModelPageCopy.heroSubtitle,
+      }))
+    }
+    if (keys.has('models.grid') && modelsGrid) {
+      setModelItems(parseCatalogItems(modelsGrid.contentJson, defaultModelItems))
+    }
+
+    if (keys.has('corporate.grid')) {
+      const section = page.sections.find((item) => item.sectionKey === 'corporate.grid')
+      if (section) setCorporateItems(parseCatalogItems(section.contentJson, defaultCorporateItems))
+    }
+
+    if (keys.has('blog.list')) {
+      const section = page.sections.find((item) => item.sectionKey === 'blog.list')
+      if (section) setBlogPosts(parseBlogPosts(section.contentJson))
+    }
+
+    if (keys.has('product.detail')) {
+      const section = page.sections.find((item) => item.sectionKey === 'product.detail')
+      if (section) setMechanizedForm(parseProductDetailContent(section.contentJson))
+    }
+
+    if (keys.has('product.gallery')) {
+      const section = page.sections.find((item) => item.sectionKey === 'product.gallery')
+      if (section) {
+        setProductGalleryImages(parseProductGalleryImages(section.contentJson, []))
+        setProductGalleryHeroCopy(parseProductGalleryHeroCopy(
+          section.contentJson,
+          getDefaultProductGalleryHeroCopy(activeProductGalleryPage.label),
+        ))
+        setProductGalleryVideo(parseProductGalleryVideo(
+          section.contentJson,
+          getDefaultProductGalleryVideo(activeProductGalleryPage.label),
+        ))
+      }
+    }
+  }
+
+  const saveCmsSectionsVerified = async (
+    requests: Array<{ sectionKey: string; requestBody: CmsSectionForm }>,
+  ) => {
+    if (!selectedPage) {
+      throw new Error('CMS sayfası seçilmedi')
+    }
+
+    const pageAtSave = selectedPage
+    const changedRequests = requests.filter(({ sectionKey, requestBody }) =>
+      !sectionMatchesRequest(
+        pageAtSave.sections.find((section) => section.sectionKey === sectionKey),
+        requestBody,
+      )
+    )
+
+    if (changedRequests.length === 0) {
+      return { changedCount: 0 }
+    }
+
+    const changedSectionKeys = changedRequests.map(({ sectionKey }) => sectionKey)
+
+    try {
+      await runVerifiedSave({
+        write: async () => {
+          for (const { sectionKey, requestBody } of changedRequests) {
+            await saveSection(sectionKey, requestBody)
+          }
+        },
+        readBack: () => readCmsPage(pageAtSave.id),
+        cmsMatches: (page) => pageMatchesIsolatedChanges(page, pageAtSave, {}, changedRequests),
+        onCmsRead: (page) => applySectionReadback(page, changedSectionKeys),
+        revalidate: () => revalidateCmsPage(pageAtSave.pageKey, pageAtSave.slug),
+        readPublic: () => readPublicCmsPage(pageAtSave.pageKey),
+        publicMatches: (publicPage, verifiedPage) => pageMatchesIsolatedChanges(
+          publicPage,
+          verifiedPage,
+        ),
+      })
+    } catch (error) {
+      try {
+        applySectionReadback(await readCmsPage(pageAtSave.id), changedSectionKeys)
+      } catch {
+        // The original save/readback error remains the actionable failure.
+      }
+      throw error
+    }
+
+    return { changedCount: changedRequests.length }
+  }
+
+  const handleSeoConfirmSave = async () => {
+    if (!selectedPage || !seoPreviewOpen) return
+
+    const pageAtSave = selectedPage
+    const requestedSeoTitle = draftSeoTitle
+    const requestedSeoDescription = draftSeoDescription
+    setIsLoading(true)
+    setErrorMessage(null)
+    setStatusMessage(null)
+    try {
+      await runVerifiedSave({
+        write: async () => { await savePageBasics() },
+        readBack: () => readCmsPage(pageAtSave.id),
+        cmsMatches: (actual) => pageMatchesIsolatedChanges(actual, pageAtSave, {
+          seoTitle: requestedSeoTitle,
+          seoDescription: requestedSeoDescription,
+        }),
+        onCmsRead: (actual) => {
+          const actualTitle = actual.seoTitle || ''
+          const actualDescription = actual.seoDescription || ''
+          setSelectedPage(actual)
+          setSavedSeoTitle(actualTitle)
+          setSavedSeoDescription(actualDescription)
+          setDraftSeoTitle(actualTitle)
+          setDraftSeoDescription(actualDescription)
+          setSeoPreviewOpen(false)
+        },
+        revalidate: () => revalidateCmsPage(pageAtSave.pageKey, pageAtSave.slug),
+        readPublic: async () => {
+          const response = await fetch('/api/seo-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pages: [{ pageKey: pageAtSave.pageKey, slug: pageAtSave.slug }] }),
+          })
+          if (!response.ok) throw new Error('Public metadata doğrulaması başarısız oldu')
+          const body = await response.json() as {
+            statuses: Array<{ pageKey: string; state: 'same' | 'different' | 'error'; publicTitle?: string; publicDescription?: string }>
+          }
+          return body.statuses[0]
+        },
+        publicMatches: (actual, verified) =>
+          actual?.state === 'same'
+          && (actual.publicTitle || '') === (verified.seoTitle || '')
+          && (actual.publicDescription || '') === (verified.seoDescription || ''),
+        onPublicRead: (actual) => {
+          setPublicSeoResults((current) => ({
+            ...current,
+            [pageAtSave.pageKey]: {
+              state: actual?.state || 'error',
+              publicSeoTitle: actual?.publicTitle || '',
+              publicSeoDescription: actual?.publicDescription || '',
+            },
+          }))
+        },
+      })
+      setStatusMessage('SEO bilgileri kaydedildi, CMS’den geri okundu ve public metadata ile doğrulandı')
+    } catch (error) {
+      if (error instanceof SaveVerificationError) {
+        setPublicSeoResults((current) => ({
+          ...current,
+          [pageAtSave.pageKey]: {
+            state: 'error',
+            publicSeoTitle: current[pageAtSave.pageKey]?.publicSeoTitle || '',
+            publicSeoDescription: current[pageAtSave.pageKey]?.publicSeoDescription || '',
+          },
+        }))
+      }
+      await loadPage(pageAtSave.id)
+      setErrorMessage(error instanceof Error ? error.message : 'SEO bilgileri kaydedilemedi')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handlePageTitleSave = async () => {
+    if (!selectedPage || !authHeader) return
+
+    const pageAtSave = selectedPage
+    const requestedTitle = pageForm.title
+    setIsLoading(true)
+    setStatusMessage(null)
+    setErrorMessage(null)
+    try {
+      await runVerifiedSave({
+        write: async () => {
+          await request<CmsPageDetail>(`/api/admin/cms/pages/${pageAtSave.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+              slug: pageAtSave.slug,
+              title: requestedTitle,
+              seoTitle: pageAtSave.seoTitle,
+              seoDescription: pageAtSave.seoDescription,
+              status: pageAtSave.status,
+            }),
+          })
+        },
+        readBack: () => readCmsPage(pageAtSave.id),
+        cmsMatches: (actual) => pageMatchesIsolatedChanges(actual, pageAtSave, {
+          title: requestedTitle,
+        }),
+        onCmsRead: (actual) => {
+          setSelectedPage(actual)
+          setPageForm({ slug: actual.slug, title: actual.title, status: actual.status })
+        },
+        revalidate: () => revalidateCmsPage(pageAtSave.pageKey, pageAtSave.slug),
+        readPublic: () => readPublicCmsPage(pageAtSave.pageKey),
+        publicMatches: (actual, verified) => pageMatchesIsolatedChanges(actual, verified),
+      })
+      setStatusMessage('Sayfa adı CMS ve public API’den doğrulanarak kaydedildi')
+    } catch (error) {
+      await loadPage(pageAtSave.id)
+      setErrorMessage(error instanceof Error ? error.message : 'Sayfa adı kaydedilemedi')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleHomeSave = async () => {
     if (!selectedPage) {
       return
@@ -1877,10 +2229,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
       const heroSection = selectedPage.sections.find((section) => section.sectionKey === 'home.hero')
-      if (heroSection) {
-        await saveSection('home.hero', {
+      const result = await saveCmsSectionsVerified(heroSection ? [{
+        sectionKey: 'home.hero',
+        requestBody: {
           sectionType: heroSection.sectionType,
           title: heroSection.title || '',
           subtitle: heroSection.subtitle || '',
@@ -1888,11 +2240,9 @@ const AdminPage = () => {
           contentJson: buildHeroContentJson(heroSlides, heroStats),
           sortOrder: heroSection.sortOrder,
           enabled: heroSection.enabled,
-        })
-      }
-      setStatusMessage('Ana sayfa kaydedildi')
-      await loadPage(selectedPage.id)
-      await loadPages()
+        },
+      }] : [])
+      setStatusMessage(result.changedCount > 0 ? 'Ana sayfa CMS ve public çıktıyla doğrulanarak kaydedildi' : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Ana sayfa kaydedilemedi')
     } finally {
@@ -1910,10 +2260,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
       const aboutSection = selectedPage.sections.find((section) => section.sectionKey === 'about.main')
-      if (aboutSection) {
-        await saveSection('about.main', {
+      const result = await saveCmsSectionsVerified(aboutSection ? [{
+        sectionKey: 'about.main',
+        requestBody: {
           sectionType: aboutSection.sectionType,
           title: aboutForm.title,
           subtitle: aboutForm.eyebrow,
@@ -1921,11 +2271,9 @@ const AdminPage = () => {
           contentJson: buildAboutContentJson(aboutForm),
           sortOrder: aboutSection.sortOrder,
           enabled: aboutSection.enabled,
-        })
-      }
-      setStatusMessage('Hakkımızda kaydedildi')
-      await loadPage(selectedPage.id)
-      await loadPages()
+        },
+      }] : [])
+      setStatusMessage(result.changedCount > 0 ? 'Hakkımızda CMS ve public çıktıyla doğrulanarak kaydedildi' : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Hakkımızda kaydedilemedi')
     } finally {
@@ -1943,10 +2291,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
+      const requests: Array<{ sectionKey: string; requestBody: CmsSectionForm }> = []
       const productsHeroSection = selectedPage.sections.find((section) => section.sectionKey === 'products.hero')
       if (productsHeroSection) {
-        await saveSection('products.hero', {
+        requests.push({ sectionKey: 'products.hero', requestBody: {
           sectionType: productsHeroSection.sectionType,
           title: productsPageCopy.heroTitle,
           subtitle: productsHeroSection.subtitle || '',
@@ -1954,11 +2302,11 @@ const AdminPage = () => {
           contentJson: productsHeroSection.contentJson || '',
           sortOrder: productsHeroSection.sortOrder,
           enabled: productsHeroSection.enabled,
-        })
+        } })
       }
       const productsSection = selectedPage.sections.find((section) => section.sectionKey === 'products.grid')
       if (productsSection) {
-        await saveSection('products.grid', {
+        requests.push({ sectionKey: 'products.grid', requestBody: {
           sectionType: productsSection.sectionType,
           title: productsPageCopy.sectionTitle,
           subtitle: productsPageCopy.sectionEyebrow,
@@ -1966,11 +2314,10 @@ const AdminPage = () => {
           contentJson: buildCatalogContentJson(productItems),
           sortOrder: productsSection.sortOrder,
           enabled: productsSection.enabled,
-        })
+        } })
       }
-      setStatusMessage('Ürünler kaydedildi')
-      await loadPage(selectedPage.id)
-      await loadPages()
+      const result = await saveCmsSectionsVerified(requests)
+      setStatusMessage(result.changedCount > 0 ? 'Ürünler CMS ve public çıktıyla doğrulanarak kaydedildi' : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Ürünler kaydedilemedi')
     } finally {
@@ -1988,10 +2335,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
+      const requests: Array<{ sectionKey: string; requestBody: CmsSectionForm }> = []
       const modelsHeroSection = selectedPage.sections.find((section) => section.sectionKey === 'models.hero')
       if (modelsHeroSection) {
-        await saveSection('models.hero', {
+        requests.push({ sectionKey: 'models.hero', requestBody: {
           sectionType: modelsHeroSection.sectionType,
           title: modelsPageCopy.heroTitle,
           subtitle: modelsHeroSection.subtitle || '',
@@ -1999,11 +2346,11 @@ const AdminPage = () => {
           contentJson: modelsHeroSection.contentJson || '',
           sortOrder: modelsHeroSection.sortOrder,
           enabled: modelsHeroSection.enabled,
-        })
+        } })
       }
       const modelsSection = selectedPage.sections.find((section) => section.sectionKey === 'models.grid')
       if (modelsSection) {
-        await saveSection('models.grid', {
+        requests.push({ sectionKey: 'models.grid', requestBody: {
           sectionType: modelsSection.sectionType,
           title: modelsSection.title || '',
           subtitle: modelsSection.subtitle || '',
@@ -2011,11 +2358,10 @@ const AdminPage = () => {
           contentJson: buildCatalogContentJson(modelItems),
           sortOrder: modelsSection.sortOrder,
           enabled: modelsSection.enabled,
-        })
+        } })
       }
-      setStatusMessage('Perde Modelleri kaydedildi')
-      await loadPage(selectedPage.id)
-      await loadPages()
+      const result = await saveCmsSectionsVerified(requests)
+      setStatusMessage(result.changedCount > 0 ? 'Perde Modelleri CMS ve public çıktıyla doğrulanarak kaydedildi' : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Perde Modelleri kaydedilemedi')
     } finally {
@@ -2033,10 +2379,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
       const corporateSection = selectedPage.sections.find((section) => section.sectionKey === 'corporate.grid')
-      if (corporateSection) {
-        await saveSection('corporate.grid', {
+      const result = await saveCmsSectionsVerified(corporateSection ? [{
+        sectionKey: 'corporate.grid',
+        requestBody: {
           sectionType: corporateSection.sectionType,
           title: corporateSection.title || '',
           subtitle: corporateSection.subtitle || '',
@@ -2044,11 +2390,9 @@ const AdminPage = () => {
           contentJson: buildCatalogContentJson(corporateItems),
           sortOrder: corporateSection.sortOrder,
           enabled: corporateSection.enabled,
-        })
-      }
-      setStatusMessage('Kurumsal Ürünler kaydedildi')
-      await loadPage(selectedPage.id)
-      await loadPages()
+        },
+      }] : [])
+      setStatusMessage(result.changedCount > 0 ? 'Kurumsal Ürünler CMS ve public çıktıyla doğrulanarak kaydedildi' : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Kurumsal Ürünler kaydedilemedi')
     } finally {
@@ -2066,10 +2410,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
       const blogSection = selectedPage.sections.find((section) => section.sectionKey === 'blog.list')
-      if (blogSection) {
-        await saveSection('blog.list', {
+      const result = await saveCmsSectionsVerified(blogSection ? [{
+        sectionKey: 'blog.list',
+        requestBody: {
           sectionType: blogSection.sectionType,
           title: blogSection.title || '',
           subtitle: blogSection.subtitle || '',
@@ -2077,11 +2421,9 @@ const AdminPage = () => {
           contentJson: buildBlogContentJson(blogPosts),
           sortOrder: blogSection.sortOrder,
           enabled: blogSection.enabled,
-        })
-      }
-      setStatusMessage('Blog kaydedildi')
-      await loadPage(selectedPage.id)
-      await loadPages()
+        },
+      }] : [])
+      setStatusMessage(result.changedCount > 0 ? 'Blog CMS ve public çıktıyla doğrulanarak kaydedildi' : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Blog kaydedilemedi')
     } finally {
@@ -2099,10 +2441,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
       const gallerySection = selectedPage.sections.find((section) => section.sectionKey === 'product.gallery')
-      if (gallerySection) {
-        await saveSection('product.gallery', {
+      const result = await saveCmsSectionsVerified(gallerySection ? [{
+        sectionKey: 'product.gallery',
+        requestBody: {
           sectionType: gallerySection.sectionType,
           title: gallerySection.title || '',
           subtitle: gallerySection.subtitle || '',
@@ -2110,11 +2452,9 @@ const AdminPage = () => {
           contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy, productGalleryVideo),
           sortOrder: gallerySection.sortOrder,
           enabled: gallerySection.enabled,
-        })
-      }
-      setStatusMessage(`${activeProductGalleryPage.label} görselleri kaydedildi`)
-      await loadPage(selectedPage.id)
-      await loadPages()
+        },
+      }] : [])
+      setStatusMessage(result.changedCount > 0 ? `${activeProductGalleryPage.label} CMS ve public çıktıyla doğrulanarak kaydedildi` : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Galeri kaydedilemedi')
     } finally {
@@ -2132,10 +2472,10 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
-      await savePageBasics()
       const detailSection = selectedPage.sections.find((section) => section.sectionKey === 'product.detail')
-      if (detailSection) {
-        await saveSection('product.detail', {
+      const result = await saveCmsSectionsVerified(detailSection ? [{
+        sectionKey: 'product.detail',
+        requestBody: {
           sectionType: detailSection.sectionType,
           title: mechanizedForm.heroTitle,
           subtitle: mechanizedForm.heroEyebrow,
@@ -2143,11 +2483,9 @@ const AdminPage = () => {
           contentJson: buildProductDetailContentJson(mechanizedForm),
           sortOrder: detailSection.sortOrder,
           enabled: detailSection.enabled,
-        })
-      }
-      setStatusMessage(`${activeProductDetailPage?.label || 'Ürün detay'} kaydedildi`)
-      await loadPage(selectedPage.id)
-      await loadPages()
+        },
+      }] : [])
+      setStatusMessage(result.changedCount > 0 ? `${activeProductDetailPage?.label || 'Ürün detay'} CMS ve public çıktıyla doğrulanarak kaydedildi` : 'Kaydedilecek değişiklik bulunamadı')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : `${activeProductDetailPage?.label || 'Ürün detay'} kaydedilemedi`)
     } finally {
@@ -2510,28 +2848,152 @@ const AdminPage = () => {
     }))
   }
 
+  const seoDirty = Boolean(selectedPage) && (
+    draftSeoTitle !== savedSeoTitle
+    || draftSeoDescription !== savedSeoDescription
+  )
+  const pageTitleDirty = Boolean(selectedPage) && pageForm.title !== (selectedPage?.title || '')
+  const activeContentDirty = (() => {
+    if (!selectedPage) return false
+    const differs = (sectionKey: string, requestBody: CmsSectionForm) => !sectionMatchesRequest(
+      selectedPage.sections.find((section) => section.sectionKey === sectionKey),
+      requestBody,
+    )
+    const section = (sectionKey: string) => selectedPage.sections.find((item) => item.sectionKey === sectionKey)
+    const requestFrom = (current: CmsSection, updates: Partial<CmsSectionForm>): CmsSectionForm => ({
+      sectionType: current.sectionType,
+      title: current.title || '',
+      subtitle: current.subtitle || '',
+      body: current.body || '',
+      contentJson: current.contentJson || '',
+      sortOrder: current.sortOrder,
+      enabled: current.enabled,
+      ...updates,
+    })
+
+    if (activePanel === 'home') {
+      const current = section('home.hero')
+      return current ? differs('home.hero', requestFrom(current, { contentJson: buildHeroContentJson(heroSlides, heroStats) })) : false
+    }
+    if (activePanel === 'about') {
+      const current = section('about.main')
+      return current ? differs('about.main', requestFrom(current, {
+        title: aboutForm.title,
+        subtitle: aboutForm.eyebrow,
+        body: aboutForm.lead,
+        contentJson: buildAboutContentJson(aboutForm),
+      })) : false
+    }
+    if (activePanel === 'products') {
+      const hero = section('products.hero')
+      const grid = section('products.grid')
+      return Boolean(
+        hero && differs('products.hero', requestFrom(hero, { title: productsPageCopy.heroTitle, body: productsPageCopy.heroSubtitle }))
+        || grid && differs('products.grid', requestFrom(grid, {
+          title: productsPageCopy.sectionTitle,
+          subtitle: productsPageCopy.sectionEyebrow,
+          body: productsPageCopy.sectionDescription,
+          contentJson: buildCatalogContentJson(productItems),
+        }))
+      )
+    }
+    if (activePanel === 'curtainModels') {
+      const hero = section('models.hero')
+      const grid = section('models.grid')
+      return Boolean(
+        hero && differs('models.hero', requestFrom(hero, { title: modelsPageCopy.heroTitle, body: modelsPageCopy.heroSubtitle }))
+        || grid && differs('models.grid', requestFrom(grid, { contentJson: buildCatalogContentJson(modelItems) }))
+      )
+    }
+    if (activePanel === 'corporateProducts') {
+      const current = section('corporate.grid')
+      return current ? differs('corporate.grid', requestFrom(current, { contentJson: buildCatalogContentJson(corporateItems) })) : false
+    }
+    if (activePanel === 'blog') {
+      const current = section('blog.list')
+      return current ? differs('blog.list', requestFrom(current, { contentJson: buildBlogContentJson(blogPosts) })) : false
+    }
+    if (activePanel === 'productGalleries') {
+      const current = section('product.gallery')
+      return current ? differs('product.gallery', requestFrom(current, {
+        contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy, productGalleryVideo),
+      })) : false
+    }
+    if (productDetailPanels.includes(activePanel)) {
+      const current = section('product.detail')
+      return current ? differs('product.detail', requestFrom(current, {
+        title: mechanizedForm.heroTitle,
+        subtitle: mechanizedForm.heroEyebrow,
+        body: mechanizedForm.heroDescription,
+        contentJson: buildProductDetailContentJson(mechanizedForm),
+      })) : false
+    }
+    return false
+  })()
+  const settingsDirty = editableSettingKeys.some((settingKey) => {
+    const saved = settings.find((setting) => setting.settingKey === settingKey)?.settingValue
+    return saved !== undefined && (settingsForm[settingKey] || '') !== saved
+  })
+  const contactRequestDirty = Boolean(selectedContactRequest) && (
+    contactRequestForm.status !== selectedContactRequest?.status
+    || contactRequestForm.adminNote !== (selectedContactRequest?.adminNote || '')
+  )
+  const selectedSeoState = seoDirty ? 'dirty' : (selectedPage ? publicSeoResults[selectedPage.pageKey]?.state : undefined)
+  const seoStatusIcon = (pageKey: string) => {
+    if (selectedPage?.pageKey === pageKey && seoDirty) return '🟡'
+    if (publicSeoResults[pageKey]?.state === 'same') return '🟢'
+    return '🔴'
+  }
+
   const renderPageSearchFields = () => (
     <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
-      <h2 className="text-lg font-semibold">Google bilgileri</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold">Google bilgileri</h2>
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+          selectedSeoState === 'same' ? 'bg-green-100 text-green-800'
+            : selectedSeoState === 'dirty' ? 'bg-amber-100 text-amber-800'
+              : 'bg-red-100 text-red-800'
+        }`}>
+          {selectedSeoState === 'same' && '🟢 Kaydedildi ve Public ile Aynı'}
+          {selectedSeoState === 'dirty' && '🟡 Değiştirildi fakat henüz Kaydedilmedi'}
+          {selectedSeoState === 'different' && '🔴 CMS ile Public farklı'}
+          {selectedSeoState === 'error' && '🔴 Public doğrulanamadı'}
+          {!selectedSeoState && 'Public kontrolü bekleniyor'}
+        </span>
+      </div>
       <p className="mt-1 text-sm text-[#6f6960]">
         Bu alanlar sayfanın tarayıcı başlığı ve arama motoru açıklaması için kullanılır.
       </p>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <label className="text-sm font-medium text-[#3a342c]">
-          Sayfa adı
+          <span className="flex items-center justify-between gap-2">
+            <span>Sayfa adı</span>
+            {pageTitleDirty && <span className="text-xs font-semibold text-amber-700">Kaydedilmemiş taslak</span>}
+          </span>
           <input
             value={pageForm.title}
             onChange={(event) => setPageForm({ ...pageForm, title: event.target.value })}
             className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
           />
+          <button
+            type="button"
+            disabled={!pageTitleDirty || isLoading || !pageForm.title}
+            onClick={() => void handlePageTitleSave()}
+            className="mt-2 rounded-md border border-[#9d7b46] px-3 py-1.5 text-xs font-semibold text-[#6f512b] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Yalnızca Sayfa Adını Kaydet
+          </button>
         </label>
 
         <label className="text-sm font-medium text-[#3a342c]">
           Google başlığı
           <input
-            value={pageForm.seoTitle}
-            onChange={(event) => setPageForm({ ...pageForm, seoTitle: event.target.value })}
+            value={draftSeoTitle}
+            onChange={(event) => {
+              setSeoPreviewOpen(false)
+              setDraftSeoTitle(event.target.value)
+            }}
             className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
           />
         </label>
@@ -2539,13 +3001,56 @@ const AdminPage = () => {
         <label className="text-sm font-medium text-[#3a342c] md:col-span-2">
           Google açıklaması
           <textarea
-            value={pageForm.seoDescription}
-            onChange={(event) => setPageForm({ ...pageForm, seoDescription: event.target.value })}
+            value={draftSeoDescription}
+            onChange={(event) => {
+              setSeoPreviewOpen(false)
+              setDraftSeoDescription(event.target.value)
+            }}
             rows={3}
             className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
           />
         </label>
       </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#eee7dc] pt-4">
+        <p className="text-xs text-[#6f6960]">
+          Başlık: {Array.from(draftSeoTitle).length} karakter · Açıklama: {Array.from(draftSeoDescription).length} karakter
+        </p>
+        <button
+          type="button"
+          disabled={!seoDirty || isLoading}
+          onClick={() => setSeoPreviewOpen(true)}
+          className="rounded-md bg-[#3a342c] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Kaydetmeden Önce Ön İzle
+        </button>
+      </div>
+
+      {seoPreviewOpen && selectedPage && (
+        <div className="mt-5 rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-sm text-[#3a342c]">
+          <h3 className="font-semibold">SEO kaydetme ön izlemesi</h3>
+          <dl className="mt-3 grid gap-3">
+            <div><dt className="font-semibold">Sayfa adı</dt><dd>{selectedPage.title}</dd></div>
+            <div><dt className="font-semibold">PageKey</dt><dd className="break-all">{selectedPage.pageKey}</dd></div>
+            <div><dt className="font-semibold">URL</dt><dd>{selectedPage.slug}</dd></div>
+            <div><dt className="font-semibold">CMS’den doğrulanan Google başlığı</dt><dd>{savedSeoTitle}</dd></div>
+            <div><dt className="font-semibold">Yeni Google başlığı ({Array.from(draftSeoTitle).length} karakter)</dt><dd>{draftSeoTitle}</dd></div>
+            <div><dt className="font-semibold">CMS’den doğrulanan Google açıklaması</dt><dd>{savedSeoDescription}</dd></div>
+            <div><dt className="font-semibold">Yeni Google açıklaması ({Array.from(draftSeoDescription).length} karakter)</dt><dd>{draftSeoDescription}</dd></div>
+          </dl>
+          <div className="mt-4 flex justify-end gap-3">
+            <button type="button" onClick={() => setSeoPreviewOpen(false)} className="rounded-md border border-[#d8d0c3] px-4 py-2">İptal</button>
+            <button
+              type="button"
+              disabled={isLoading || !draftSeoTitle || !draftSeoDescription}
+              onClick={() => void handleSeoConfirmSave()}
+              className="rounded-md bg-green-700 px-4 py-2 font-semibold text-white disabled:opacity-40"
+            >
+              Kaydet
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -3513,7 +4018,7 @@ const AdminPage = () => {
           >
             {productGalleryPages.map((item) => (
               <option key={item.pageKey} value={item.pageKey}>
-                {item.label}
+                {seoStatusIcon(item.pageKey)} {item.label}
               </option>
             ))}
           </select>
@@ -4792,7 +5297,7 @@ const AdminPage = () => {
                   : 'bg-[#f8f5ef] text-[#3a342c] hover:bg-[#efe8dc]'
               }`}
             >
-              Ana sayfa
+              {seoStatusIcon('home')} Ana sayfa
             </button>
             <button
               type="button"
@@ -4806,7 +5311,7 @@ const AdminPage = () => {
                   : 'bg-[#f8f5ef] text-[#3a342c] hover:bg-[#efe8dc]'
               }`}
             >
-              Hakkımızda
+              {seoStatusIcon('about')} Hakkımızda
             </button>
             <button
               type="button"
@@ -4820,7 +5325,7 @@ const AdminPage = () => {
                   : 'bg-[#f8f5ef] text-[#3a342c] hover:bg-[#efe8dc]'
               }`}
             >
-              Perde Modelleri
+              {seoStatusIcon('curtain-models')} Perde Modelleri
             </button>
             <div className="rounded-lg border border-[#e4dccf] bg-[#fbfaf7] p-2">
               <div className="px-2 pb-2 pt-1">
@@ -4840,7 +5345,7 @@ const AdminPage = () => {
                       : 'bg-white text-[#3a342c] hover:bg-[#efe8dc]'
                   }`}
                 >
-                  Ürünler ana sayfası
+                  {seoStatusIcon('products')} Ürünler ana sayfası
                 </button>
                 {productDetailAdminPages.map((item) => (
                   <button
@@ -4856,7 +5361,7 @@ const AdminPage = () => {
                         : 'bg-white text-[#3a342c] hover:bg-[#efe8dc]'
                     }`}
                   >
-                    {item.label}
+                    {seoStatusIcon(item.pageKey)} {item.label}
                   </button>
                 ))}
                 <button
@@ -4871,7 +5376,7 @@ const AdminPage = () => {
                       : 'bg-white text-[#3a342c] hover:bg-[#efe8dc]'
                   }`}
                 >
-                  Ürün galerileri
+                  {seoStatusIcon(selectedProductGalleryPageKey)} Ürün galerileri
                 </button>
               </div>
             </div>
@@ -4887,7 +5392,7 @@ const AdminPage = () => {
                   : 'bg-[#f8f5ef] text-[#3a342c] hover:bg-[#efe8dc]'
               }`}
             >
-              Kurumsal Ürünler
+              {seoStatusIcon('corporate-products')} Kurumsal Ürünler
             </button>
             <button
               type="button"
@@ -4901,7 +5406,7 @@ const AdminPage = () => {
                   : 'bg-[#f8f5ef] text-[#3a342c] hover:bg-[#efe8dc]'
               }`}
             >
-              Blog
+              {seoStatusIcon('blog')} Blog
             </button>
             <button
               type="button"
@@ -5022,6 +5527,12 @@ const AdminPage = () => {
           {errorMessage && (
             <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               {errorMessage}
+            </p>
+          )}
+
+          {(activeContentDirty || settingsDirty && activePanel === 'settings' || contactRequestDirty && activePanel === 'leads') && (
+            <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+              Kaydedilmemiş taslak var. Bu değerler CMS’den geri okunup doğrulanana kadar kayıtlı kabul edilmez.
             </p>
           )}
 

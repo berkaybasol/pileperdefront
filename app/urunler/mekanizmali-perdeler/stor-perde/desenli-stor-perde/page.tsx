@@ -1,5 +1,8 @@
 'use client'
 
+import { useCmsSectionJson } from '@/components/CmsPageProvider'
+import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
+
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -100,7 +103,11 @@ const staggerContainerVariants = {
 export default function DesenliStorPerdePage() {
   const [galleryImages, setGalleryImages] = useState<ProductGalleryImage[]>(productImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(productImages[0])
-  const [heroCopy, setHeroCopy] = useState(defaultHeroCopy)
+  const initialHeroCopy = parseProductGalleryHeroCopy(
+    useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery'),
+    defaultHeroCopy,
+  )
+  const [heroCopy, setHeroCopy] = useState(initialHeroCopy)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import CmsPageBoundary from '@/components/CmsPageBoundary'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -21,5 +22,5 @@ export default function KatlamaliPerdeLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return <CmsPageBoundary pageKey="product-gallery-model-perdeler-katlamali-perde">{children}</CmsPageBoundary>
 }

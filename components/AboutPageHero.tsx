@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
@@ -41,7 +42,20 @@ type AboutPageHeroProps = {
 }
 
 const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) => {
-  const [hero, setHero] = useState(fallbackHero)
+  const initialContentJson = useCmsSectionJson('about', 'about.main')
+  const [hero, setHero] = useState<AboutHeroContent>(() => {
+    if (!initialContentJson) return fallbackHero
+    try {
+      const parsed = JSON.parse(initialContentJson) as { hero?: Partial<AboutHeroContent> }
+      return {
+        eyebrow: parsed.hero?.eyebrow || fallbackHero.eyebrow,
+        title: parsed.hero?.title || fallbackHero.title,
+        description: parsed.hero?.description || fallbackHero.description,
+      }
+    } catch {
+      return fallbackHero
+    }
+  })
 
   useEffect(() => {
     const loadHero = async () => {

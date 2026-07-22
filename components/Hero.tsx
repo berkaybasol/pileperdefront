@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination } from 'swiper/modules'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
+import { useCmsPage } from '@/components/CmsPageProvider'
 
 // Import Swiper styles
 import 'swiper/css'
@@ -66,7 +67,25 @@ const normalizeVerifiedStats = (stats: HeroStat[]) => stats.map((stat) =>
 
 const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
   const isEnglish = locale === 'en'
-  const [heroContent, setHeroContent] = useState<HeroCmsContent | null>(null)
+  const cmsPage = useCmsPage()
+  const [heroContent, setHeroContent] = useState<HeroCmsContent | null>(() => {
+    if (isEnglish || cmsPage?.pageKey !== 'home') return null
+    const section = cmsPage.sections.find((item) => item.sectionKey === 'home.hero' && item.enabled)
+    if (!section) return null
+    try {
+      const contentJson = section.contentJson ? JSON.parse(section.contentJson) as { primaryCtaHref?: string; stats?: HeroStat[]; slides?: HeroSlide[] } : {}
+      return {
+        title: section.title || undefined,
+        subtitle: section.subtitle || undefined,
+        description: section.body || undefined,
+        primaryCtaHref: contentJson.primaryCtaHref,
+        stats: Array.isArray(contentJson.stats) && contentJson.stats.length > 0 ? normalizeVerifiedStats(contentJson.stats) : undefined,
+        slides: Array.isArray(contentJson.slides) ? contentJson.slides.filter((slide) => slide.enabled !== false) : undefined,
+      }
+    } catch {
+      return null
+    }
+  })
 
   useEffect(() => {
     if (isEnglish) return

@@ -5,10 +5,12 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 import {
   defaultMekanizmaliPerdelerContent,
   getProductDetailContent,
+  parseProductDetailContent,
   type ProductDetailContent,
 } from '@/lib/productDetailContent'
 
@@ -25,7 +27,10 @@ export default function MekanizmaliPerdelerContent({
   breadcrumbItems,
   canonicalUrl,
 }: ManagedProductDetailProps) {
-  const [content, setContent] = useState<ProductDetailContent>(fallbackContent)
+  const initialContentJson = useCmsSectionJson(pageKey, 'product.detail')
+  const [content, setContent] = useState<ProductDetailContent>(() =>
+    parseProductDetailContent(initialContentJson, fallbackContent)
+  )
 
   useEffect(() => {
     let isMounted = true

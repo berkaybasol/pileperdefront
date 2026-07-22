@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import CmsPageBoundary from '@/components/CmsPageBoundary'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -23,5 +24,5 @@ export default function DisCepheJaluziLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return <CmsPageBoundary pageKey="product-gallery-urunler-motorlu-perdeler-dis-cephe-jaluzi">{children}</CmsPageBoundary>
 }

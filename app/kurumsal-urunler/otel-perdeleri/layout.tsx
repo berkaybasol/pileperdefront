@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import CmsPageBoundary from '@/components/CmsPageBoundary'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -23,5 +24,5 @@ export default function OtelperdeleriLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return <CmsPageBoundary pageKey="product-gallery-kurumsal-urunler-otel-perdeleri">{children}</CmsPageBoundary>
 }

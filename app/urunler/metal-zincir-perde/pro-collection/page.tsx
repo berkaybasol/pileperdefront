@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
+import ManagedProductGalleryPage from '@/components/CmsManagedProductGalleryPage'
 import type { ProductGalleryImage } from '@/lib/productGalleryContent'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 

@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import CmsPageBoundary from '@/components/CmsPageBoundary'
 
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 
@@ -16,15 +17,13 @@ const fallbackMetadata: Metadata = {
   }
 }
 
-export const generateMetadata = async () => ({
-  ...await getCmsPageMetadata('product-gallery-model-perdeler-rustikli-perde', fallbackMetadata),
-  title: 'Rustikli Perde Modelleri ve Dekorasyon Fikirleri | Pile Perde',
-})
+export const generateMetadata = () =>
+  getCmsPageMetadata('product-gallery-model-perdeler-rustikli-perde', fallbackMetadata)
 
 export default function RustikliPerdeLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return <CmsPageBoundary pageKey="product-gallery-model-perdeler-rustikli-perde">{children}</CmsPageBoundary>
 }

@@ -1,4 +1,4 @@
-import ManagedProductGalleryPage from '@/components/ManagedProductGalleryPage'
+import ManagedProductGalleryPage from '@/components/CmsManagedProductGalleryPage'
 import { getCmsPageMetadata } from '@/lib/cmsMetadata'
 import {
   buildDynamicGalleryMetadata,

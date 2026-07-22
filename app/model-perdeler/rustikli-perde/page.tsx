@@ -1,5 +1,8 @@
 'use client'
 
+import { useCmsSectionJson } from '@/components/CmsPageProvider'
+import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -194,7 +197,11 @@ const staggerContainerVariants = {
 export default function ModernPerdePage() {
   const [galleryImages, setGalleryImages] = useState(productImages)
   const [selectedImage, setSelectedImage] = useState(productImages[0])
-  const [heroCopy, setHeroCopy] = useState(defaultHeroCopy)
+  const initialHeroCopy = parseProductGalleryHeroCopy(
+    useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery'),
+    defaultHeroCopy,
+  )
+  const [heroCopy, setHeroCopy] = useState(initialHeroCopy)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const currentImageIndex = galleryImages.findIndex(img => img.id === selectedImage.id)
