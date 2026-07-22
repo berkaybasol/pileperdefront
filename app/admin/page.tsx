@@ -36,8 +36,9 @@ import {
 } from '@/lib/productGalleryContent'
 import { runVerifiedSave, SaveVerificationError } from '@/lib/adminVerifiedSave'
 import { revalidateCmsPage } from './actions'
+import { createLocalPreview } from '@/lib/localCmsPreview'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ''
 
 type ApiResponse<T> = {
   success: boolean
@@ -798,6 +799,73 @@ const readErrorMessage = async (response: Response, fallback: string) => {
   return fallback
 }
 
+class AdminRequestError extends Error {
+  readonly httpStatus?: number
+  readonly endpoint: string
+  readonly errorReason: string
+
+  constructor(message: string, endpoint: string, errorReason: string, httpStatus?: number) {
+    super(message)
+    this.name = 'AdminRequestError'
+    this.endpoint = endpoint
+    this.errorReason = errorReason
+    this.httpStatus = httpStatus
+  }
+}
+
+type ProductGalleryTechnicalDetail = {
+  section: 'Sayfa/Google bilgileri' | 'Hero/Video/Galeri' | 'CMS geri okuma' | 'Public doğrulama'
+  httpStatus?: number
+  errorReason: string
+  errorMessage: string
+  endpoint: string
+  cmsSaved: boolean | null
+  publicVerified: boolean
+  failedAttempt?: number
+}
+
+const toProductGalleryTechnicalDetail = (
+  error: unknown,
+  fallbackSection: ProductGalleryTechnicalDetail['section'],
+  fallbackEndpoint: string,
+  cmsSaved: boolean | null,
+): ProductGalleryTechnicalDetail => {
+  if (error instanceof AdminRequestError) {
+    return {
+      section: error.errorReason === 'cms_read_failed' ? 'CMS geri okuma' : fallbackSection,
+      httpStatus: error.httpStatus,
+      errorReason: error.errorReason,
+      errorMessage: error.message,
+      endpoint: error.endpoint,
+      cmsSaved: error.errorReason === 'cms_read_failed' ? null : cmsSaved,
+      publicVerified: false,
+      failedAttempt: 1,
+    }
+  }
+
+  if (error instanceof SaveVerificationError) {
+    return {
+      section: error.phase === 'cms' ? 'CMS geri okuma' : 'Public doğrulama',
+      errorReason: error.phase === 'cms' ? 'cms_verification_mismatch' : 'public_verification_failed',
+      errorMessage: error.message,
+      endpoint: fallbackEndpoint,
+      cmsSaved,
+      publicVerified: false,
+      failedAttempt: 1,
+    }
+  }
+
+  return {
+    section: fallbackSection,
+    errorReason: 'unexpected_error',
+    errorMessage: error instanceof Error ? error.message : 'Bilinmeyen teknik hata',
+    endpoint: fallbackEndpoint,
+    cmsSaved,
+    publicVerified: false,
+    failedAttempt: 1,
+  }
+}
+
 const IMAGE_UPLOAD_COMPRESSION_THRESHOLD_BYTES = 8 * 1024 * 1024
 const IMAGE_UPLOAD_MAX_DIMENSION = 2200
 
@@ -972,13 +1040,26 @@ const AdminPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [productGallerySaveResult, setProductGallerySaveResult] = useState<{
+    state: 'idle' | 'saved' | 'partial' | 'error'
+    message: string
+    note?: string
+    savedParts: string[]
+    failedParts: string[]
+    technicalDetails: ProductGalleryTechnicalDetail[]
+  }>({ state: 'idle', message: '', savedParts: [], failedParts: [], technicalDetails: [] })
+  const [productGalleryTechnicalDetailsOpen, setProductGalleryTechnicalDetailsOpen] = useState(false)
   const [seoPreviewOpen, setSeoPreviewOpen] = useState(false)
   const [publicSeoResults, setPublicSeoResults] = useState<Record<string, {
-    state: 'same' | 'different' | 'error'
+    state: 'pending' | 'same' | 'different' | 'error'
     publicSeoTitle: string
     publicSeoDescription: string
+    httpStatus?: number
+    errorReason?: string
+    errorMessage?: string
   }>>({})
   const pageLoadRequestId = useRef(0)
+  const pendingImageFiles = useRef(new Map<string, { file: File; originalName: string }>())
 
   const authHeader = useMemo(() => {
     if (!authToken) {
@@ -1055,7 +1136,12 @@ const AdminPage = () => {
     })
 
     if (!response.ok) {
-      throw new Error('Islem tamamlanamadi')
+      throw new AdminRequestError(
+        await readErrorMessage(response, 'İşlem tamamlanamadı'),
+        path,
+        'http_error',
+        response.status,
+      )
     }
 
     const body = await response.json() as ApiResponse<T>
@@ -1234,6 +1320,8 @@ const AdminPage = () => {
     setIsLoading(true)
     setErrorMessage(null)
     setStatusMessage(null)
+    setProductGallerySaveResult({ state: 'idle', message: '', savedParts: [], failedParts: [], technicalDetails: [] })
+    setProductGalleryTechnicalDetailsOpen(false)
     setSeoPreviewOpen(false)
     setSelectedPage(null)
     setPageForm({
@@ -1443,6 +1531,21 @@ const AdminPage = () => {
     return result.cmsValue
   }
 
+  const stageImageFile = (file: File, originalName = file.name) => {
+    const previewUrl = URL.createObjectURL(file)
+    pendingImageFiles.current.set(previewUrl, { file, originalName })
+    return previewUrl
+  }
+
+  const materializeImageUrl = async (url: string) => {
+    const pending = pendingImageFiles.current.get(url)
+    if (!pending) return url
+    const asset = await uploadMediaAssetVerified(pending.file, pending.originalName)
+    pendingImageFiles.current.delete(url)
+    URL.revokeObjectURL(url)
+    return asset.publicUrl
+  }
+
   const updateHeroSlide = (slideId: number, updates: Partial<HeroSlideForm>) => {
     const nextSlides = heroSlides.map((slide) =>
       slide.id === slideId ? { ...slide, ...updates } : slide
@@ -1455,19 +1558,8 @@ const AdminPage = () => {
       return
     }
 
-    setUploadingSlideId(slideId)
-    setStatusMessage(null)
-    setErrorMessage(null)
-
-    try {
-      const asset = await uploadMediaAssetVerified(file)
-      updateHeroSlide(slideId, { image: asset.publicUrl })
-      setStatusMessage('Görsel CMS ve public dosyayla doğrulanarak yüklendi')
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Gorsel yuklenemedi')
-    } finally {
-      setUploadingSlideId(null)
-    }
+    updateHeroSlide(slideId, { image: stageImageFile(file) })
+    setStatusMessage('Görsel geçici olarak hazırlandı; Kaydet’e basılana kadar yüklenmeyecek')
   }
 
   const uploadAboutImage = async (file: File | null) => {
@@ -1475,23 +1567,8 @@ const AdminPage = () => {
       return
     }
 
-    setIsAboutImageUploading(true)
-    setStatusMessage(null)
-    setErrorMessage(null)
-
-    try {
-      const asset = await uploadMediaAssetVerified(file)
-      setAboutForm((current) => ({
-        ...current,
-        image: asset.publicUrl,
-        imageAlt: current.imageAlt || asset.altText || asset.fileName,
-      }))
-      setStatusMessage('Hakkımızda görseli CMS ve public dosyayla doğrulanarak yüklendi')
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Hakkimizda gorseli yuklenemedi')
-    } finally {
-      setIsAboutImageUploading(false)
-    }
+    setAboutForm((current) => ({ ...current, image: stageImageFile(file), imageAlt: current.imageAlt || file.name }))
+    setStatusMessage('Görsel geçici olarak hazırlandı; Kaydet’e basılana kadar yüklenmeyecek')
   }
 
   const uploadBlogImage = async (postId: number, file: File | null) => {
@@ -1499,21 +1576,9 @@ const AdminPage = () => {
       return
     }
 
-    setUploadingBlogPostId(postId)
-    setStatusMessage(null)
-    setErrorMessage(null)
-
-    try {
-      const asset = await uploadMediaAssetVerified(file)
-      setBlogPosts((current) =>
-        current.map((post) => post.id === postId ? { ...post, image: asset.publicUrl } : post)
-      )
-      setStatusMessage('Blog görseli CMS ve public dosyayla doğrulanarak yüklendi')
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Blog gorseli yuklenemedi')
-    } finally {
-      setUploadingBlogPostId(null)
-    }
+    const previewUrl = stageImageFile(file)
+    setBlogPosts((current) => current.map((post) => post.id === postId ? { ...post, image: previewUrl } : post))
+    setStatusMessage('Görsel geçici olarak hazırlandı; Kaydet’e basılana kadar yüklenmeyecek')
   }
 
   const uploadProductGalleryImage = async (imageId: number, file: File | null) => {
@@ -1521,23 +1586,8 @@ const AdminPage = () => {
       return
     }
 
-    setUploadingGalleryImageId(imageId)
-    setStatusMessage(null)
-    setErrorMessage(null)
-
-    try {
-      const asset = await uploadMediaAssetVerified(file)
-      updateProductGalleryImage(imageId, {
-        src: asset.publicUrl,
-        alt: asset.altText || asset.fileName,
-        title: asset.title || asset.fileName,
-      })
-      setStatusMessage('Galeri görseli CMS ve public dosyayla doğrulanarak yüklendi')
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Galeri gorseli yuklenemedi')
-    } finally {
-      setUploadingGalleryImageId(null)
-    }
+    updateProductGalleryImage(imageId, { src: stageImageFile(file), alt: file.name, title: file.name })
+    setStatusMessage('Görsel geçici olarak hazırlandı; Kaydet’e basılana kadar yüklenmeyecek')
   }
 
   const uploadProductGalleryImages = async (fileList: FileList | null) => {
@@ -1546,34 +1596,12 @@ const AdminPage = () => {
     }
 
     const files = Array.from(fileList)
-    setIsGalleryBulkUploading(true)
-    setStatusMessage(null)
-    setErrorMessage(null)
-
-    try {
-      const uploadedImages: ProductGalleryImage[] = []
-      let nextId = productGalleryImages.reduce((maxId, image) => Math.max(maxId, image.id), 0) + 1
-
-      for (const file of files) {
-        const uploadFile = await prepareImageFileForUpload(file)
-        const asset = await uploadMediaAssetVerified(uploadFile, file.name)
-        uploadedImages.push({
-          id: nextId,
-          src: asset.publicUrl,
-          alt: asset.altText || asset.fileName,
-          title: asset.title || asset.fileName,
-          enabled: true,
-        })
-        nextId += 1
-      }
-
-      setProductGalleryImages((current) => [...current, ...uploadedImages])
-      setStatusMessage(`${uploadedImages.length} galeri görseli CMS ve public dosyayla doğrulanarak yüklendi`)
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Galeri gorselleri yuklenemedi')
-    } finally {
-      setIsGalleryBulkUploading(false)
-    }
+    let nextId = productGalleryImages.reduce((maxId, image) => Math.max(maxId, image.id), 0) + 1
+    const stagedImages = files.map((file) => ({
+      id: nextId++, src: stageImageFile(file), alt: file.name, title: file.name, enabled: true,
+    }))
+    setProductGalleryImages((current) => [...current, ...stagedImages])
+    setStatusMessage(`${stagedImages.length} görsel geçici olarak hazırlandı; Kaydet’e basılana kadar yüklenmeyecek`)
   }
 
   const uploadCardImage = async (
@@ -1585,20 +1613,8 @@ const AdminPage = () => {
       return
     }
 
-    setUploadingCardImageKey(cardKey)
-    setStatusMessage(null)
-    setErrorMessage(null)
-
-    try {
-      const uploadFile = await prepareImageFileForUpload(file)
-      const asset = await uploadMediaAssetVerified(uploadFile, file.name)
-      applyImage(asset.publicUrl)
-      setStatusMessage('Kart görseli CMS ve public dosyayla doğrulanarak yüklendi')
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Kart gorseli yuklenemedi')
-    } finally {
-      setUploadingCardImageKey(null)
-    }
+    applyImage(stageImageFile(file))
+    setStatusMessage('Görsel geçici olarak hazırlandı; Kaydet’e basılana kadar yüklenmeyecek')
   }
 
   const uploadMediaLibraryImage = async (file: File | null) => {
@@ -1869,30 +1885,64 @@ const AdminPage = () => {
   }
 
   const refreshSeoStatuses = async (items: CmsPageSummary[]) => {
+    setPublicSeoResults((current) => ({
+      ...current,
+      ...Object.fromEntries(items.map((page) => [page.pageKey, {
+        state: 'pending' as const,
+        publicSeoTitle: current[page.pageKey]?.publicSeoTitle || '',
+        publicSeoDescription: current[page.pageKey]?.publicSeoDescription || '',
+      }])),
+    }))
+
     try {
       const response = await fetch('/api/seo-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pages: items.map((page) => ({ pageKey: page.pageKey, slug: page.slug })) }),
       })
-      if (!response.ok) return null
+      if (!response.ok) {
+        const results = Object.fromEntries(items.map((page) => [page.pageKey, {
+          state: 'error' as const,
+          publicSeoTitle: '',
+          publicSeoDescription: '',
+          httpStatus: response.status,
+          errorReason: 'status_endpoint_failed',
+          errorMessage: `Public durum servisi HTTP ${response.status} döndürdü.`,
+        }]))
+        setPublicSeoResults((current) => ({ ...current, ...results }))
+        return results
+      }
       const body = await response.json() as {
         statuses: Array<{
           pageKey: string
           state: 'same' | 'different' | 'error'
+          httpStatus?: number
           publicTitle?: string
           publicDescription?: string
+          errorReason?: string
+          errorMessage?: string
         }>
       }
       const results = Object.fromEntries(body.statuses.map((item) => [item.pageKey, {
         state: item.state,
         publicSeoTitle: item.publicTitle || '',
         publicSeoDescription: item.publicDescription || '',
+        httpStatus: item.httpStatus,
+        errorReason: item.errorReason,
+        errorMessage: item.errorMessage,
       }]))
       setPublicSeoResults(results)
       return results
-    } catch {
-      return null
+    } catch (error) {
+      const results = Object.fromEntries(items.map((page) => [page.pageKey, {
+        state: 'error' as const,
+        publicSeoTitle: '',
+        publicSeoDescription: '',
+        errorReason: 'network_error',
+        errorMessage: error instanceof Error ? error.message : 'Public durum isteği başarısız oldu.',
+      }]))
+      setPublicSeoResults((current) => ({ ...current, ...results }))
+      return results
     }
   }
 
@@ -1901,12 +1951,18 @@ const AdminPage = () => {
       throw new Error('Admin oturumu bulunamadı')
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/admin/cms/pages/${pageId}`, {
+    const endpoint = `/api/admin/cms/pages/${pageId}`
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       cache: 'no-store',
       headers: { Authorization: authHeader },
     })
     if (!response.ok) {
-      throw new Error('Kayıt sonrası CMS doğrulama isteği başarısız oldu')
+      throw new AdminRequestError(
+        await readErrorMessage(response, 'Kayıt sonrası CMS doğrulama isteği başarısız oldu'),
+        endpoint,
+        'cms_read_failed',
+        response.status,
+      )
     }
     const body = await response.json() as ApiResponse<CmsPageDetail>
     return body.data
@@ -2068,13 +2124,13 @@ const AdminPage = () => {
     )
 
     if (changedRequests.length === 0) {
-      return { changedCount: 0 }
+      return { changedCount: 0, publicVerified: undefined }
     }
 
     const changedSectionKeys = changedRequests.map(({ sectionKey }) => sectionKey)
 
     try {
-      await runVerifiedSave({
+      const verification = await runVerifiedSave({
         write: async () => {
           for (const { sectionKey, requestBody } of changedRequests) {
             await saveSection(sectionKey, requestBody)
@@ -2089,7 +2145,9 @@ const AdminPage = () => {
           publicPage,
           verifiedPage,
         ),
+        publicMismatchIsError: false,
       })
+      return { changedCount: changedRequests.length, publicVerified: verification.publicVerified === true }
     } catch (error) {
       try {
         applySectionReadback(await readCmsPage(pageAtSave.id), changedSectionKeys)
@@ -2099,7 +2157,6 @@ const AdminPage = () => {
       throw error
     }
 
-    return { changedCount: changedRequests.length }
   }
 
   const handleSeoConfirmSave = async () => {
@@ -2112,7 +2169,7 @@ const AdminPage = () => {
     setErrorMessage(null)
     setStatusMessage(null)
     try {
-      await runVerifiedSave({
+      const verification = await runVerifiedSave({
         write: async () => { await savePageBasics() },
         readBack: () => readCmsPage(pageAtSave.id),
         cmsMatches: (actual) => pageMatchesIsolatedChanges(actual, pageAtSave, {
@@ -2138,7 +2195,15 @@ const AdminPage = () => {
           })
           if (!response.ok) throw new Error('Public metadata doğrulaması başarısız oldu')
           const body = await response.json() as {
-            statuses: Array<{ pageKey: string; state: 'same' | 'different' | 'error'; publicTitle?: string; publicDescription?: string }>
+            statuses: Array<{
+              pageKey: string
+              state: 'same' | 'different' | 'error'
+              httpStatus?: number
+              publicTitle?: string
+              publicDescription?: string
+              errorReason?: string
+              errorMessage?: string
+            }>
           }
           return body.statuses[0]
         },
@@ -2153,11 +2218,17 @@ const AdminPage = () => {
               state: actual?.state || 'error',
               publicSeoTitle: actual?.publicTitle || '',
               publicSeoDescription: actual?.publicDescription || '',
+              httpStatus: actual?.httpStatus,
+              errorReason: actual?.errorReason,
+              errorMessage: actual?.errorMessage,
             },
           }))
         },
+        publicMismatchIsError: false,
       })
-      setStatusMessage('SEO bilgileri kaydedildi, CMS’den geri okundu ve public metadata ile doğrulandı')
+      setStatusMessage(verification.publicVerified
+        ? 'SEO bilgileri kaydedildi, CMS’den geri okundu ve public metadata ile doğrulandı'
+        : 'SEO bilgileri CMS’ye kaydedildi ve doğrulandı. Public yayılım henüz tamamlanmadı; durum daha sonra yeniden kontrol edilecek.')
     } catch (error) {
       if (error instanceof SaveVerificationError) {
         setPublicSeoResults((current) => ({
@@ -2229,6 +2300,8 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      const savedHeroSlides = await Promise.all(heroSlides.map(async (slide) => ({ ...slide, image: await materializeImageUrl(slide.image) })))
+      setHeroSlides(savedHeroSlides)
       const heroSection = selectedPage.sections.find((section) => section.sectionKey === 'home.hero')
       const result = await saveCmsSectionsVerified(heroSection ? [{
         sectionKey: 'home.hero',
@@ -2237,7 +2310,7 @@ const AdminPage = () => {
           title: heroSection.title || '',
           subtitle: heroSection.subtitle || '',
           body: heroSection.body || '',
-          contentJson: buildHeroContentJson(heroSlides, heroStats),
+          contentJson: buildHeroContentJson(savedHeroSlides, heroStats),
           sortOrder: heroSection.sortOrder,
           enabled: heroSection.enabled,
         },
@@ -2260,15 +2333,17 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      const savedAboutForm = { ...aboutForm, image: await materializeImageUrl(aboutForm.image) }
+      setAboutForm(savedAboutForm)
       const aboutSection = selectedPage.sections.find((section) => section.sectionKey === 'about.main')
       const result = await saveCmsSectionsVerified(aboutSection ? [{
         sectionKey: 'about.main',
         requestBody: {
           sectionType: aboutSection.sectionType,
-          title: aboutForm.title,
-          subtitle: aboutForm.eyebrow,
-          body: aboutForm.lead,
-          contentJson: buildAboutContentJson(aboutForm),
+          title: savedAboutForm.title,
+          subtitle: savedAboutForm.eyebrow,
+          body: savedAboutForm.lead,
+          contentJson: buildAboutContentJson(savedAboutForm),
           sortOrder: aboutSection.sortOrder,
           enabled: aboutSection.enabled,
         },
@@ -2291,6 +2366,8 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      const savedProductItems = await Promise.all(productItems.map(async (item) => ({ ...item, image: await materializeImageUrl(item.image) })))
+      setProductItems(savedProductItems)
       const requests: Array<{ sectionKey: string; requestBody: CmsSectionForm }> = []
       const productsHeroSection = selectedPage.sections.find((section) => section.sectionKey === 'products.hero')
       if (productsHeroSection) {
@@ -2311,7 +2388,7 @@ const AdminPage = () => {
           title: productsPageCopy.sectionTitle,
           subtitle: productsPageCopy.sectionEyebrow,
           body: productsPageCopy.sectionDescription,
-          contentJson: buildCatalogContentJson(productItems),
+          contentJson: buildCatalogContentJson(savedProductItems),
           sortOrder: productsSection.sortOrder,
           enabled: productsSection.enabled,
         } })
@@ -2335,6 +2412,8 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      const savedModelItems = await Promise.all(modelItems.map(async (item) => ({ ...item, image: await materializeImageUrl(item.image) })))
+      setModelItems(savedModelItems)
       const requests: Array<{ sectionKey: string; requestBody: CmsSectionForm }> = []
       const modelsHeroSection = selectedPage.sections.find((section) => section.sectionKey === 'models.hero')
       if (modelsHeroSection) {
@@ -2355,7 +2434,7 @@ const AdminPage = () => {
           title: modelsSection.title || '',
           subtitle: modelsSection.subtitle || '',
           body: modelsSection.body || '',
-          contentJson: buildCatalogContentJson(modelItems),
+          contentJson: buildCatalogContentJson(savedModelItems),
           sortOrder: modelsSection.sortOrder,
           enabled: modelsSection.enabled,
         } })
@@ -2379,6 +2458,8 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      const savedCorporateItems = await Promise.all(corporateItems.map(async (item) => ({ ...item, image: await materializeImageUrl(item.image) })))
+      setCorporateItems(savedCorporateItems)
       const corporateSection = selectedPage.sections.find((section) => section.sectionKey === 'corporate.grid')
       const result = await saveCmsSectionsVerified(corporateSection ? [{
         sectionKey: 'corporate.grid',
@@ -2387,7 +2468,7 @@ const AdminPage = () => {
           title: corporateSection.title || '',
           subtitle: corporateSection.subtitle || '',
           body: corporateSection.body || '',
-          contentJson: buildCatalogContentJson(corporateItems),
+          contentJson: buildCatalogContentJson(savedCorporateItems),
           sortOrder: corporateSection.sortOrder,
           enabled: corporateSection.enabled,
         },
@@ -2410,6 +2491,8 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      const savedBlogPosts = await Promise.all(blogPosts.map(async (post) => ({ ...post, image: await materializeImageUrl(post.image) })))
+      setBlogPosts(savedBlogPosts)
       const blogSection = selectedPage.sections.find((section) => section.sectionKey === 'blog.list')
       const result = await saveCmsSectionsVerified(blogSection ? [{
         sectionKey: 'blog.list',
@@ -2418,7 +2501,7 @@ const AdminPage = () => {
           title: blogSection.title || '',
           subtitle: blogSection.subtitle || '',
           body: blogSection.body || '',
-          contentJson: buildBlogContentJson(blogPosts),
+          contentJson: buildBlogContentJson(savedBlogPosts),
           sortOrder: blogSection.sortOrder,
           enabled: blogSection.enabled,
         },
@@ -2432,34 +2515,156 @@ const AdminPage = () => {
   }
 
   const handleProductGallerySave = async () => {
-    if (!selectedPage) {
+    if (!selectedPage || !authHeader) return
+
+    const pageAtSave = selectedPage
+    let savedGalleryImages = productGalleryImages
+    try {
+      savedGalleryImages = await Promise.all(productGalleryImages.map(async (image) => ({ ...image, src: await materializeImageUrl(image.src) })))
+      setProductGalleryImages(savedGalleryImages)
+    } catch (error) {
+      setProductGallerySaveResult({
+        state: 'error', message: error instanceof Error ? error.message : 'Görseller yüklenemedi',
+        savedParts: [], failedParts: ['Görseller'], technicalDetails: [],
+      })
       return
     }
+    const pageChanges = {
+      ...(pageTitleDirty ? { title: pageForm.title } : {}),
+      ...(seoDirty ? { seoTitle: draftSeoTitle, seoDescription: draftSeoDescription } : {}),
+    }
+    const gallerySection = pageAtSave.sections.find((section) => section.sectionKey === 'product.gallery')
+    const galleryRequest = gallerySection ? {
+      sectionKey: 'product.gallery',
+      requestBody: {
+        sectionType: gallerySection.sectionType,
+        title: gallerySection.title || '',
+        subtitle: gallerySection.subtitle || '',
+        body: gallerySection.body || '',
+        contentJson: buildProductGalleryContentJson(savedGalleryImages, productGalleryHeroCopy, productGalleryVideo),
+        sortOrder: gallerySection.sortOrder,
+        enabled: gallerySection.enabled,
+      },
+    } : null
+    const shouldSavePage = pageTitleDirty || seoDirty
+    const shouldSaveGallery = Boolean(galleryRequest && !sectionMatchesRequest(gallerySection, galleryRequest.requestBody))
+
+    if (!shouldSavePage && !shouldSaveGallery) return
 
     setIsLoading(true)
     setStatusMessage(null)
     setErrorMessage(null)
+    setProductGallerySaveResult({ state: 'idle', message: '', savedParts: [], failedParts: [], technicalDetails: [] })
+    setProductGalleryTechnicalDetailsOpen(false)
 
-    try {
-      const gallerySection = selectedPage.sections.find((section) => section.sectionKey === 'product.gallery')
-      const result = await saveCmsSectionsVerified(gallerySection ? [{
-        sectionKey: 'product.gallery',
-        requestBody: {
-          sectionType: gallerySection.sectionType,
-          title: gallerySection.title || '',
-          subtitle: gallerySection.subtitle || '',
-          body: gallerySection.body || '',
-          contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy, productGalleryVideo),
-          sortOrder: gallerySection.sortOrder,
-          enabled: gallerySection.enabled,
-        },
-      }] : [])
-      setStatusMessage(result.changedCount > 0 ? `${activeProductGalleryPage.label} CMS ve public çıktıyla doğrulanarak kaydedildi` : 'Kaydedilecek değişiklik bulunamadı')
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Galeri kaydedilemedi')
-    } finally {
-      setIsLoading(false)
+    let verifiedPage = pageAtSave
+    const savedParts: string[] = []
+    const failedParts: string[] = []
+    const technicalDetails: ProductGalleryTechnicalDetail[] = []
+    const pageEndpoint = `/api/admin/cms/pages/${pageAtSave.id}`
+    const galleryEndpoint = `${pageEndpoint}/sections/${encodeURIComponent('product.gallery')}`
+
+    if (shouldSavePage) {
+      try {
+        const result = await runVerifiedSave({
+          write: async () => {
+            await request<CmsPageDetail>(`/api/admin/cms/pages/${pageAtSave.id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                slug: pageAtSave.slug,
+                title: pageTitleDirty ? pageForm.title : pageAtSave.title,
+                seoTitle: seoDirty ? draftSeoTitle : pageAtSave.seoTitle,
+                seoDescription: seoDirty ? draftSeoDescription : pageAtSave.seoDescription,
+                status: pageAtSave.status,
+              }),
+            })
+          },
+          readBack: () => readCmsPage(pageAtSave.id),
+          cmsMatches: (actual) => pageMatchesIsolatedChanges(actual, verifiedPage, pageChanges),
+        })
+        verifiedPage = result.cmsValue
+        setSelectedPage(result.cmsValue)
+        setPageForm({ slug: result.cmsValue.slug, title: result.cmsValue.title, status: result.cmsValue.status })
+        setSavedSeoTitle(result.cmsValue.seoTitle || '')
+        setSavedSeoDescription(result.cmsValue.seoDescription || '')
+        setDraftSeoTitle(result.cmsValue.seoTitle || '')
+        setDraftSeoDescription(result.cmsValue.seoDescription || '')
+        setSeoPreviewOpen(false)
+        savedParts.push(pageTitleDirty && seoDirty ? 'Sayfa adı ve Google bilgileri' : pageTitleDirty ? 'Sayfa adı' : 'Google bilgileri')
+      } catch (error) {
+        failedParts.push(`Sayfa/Google: ${error instanceof Error ? error.message : 'Kaydedilemedi'}`)
+        technicalDetails.push(toProductGalleryTechnicalDetail(error, 'Sayfa/Google bilgileri', pageEndpoint, false))
+      }
     }
+
+    if (shouldSaveGallery && galleryRequest) {
+      const galleryBaseline = verifiedPage
+      try {
+        const result = await runVerifiedSave({
+          write: () => saveSection(galleryRequest.sectionKey, galleryRequest.requestBody),
+          readBack: () => readCmsPage(pageAtSave.id),
+          cmsMatches: (actual) => pageMatchesIsolatedChanges(actual, galleryBaseline, {}, [galleryRequest]),
+        })
+        verifiedPage = result.cmsValue
+        applySectionReadback(result.cmsValue, [galleryRequest.sectionKey])
+        savedParts.push('Galeri, hero ve video')
+      } catch (error) {
+        failedParts.push(`Galeri/hero/video: ${error instanceof Error ? error.message : 'Kaydedilemedi'}`)
+        technicalDetails.push(toProductGalleryTechnicalDetail(error, 'Hero/Video/Galeri', galleryEndpoint, false))
+      }
+    }
+
+    let publicPending = false
+    if (savedParts.length > 0) {
+      const finalCmsPage = verifiedPage
+      try {
+        const verification = await runVerifiedSave({
+          write: async () => {},
+          readBack: () => readCmsPage(pageAtSave.id),
+          cmsMatches: (actual) => pageMatchesIsolatedChanges(actual, finalCmsPage),
+          revalidate: () => revalidateCmsPage(pageAtSave.pageKey, pageAtSave.slug),
+          readPublic: () => readPublicCmsPage(pageAtSave.pageKey),
+          publicMatches: (actual) => pageMatchesIsolatedChanges(actual, finalCmsPage),
+          publicMismatchIsError: false,
+        })
+        publicPending = verification.publicVerified !== true
+      } catch (error) {
+        failedParts.push(`Genel doğrulama: ${error instanceof Error ? error.message : 'Tamamlanamadı'}`)
+        technicalDetails.push(toProductGalleryTechnicalDetail(
+          error,
+          'Public doğrulama',
+          `/api/public/cms/pages/${encodeURIComponent(pageAtSave.pageKey)}`,
+          true,
+        ))
+      }
+    }
+
+    if (failedParts.length > 0) {
+      const state = savedParts.length > 0 ? 'partial' : 'error'
+      const prefix = savedParts.length > 0
+        ? `Kısmi kayıt: ${savedParts.join(', ')} kaydedildi. `
+        : 'Kayıt başarısız. '
+      setProductGallerySaveResult({
+        state,
+        message: `${prefix}${failedParts.join(' | ')}`,
+        savedParts,
+        failedParts,
+        technicalDetails,
+      })
+      setErrorMessage(`${prefix}${failedParts.join(' | ')}`)
+    } else {
+      setProductGallerySaveResult({
+        state: 'saved',
+        message: 'Kaydedildi',
+        note: publicPending ? 'Yayına yansıması bekleniyor' : undefined,
+        savedParts,
+        failedParts: [],
+        technicalDetails: [],
+      })
+      setStatusMessage('Kaydedildi')
+    }
+
+    setIsLoading(false)
   }
 
   const handleMechanizedSave = async () => {
@@ -2472,15 +2677,20 @@ const AdminPage = () => {
     setErrorMessage(null)
 
     try {
+      const savedMechanizedForm = {
+        ...mechanizedForm,
+        categories: await Promise.all(mechanizedForm.categories.map(async (item) => ({ ...item, image: await materializeImageUrl(item.image) }))),
+      }
+      setMechanizedForm(savedMechanizedForm)
       const detailSection = selectedPage.sections.find((section) => section.sectionKey === 'product.detail')
       const result = await saveCmsSectionsVerified(detailSection ? [{
         sectionKey: 'product.detail',
         requestBody: {
           sectionType: detailSection.sectionType,
-          title: mechanizedForm.heroTitle,
-          subtitle: mechanizedForm.heroEyebrow,
-          body: mechanizedForm.heroDescription,
-          contentJson: buildProductDetailContentJson(mechanizedForm),
+          title: savedMechanizedForm.heroTitle,
+          subtitle: savedMechanizedForm.heroEyebrow,
+          body: savedMechanizedForm.heroDescription,
+          contentJson: buildProductDetailContentJson(savedMechanizedForm),
           sortOrder: detailSection.sortOrder,
           enabled: detailSection.enabled,
         },
@@ -2853,6 +3063,7 @@ const AdminPage = () => {
     || draftSeoDescription !== savedSeoDescription
   )
   const pageTitleDirty = Boolean(selectedPage) && pageForm.title !== (selectedPage?.title || '')
+  const pageStatusPreviewDirty = Boolean(selectedPage) && pageForm.status !== (selectedPage?.status || '')
   const activeContentDirty = (() => {
     if (!selectedPage) return false
     const differs = (sectionKey: string, requestBody: CmsSectionForm) => !sectionMatchesRequest(
@@ -2938,52 +3149,117 @@ const AdminPage = () => {
     contactRequestForm.status !== selectedContactRequest?.status
     || contactRequestForm.adminNote !== (selectedContactRequest?.adminNote || '')
   )
-  const selectedSeoState = seoDirty ? 'dirty' : (selectedPage ? publicSeoResults[selectedPage.pageKey]?.state : undefined)
+  const productGalleryDirty = activePanel === 'productGalleries' && (pageTitleDirty || seoDirty || activeContentDirty)
+  const previewDirty = Boolean(selectedPage) && (pageTitleDirty || pageStatusPreviewDirty || seoDirty || activeContentDirty)
+  const isLocalEnvironment = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)
+
+  const handleLocalPreview = () => {
+    if (!selectedPage || !isLocalEnvironment) return
+
+    const sections = selectedPage.sections.map((section) => ({ ...section }))
+    const patchSection = (sectionKey: string, updates: Partial<CmsSection>) => {
+      const index = sections.findIndex((section) => section.sectionKey === sectionKey)
+      if (index >= 0) sections[index] = { ...sections[index], ...updates }
+    }
+
+    if (activePanel === 'home') patchSection('home.hero', { contentJson: buildHeroContentJson(heroSlides, heroStats) })
+    if (activePanel === 'about') patchSection('about.main', {
+      title: aboutForm.title, subtitle: aboutForm.eyebrow, body: aboutForm.lead,
+      contentJson: buildAboutContentJson(aboutForm),
+    })
+    if (activePanel === 'products') {
+      patchSection('products.hero', { title: productsPageCopy.heroTitle, body: productsPageCopy.heroSubtitle })
+      patchSection('products.grid', {
+        title: productsPageCopy.sectionTitle, subtitle: productsPageCopy.sectionEyebrow,
+        body: productsPageCopy.sectionDescription, contentJson: buildCatalogContentJson(productItems),
+      })
+    }
+    if (activePanel === 'curtainModels') {
+      patchSection('models.hero', { title: modelsPageCopy.heroTitle, body: modelsPageCopy.heroSubtitle })
+      patchSection('models.grid', { contentJson: buildCatalogContentJson(modelItems) })
+    }
+    if (activePanel === 'corporateProducts') patchSection('corporate.grid', { contentJson: buildCatalogContentJson(corporateItems) })
+    if (activePanel === 'blog') patchSection('blog.list', { contentJson: buildBlogContentJson(blogPosts) })
+    if (activePanel === 'productGalleries') patchSection('product.gallery', {
+      contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy, productGalleryVideo),
+    })
+    if (productDetailPanels.includes(activePanel)) patchSection('product.detail', {
+      title: mechanizedForm.heroTitle, subtitle: mechanizedForm.heroEyebrow,
+      body: mechanizedForm.heroDescription, contentJson: buildProductDetailContentJson(mechanizedForm),
+    })
+
+    const token = createLocalPreview({
+      localPreview: true,
+      pageKey: selectedPage.pageKey,
+      slug: selectedPage.slug,
+      title: pageForm.title,
+      status: pageForm.status,
+      seoTitle: draftSeoTitle,
+      seoDescription: draftSeoDescription,
+      sections,
+    })
+    if (!token) return
+    const separator = selectedPage.slug.includes('?') ? '&' : '?'
+    window.open(`${selectedPage.slug}${separator}__cmsPreview=${encodeURIComponent(token)}`, '_blank', 'noopener')
+  }
+  const selectedSeoResult = selectedPage ? publicSeoResults[selectedPage.pageKey] : undefined
+  const selectedSeoState = seoDirty ? 'dirty' : (selectedSeoResult?.state || 'pending')
   const seoStatusIcon = (pageKey: string) => {
     if (selectedPage?.pageKey === pageKey && seoDirty) return '🟡'
-    if (publicSeoResults[pageKey]?.state === 'same') return '🟢'
-    return '🔴'
+    const state = publicSeoResults[pageKey]?.state
+    if (state === 'same') return '🟢'
+    if (state === 'different') return '🔴'
+    if (state === 'error') return '🟠'
+    return '⚪'
   }
 
   const renderPageSearchFields = () => (
     <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Google bilgileri</h2>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+        {activePanel !== 'productGalleries' && !isLocalEnvironment && <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
           selectedSeoState === 'same' ? 'bg-green-100 text-green-800'
             : selectedSeoState === 'dirty' ? 'bg-amber-100 text-amber-800'
-              : 'bg-red-100 text-red-800'
+              : selectedSeoState === 'different' ? 'bg-red-100 text-red-800'
+                : selectedSeoState === 'error' ? 'bg-orange-100 text-orange-800'
+                  : 'bg-slate-100 text-slate-700'
         }`}>
           {selectedSeoState === 'same' && '🟢 Kaydedildi ve Public ile Aynı'}
           {selectedSeoState === 'dirty' && '🟡 Değiştirildi fakat henüz Kaydedilmedi'}
           {selectedSeoState === 'different' && '🔴 CMS ile Public farklı'}
-          {selectedSeoState === 'error' && '🔴 Public doğrulanamadı'}
-          {!selectedSeoState && 'Public kontrolü bekleniyor'}
-        </span>
+          {selectedSeoState === 'error' && '🟠 Public kontrolü tamamlanamadı'}
+          {selectedSeoState === 'pending' && '⚪ Public kontrolü bekleniyor'}
+        </span>}
       </div>
       <p className="mt-1 text-sm text-[#6f6960]">
         Bu alanlar sayfanın tarayıcı başlığı ve arama motoru açıklaması için kullanılır.
       </p>
+      {activePanel !== 'productGalleries' && !isLocalEnvironment && selectedSeoState === 'error' && selectedSeoResult && (
+        <p className="mt-2 rounded-md border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800">
+          Public kontrolü içerik hatası anlamına gelmez. {selectedSeoResult.errorMessage || 'Kontrol isteği tamamlanamadı.'}
+          {selectedSeoResult.httpStatus ? ` HTTP ${selectedSeoResult.httpStatus}.` : ''}
+        </p>
+      )}
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <label className="text-sm font-medium text-[#3a342c]">
           <span className="flex items-center justify-between gap-2">
             <span>Sayfa adı</span>
-            {pageTitleDirty && <span className="text-xs font-semibold text-amber-700">Kaydedilmemiş taslak</span>}
+            {activePanel !== 'productGalleries' && pageTitleDirty && <span className="text-xs font-semibold text-amber-700">Kaydedilmemiş taslak</span>}
           </span>
           <input
             value={pageForm.title}
             onChange={(event) => setPageForm({ ...pageForm, title: event.target.value })}
             className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
           />
-          <button
+          {activePanel !== 'productGalleries' && <button
             type="button"
             disabled={!pageTitleDirty || isLoading || !pageForm.title}
             onClick={() => void handlePageTitleSave()}
             className="mt-2 rounded-md border border-[#9d7b46] px-3 py-1.5 text-xs font-semibold text-[#6f512b] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Yalnızca Sayfa Adını Kaydet
-          </button>
+          </button>}
         </label>
 
         <label className="text-sm font-medium text-[#3a342c]">
@@ -3010,6 +3286,21 @@ const AdminPage = () => {
             className="mt-2 w-full rounded-md border border-[#d8d0c3] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
           />
         </label>
+
+        {isLocalEnvironment && (
+          <label className="text-sm font-medium text-[#3a342c]">
+            Lokal ön izleme yayın durumu
+            <select
+              value={pageForm.status}
+              onChange={(event) => setPageForm({ ...pageForm, status: event.target.value as CmsPageStatus })}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-white px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            >
+              <option value="PUBLISHED">Yayında</option>
+              <option value="DRAFT">Yayında değil (lokal taslak)</option>
+            </select>
+            <span className="mt-1 block text-xs font-normal text-[#6f6960]">Yalnızca kayıtsız lokal ön izlemeyi etkiler.</span>
+          </label>
+        )}
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#eee7dc] pt-4">
@@ -3018,15 +3309,15 @@ const AdminPage = () => {
         </p>
         <button
           type="button"
-          disabled={!seoDirty || isLoading}
-          onClick={() => setSeoPreviewOpen(true)}
+          disabled={!previewDirty || isLoading || !isLocalEnvironment}
+          onClick={handleLocalPreview}
           className="rounded-md bg-[#3a342c] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
         >
           Kaydetmeden Önce Ön İzle
         </button>
       </div>
 
-      {seoPreviewOpen && selectedPage && (
+      {false && activePanel !== 'productGalleries' && seoPreviewOpen && selectedPage && (
         <div className="mt-5 rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-sm text-[#3a342c]">
           <h3 className="font-semibold">SEO kaydetme ön izlemesi</h3>
           <dl className="mt-3 grid gap-3">
@@ -3993,16 +4284,71 @@ const AdminPage = () => {
           <p className="mt-1 text-sm text-[#6f6960]">
             Ürün detay sayfalarında görünen fotoğraflar. Yüklenen görseller backend medya URL&apos;siyle yayınlanır.
           </p>
+          <p className={`mt-2 text-sm font-medium ${
+            isLoading ? 'text-blue-700'
+              : productGallerySaveResult.state === 'partial' ? 'text-orange-700'
+                : productGallerySaveResult.state === 'error' ? 'text-red-700'
+                  : productGalleryDirty ? 'text-amber-700'
+                    : productGallerySaveResult.state === 'saved' ? 'text-green-700'
+                      : 'text-[#6f6960]'
+          }`}>
+            {isLoading ? 'Kaydediliyor'
+              : productGallerySaveResult.state === 'partial' ? 'Kısmi kayıt'
+                : productGallerySaveResult.state === 'error' ? 'Kayıt başarısız'
+                  : productGalleryDirty ? 'Kaydedilmemiş değişiklik var'
+                    : productGallerySaveResult.state === 'saved' ? 'Kaydedildi'
+                      : 'Değişiklik yok'}
+          </p>
+          {productGallerySaveResult.state === 'saved' && productGallerySaveResult.note && (
+            <p className="mt-1 text-xs text-[#6f6960]">{productGallerySaveResult.note}</p>
+          )}
+          {(productGallerySaveResult.state === 'partial' || productGallerySaveResult.state === 'error')
+            && productGallerySaveResult.technicalDetails.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setProductGalleryTechnicalDetailsOpen((current) => !current)}
+              className="mt-2 text-xs font-semibold text-[#6b4f1d] underline underline-offset-2"
+            >
+              {productGalleryTechnicalDetailsOpen ? 'Teknik ayrıntıları gizle' : 'Teknik ayrıntıları göster'}
+            </button>
+          )}
         </div>
         <button
           type="button"
           onClick={() => void handleProductGallerySave()}
-          disabled={isLoading || !selectedPage}
-          className="rounded-md bg-[#191714] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2b261f] disabled:opacity-60"
+          disabled={isLoading || !selectedPage || !productGalleryDirty}
+          className="rounded-md bg-[#191714] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2b261f] disabled:cursor-not-allowed disabled:opacity-40"
         >
           Kaydet
         </button>
       </div>
+
+      {productGalleryTechnicalDetailsOpen
+        && (productGallerySaveResult.state === 'partial' || productGallerySaveResult.state === 'error') && (
+        <div className="rounded-lg border border-[#d8d0c3] bg-[#fbfaf7] p-4 text-sm text-[#3a342c]">
+          <h3 className="font-semibold">Teknik ayrıntılar</h3>
+          {productGallerySaveResult.savedParts.length > 0 && (
+            <p className="mt-2"><strong>Kaydedilen bölümler:</strong> {productGallerySaveResult.savedParts.join(', ')}</p>
+          )}
+          {productGallerySaveResult.failedParts.length > 0 && (
+            <p className="mt-1"><strong>Başarısız bölümler:</strong> {productGallerySaveResult.failedParts.join(' | ')}</p>
+          )}
+          <div className="mt-3 space-y-3">
+            {productGallerySaveResult.technicalDetails.map((detail, index) => (
+              <dl key={`${detail.section}-${detail.endpoint}-${index}`} className="grid gap-1 rounded-md border border-[#e4dccf] bg-white p-3 text-xs">
+                <div><dt className="font-semibold">Bölüm</dt><dd>{detail.section}</dd></div>
+                <div><dt className="font-semibold">HTTP durumu</dt><dd>{detail.httpStatus ?? 'Yok'}</dd></div>
+                <div><dt className="font-semibold">errorReason</dt><dd>{detail.errorReason}</dd></div>
+                <div><dt className="font-semibold">errorMessage</dt><dd>{detail.errorMessage}</dd></div>
+                <div><dt className="font-semibold">Başarısız endpoint</dt><dd className="break-all">{detail.endpoint}</dd></div>
+                <div><dt className="font-semibold">CMS kaydı başarılı mı?</dt><dd>{detail.cmsSaved === null ? 'Doğrulanamadı' : detail.cmsSaved ? 'Evet' : 'Hayır'}</dd></div>
+                <div><dt className="font-semibold">Public doğrulama başarılı mı?</dt><dd>{detail.publicVerified ? 'Evet' : 'Hayır'}</dd></div>
+                <div><dt className="font-semibold">Başarısız deneme</dt><dd>{detail.failedAttempt ?? 'Bilinmiyor'}</dd></div>
+              </dl>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <label className="text-sm font-medium text-[#3a342c]">
@@ -4018,7 +4364,7 @@ const AdminPage = () => {
           >
             {productGalleryPages.map((item) => (
               <option key={item.pageKey} value={item.pageKey}>
-                {seoStatusIcon(item.pageKey)} {item.label}
+                {item.label}
               </option>
             ))}
           </select>
@@ -5376,7 +5722,7 @@ const AdminPage = () => {
                       : 'bg-white text-[#3a342c] hover:bg-[#efe8dc]'
                   }`}
                 >
-                  {seoStatusIcon(selectedProductGalleryPageKey)} Ürün galerileri
+                  Ürün galerileri
                 </button>
               </div>
             </div>
@@ -5518,19 +5864,19 @@ const AdminPage = () => {
         </aside>
 
         <section className="space-y-6">
-          {statusMessage && (
+          {statusMessage && activePanel !== 'productGalleries' && (
             <p className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
               {statusMessage}
             </p>
           )}
 
-          {errorMessage && (
+          {errorMessage && activePanel !== 'productGalleries' && (
             <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               {errorMessage}
             </p>
           )}
 
-          {(activeContentDirty || settingsDirty && activePanel === 'settings' || contactRequestDirty && activePanel === 'leads') && (
+          {(activePanel !== 'productGalleries' && activeContentDirty || settingsDirty && activePanel === 'settings' || contactRequestDirty && activePanel === 'leads') && (
             <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
               Kaydedilmemiş taslak var. Bu değerler CMS’den geri okunup doğrulanana kadar kayıtlı kabul edilmez.
             </p>

@@ -1,4 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+import { readLocalPreviewSectionJson } from '@/lib/localCmsPreview'
 
 type ApiResponse<T> = {
   success: boolean
@@ -268,6 +269,8 @@ export const getPublicProductGallery = async (
   pageKey: string,
   fallbackImages: ProductGalleryImage[],
 ) => {
+  const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
+  if (previewJson) return parseProductGalleryImages(previewJson, fallbackImages)
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
@@ -293,6 +296,8 @@ export const getPublicProductGalleryHeroCopy = async (
   pageKey: string,
   fallbackCopy: ProductGalleryHeroCopy,
 ) => {
+  const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
+  if (previewJson) return parseProductGalleryHeroCopy(previewJson, fallbackCopy)
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
@@ -318,6 +323,8 @@ export const getPublicProductGalleryVideo = async (
   pageKey: string,
   fallbackVideo: ProductGalleryVideo = defaultProductGalleryVideo,
 ) => {
+  const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
+  if (previewJson) return parseProductGalleryVideo(previewJson, fallbackVideo)
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',

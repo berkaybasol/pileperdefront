@@ -84,6 +84,8 @@ export const getAllCategories = () =>
   Array.from(new Set(defaultBlogPosts.map((post) => post.category)))
 
 export const getPublicBlogPosts = async () => {
+  const previewJson = readLocalPreviewSectionJson('blog', 'blog.list')
+  if (previewJson) return parseBlogPosts(previewJson).filter((post) => post.enabled !== false)
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/blog`, {
       cache: 'no-store',
@@ -136,3 +138,4 @@ export const getIndexableBlogPosts = async () => {
 
   return Array.from(postsByUrl.values())
 }
+import { readLocalPreviewSectionJson } from '@/lib/localCmsPreview'

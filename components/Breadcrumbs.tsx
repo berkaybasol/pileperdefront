@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useCmsPage } from '@/components/CmsPageProvider'
 import {
   normalizeBreadcrumbItems,
   type BreadcrumbItem,
@@ -11,7 +14,21 @@ type BreadcrumbsProps = {
 }
 
 export function Breadcrumbs({ items, canonicalUrl, className = '' }: BreadcrumbsProps) {
+  const cmsPage = useCmsPage()
   const normalizedItems = normalizeBreadcrumbItems(items, canonicalUrl)
+  if (cmsPage?.localPreview) {
+    const gallerySection = cmsPage.sections.find((section) => section.sectionKey === 'product.gallery' && section.enabled)
+    if (gallerySection?.contentJson) {
+      try {
+        const breadcrumbLabel = (JSON.parse(gallerySection.contentJson) as { hero?: { breadcrumbLabel?: string } }).hero?.breadcrumbLabel
+        if (breadcrumbLabel && normalizedItems.length > 0) {
+          normalizedItems[normalizedItems.length - 1] = { ...normalizedItems[normalizedItems.length - 1], name: breadcrumbLabel }
+        }
+      } catch {
+        // Keep the original breadcrumb when a local draft is malformed.
+      }
+    }
+  }
 
   return (
     <nav aria-label="Breadcrumb" className={className}>

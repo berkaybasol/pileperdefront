@@ -1,5 +1,5 @@
 export const CMS_SAVE_VERIFICATION_ERROR = 'Kayıt doğrulanamadı. CMS’deki gerçek değer, kaydetmek istediğiniz değerle eşleşmiyor.'
-export const PUBLIC_SAVE_VERIFICATION_ERROR = 'CMS kaydı doğrulandı ancak public çıktı CMS’deki gerçek değerle eşleşmiyor.'
+export const PUBLIC_SAVE_VERIFICATION_ERROR = 'CMS kaydı doğrulandı ancak public çıktı henüz CMS’deki gerçek değerle eşleşmiyor.'
 
 export class SaveVerificationError<T> extends Error {
   readonly phase: 'cms' | 'public'
@@ -22,7 +22,12 @@ type VerifiedSaveOptions<TCms, TPublic = never> = {
   readPublic?: () => Promise<TPublic>
   publicMatches?: (actual: TPublic, cms: TCms) => boolean
   onPublicRead?: (actual: TPublic) => void | Promise<void>
+  publicReadAttempts?: number
+  publicReadDelayMs?: number
+  publicMismatchIsError?: boolean
 }
+
+const wait = (delayMs: number) => new Promise((resolve) => setTimeout(resolve, delayMs))
 
 export const runVerifiedSave = async <TCms, TPublic = never>({
   write,
@@ -33,6 +38,9 @@ export const runVerifiedSave = async <TCms, TPublic = never>({
   readPublic,
   publicMatches,
   onPublicRead,
+  publicReadAttempts = 3,
+  publicReadDelayMs = 750,
+  publicMismatchIsError = true,
 }: VerifiedSaveOptions<TCms, TPublic>) => {
   await write()
 
@@ -45,13 +53,29 @@ export const runVerifiedSave = async <TCms, TPublic = never>({
   await revalidate?.()
 
   if (readPublic && publicMatches) {
-    const publicValue = await readPublic()
-    await onPublicRead?.(publicValue)
-    if (!publicMatches(publicValue, cmsValue)) {
+    const attempts = Math.max(1, publicReadAttempts)
+    let publicValue: TPublic | undefined
+    let publicVerified = false
+    let publicReadError: unknown
+
+    for (let attempt = 0; !publicVerified && attempt < attempts; attempt += 1) {
+      if (attempt > 0) await wait(publicReadDelayMs)
+      try {
+        publicValue = await readPublic()
+        publicReadError = undefined
+        publicVerified = publicMatches(publicValue, cmsValue)
+      } catch (error) {
+        publicReadError = error
+      }
+    }
+
+    if (publicValue !== undefined) await onPublicRead?.(publicValue)
+    if (!publicVerified && publicMismatchIsError) {
+      if (publicReadError instanceof Error) throw publicReadError
       throw new SaveVerificationError(PUBLIC_SAVE_VERIFICATION_ERROR, 'public', publicValue)
     }
-    return { cmsValue, publicValue }
+    return { cmsValue, publicValue, publicVerified, publicReadError }
   }
 
-  return { cmsValue, publicValue: undefined }
+  return { cmsValue, publicValue: undefined, publicVerified: undefined, publicReadError: undefined }
 }

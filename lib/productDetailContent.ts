@@ -375,6 +375,8 @@ export const getMekanizmaliPerdelerContent = async () => {
 }
 
 export const getProductDetailContent = async (pageKey: string) => {
+  const previewJson = readLocalPreviewSectionJson(pageKey, 'product.detail')
+  if (previewJson) return parseProductDetailContent(previewJson, productDetailDefaults[pageKey] || defaultProductDetailContent)
   const fallback = productDetailDefaults[pageKey] || defaultProductDetailContent
 
   try {
@@ -401,3 +403,4 @@ export const getProductDetailContent = async (pageKey: string) => {
     return fallback
   }
 }
+import { readLocalPreviewSectionJson } from '@/lib/localCmsPreview'

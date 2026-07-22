@@ -314,6 +314,8 @@ export const getPublicCatalogItems = async (
   sectionKey: string,
   fallbackItems: CatalogItem[],
 ) => {
+  const previewSection = readLocalPreviewSection(pageKey, sectionKey)
+  if (previewSection) return parseCatalogItems(previewSection.contentJson, fallbackItems).filter((item) => item.enabled)
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
@@ -340,6 +342,19 @@ export const getPublicProductItems = () =>
   getPublicCatalogItems('products', 'products.grid', defaultProductItems)
 
 export const getPublicProductsPageContent = async (): Promise<ProductPageContent> => {
+  const preview = readLocalPreview('products')
+  if (preview) {
+    const heroSection = preview.sections.find((item) => item.sectionKey === 'products.hero')
+    const gridSection = preview.sections.find((item) => item.sectionKey === 'products.grid')
+    return {
+      heroTitle: heroSection?.title || defaultProductSectionCopy.heroTitle,
+      heroSubtitle: heroSection?.body || defaultProductSectionCopy.heroSubtitle,
+      sectionEyebrow: gridSection?.subtitle || defaultProductSectionCopy.sectionEyebrow,
+      sectionTitle: gridSection?.title || defaultProductSectionCopy.sectionTitle,
+      sectionDescription: gridSection?.body || defaultProductSectionCopy.sectionDescription,
+      items: parseCatalogItems(gridSection?.contentJson, defaultProductItems),
+    }
+  }
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/products`, {
       cache: 'no-store',
@@ -370,6 +385,19 @@ export const getPublicModelItems = () =>
   getPublicCatalogItems('curtain-models', 'models.grid', defaultModelItems)
 
 export const getPublicModelsPageContent = async (): Promise<ModelPageContent> => {
+  const preview = readLocalPreview('curtain-models')
+  if (preview) {
+    const heroSection = preview.sections.find((item) => item.sectionKey === 'models.hero')
+    const gridSection = preview.sections.find((item) => item.sectionKey === 'models.grid')
+    return {
+      heroTitle: heroSection?.title || defaultModelPageCopy.heroTitle,
+      heroSubtitle: heroSection?.body || defaultModelPageCopy.heroSubtitle,
+      sectionEyebrow: gridSection?.subtitle || defaultModelPageCopy.sectionEyebrow,
+      sectionTitle: gridSection?.title || defaultModelPageCopy.sectionTitle,
+      sectionDescription: gridSection?.body || defaultModelPageCopy.sectionDescription,
+      items: parseCatalogItems(gridSection?.contentJson, defaultModelItems),
+    }
+  }
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/curtain-models`, {
       cache: 'no-store',
@@ -400,6 +428,13 @@ export const getPublicCorporateItems = () =>
   getPublicCatalogItems('corporate-products', 'corporate.grid', defaultCorporateItems)
 
 export const getPublicCorporatePageContent = async (): Promise<CorporatePageContent> => {
+  const previewSection = readLocalPreviewSection('corporate-products', 'corporate.grid')
+  if (previewSection) return {
+    sectionEyebrow: previewSection.subtitle || defaultCorporateSectionCopy.sectionEyebrow,
+    sectionTitle: previewSection.title || defaultCorporateSectionCopy.sectionTitle,
+    sectionDescription: previewSection.body || defaultCorporateSectionCopy.sectionDescription,
+    items: parseCatalogItems(previewSection.contentJson, defaultCorporateItems),
+  }
   try {
     const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/corporate-products`, { cache: 'no-store' })
     if (!response.ok) return { ...defaultCorporateSectionCopy, items: defaultCorporateItems }
@@ -418,3 +453,4 @@ export const getPublicCorporatePageContent = async (): Promise<CorporatePageCont
     return { ...defaultCorporateSectionCopy, items: defaultCorporateItems }
   }
 }
+import { readLocalPreview, readLocalPreviewSection } from '@/lib/localCmsPreview'

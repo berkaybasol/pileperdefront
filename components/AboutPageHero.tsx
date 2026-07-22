@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
-import { useCmsSectionJson } from '@/components/CmsPageProvider'
+import { useCmsPage, useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
@@ -43,6 +43,7 @@ type AboutPageHeroProps = {
 
 const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) => {
   const initialContentJson = useCmsSectionJson('about', 'about.main')
+  const cmsPage = useCmsPage()
   const [hero, setHero] = useState<AboutHeroContent>(() => {
     if (!initialContentJson) return fallbackHero
     try {
@@ -58,6 +59,7 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) =>
   })
 
   useEffect(() => {
+    if (cmsPage?.localPreview) return
     const loadHero = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/about`)
@@ -82,7 +84,7 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) =>
     }
 
     void loadHero()
-  }, [])
+  }, [cmsPage?.localPreview])
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-gray-950 to-black">

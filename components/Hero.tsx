@@ -88,7 +88,7 @@ const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
   })
 
   useEffect(() => {
-    if (isEnglish) return
+    if (isEnglish || cmsPage?.localPreview) return
     const loadHeroContent = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/home`, {
@@ -133,7 +133,7 @@ const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
     }
 
     void loadHeroContent()
-  }, [isEnglish])
+  }, [cmsPage?.localPreview, isEnglish])
 
   const fallbackSlides = useMemo(() => isEnglish ? [
     {

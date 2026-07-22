@@ -177,6 +177,7 @@ const About = ({ locale = 'tr', showCta = true }: { locale?: 'tr' | 'en', showCt
   const [aboutContent, setAboutContent] = useState(initialContent)
 
   useEffect(() => {
+    if (cmsPage?.localPreview) return
     const loadAboutContent = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/about`)
@@ -205,7 +206,7 @@ const About = ({ locale = 'tr', showCta = true }: { locale?: 'tr' | 'en', showCt
     }
 
     void loadAboutContent()
-  }, [isEnglish])
+  }, [cmsPage?.localPreview, isEnglish])
 
   const selectedTab = useMemo(
     () => aboutContent.tabs.find((tab) => tab.key === activeTab) || aboutContent.tabs[0],
