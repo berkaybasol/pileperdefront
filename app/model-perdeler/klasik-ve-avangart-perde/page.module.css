@@ -1,0 +1,124 @@
+.realPremiumPage {
+  overflow-x: clip;
+}
+
+.realPremiumPage > :global(section.order-1) {
+  padding-top: 3rem;
+  padding-bottom: 1.875rem;
+}
+
+.realPremiumPage > :global(section.order-1 h1) {
+  margin-bottom: 0.875rem;
+}
+
+.realPremiumPage > :global(section.order-1 p) {
+  line-height: 1.65;
+}
+
+.realPremiumPage > :global(section.order-2) {
+  padding-bottom: 1.875rem;
+}
+
+.realPremiumPage > :global(section.order-2 .max-w-xl) {
+  max-width: 42rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.realPremiumPage > :global(section.order-2 p) {
+  margin-bottom: 0.6875rem;
+  color: rgb(156 163 175 / 82%);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.realPremiumPage > :global(section.order-2 a) {
+  min-width: 9.75rem;
+  min-height: 2.625rem;
+  border-width: 1px;
+  border-radius: 0.625rem;
+  padding: 0.625rem 1.125rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.realPremiumPage > :global(section.order-2 a:first-child) {
+  border-color: rgb(255 255 255 / 24%);
+  background: rgb(255 255 255 / 92%);
+}
+
+.realPremiumPage > :global(section.order-2 a:last-child) {
+  border-color: rgb(52 211 153 / 28%);
+  background: rgb(6 78 59 / 42%);
+  color: rgb(209 250 229);
+}
+
+.realPremiumPage > :global(section.order-3) {
+  border-top-color: rgb(255 255 255 / 3.5%);
+  background: linear-gradient(to bottom, rgb(255 255 255 / 1.25%), transparent 8rem);
+  padding-top: 2.125rem;
+}
+
+.realPremiumPage > :global(section.order-3 .text-center.mb-16) {
+  margin-bottom: 1.5rem;
+}
+
+.realPremiumPage > :global(section.order-3 .text-center.mb-16 > p) {
+  margin-bottom: 0.375rem;
+}
+
+@media (min-width: 768px) {
+  .realPremiumPage > :global(section.order-1 h1) {
+    font-size: 2.7rem;
+    line-height: 1.08;
+  }
+}
+
+@media (min-width: 1024px) {
+  .realPremiumPage > :global(section.order-1 h1) {
+    font-size: 3.375rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .realPremiumPage > :global(section.order-1) {
+    padding-top: 2rem;
+    padding-bottom: 1.375rem;
+  }
+
+  .realPremiumPage > :global(section.order-1 h1) {
+    margin-bottom: 0.75rem;
+  }
+
+  .realPremiumPage > :global(section.order-1 p) {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .realPremiumPage > :global(section.order-2) {
+    padding-bottom: 1.625rem;
+  }
+
+  .realPremiumPage > :global(section.order-2 p) {
+    margin-bottom: 0.6875rem;
+    font-size: 0.71875rem;
+  }
+
+  .realPremiumPage > :global(section.order-2 a) {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+
+  .realPremiumPage > :global(section.order-3) {
+    padding-top: 1.75rem;
+  }
+
+  .realPremiumPage > :global(section.order-3 .text-center.mb-16) {
+    margin-bottom: 1.25rem;
+  }
+}
