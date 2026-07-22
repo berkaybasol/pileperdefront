@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Autoplay } from 'swiper/modules'
-import { defaultCorporateItems, getPublicCorporateItems } from '@/lib/catalogContent'
+import { defaultCorporateItems, defaultCorporateSectionCopy, getPublicCorporatePageContent } from '@/lib/catalogContent'
 
 // Import Swiper styles
 import 'swiper/css'
@@ -15,21 +15,24 @@ import 'swiper/css/pagination'
 interface CorporateProps {
   showSwiper?: boolean;
   initialItems?: typeof defaultCorporateItems;
+  initialCopy?: typeof defaultCorporateSectionCopy;
   locale?: 'tr' | 'en';
   loadCms?: boolean;
 }
 
-const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, locale = 'tr', loadCms = true }: CorporateProps) => {
+const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, initialCopy = defaultCorporateSectionCopy, locale = 'tr', loadCms = true }: CorporateProps) => {
   const isEnglish = locale === 'en'
   const [corporateProducts, setCorporateProducts] = useState(initialItems)
+  const [copy, setCopy] = useState(initialCopy)
 
   useEffect(() => {
     if (!loadCms) return
     let isMounted = true
 
-    getPublicCorporateItems().then((items) => {
+    getPublicCorporatePageContent().then((content) => {
       if (isMounted) {
-        setCorporateProducts(items)
+        setCorporateProducts(content.items)
+        setCopy(content)
       }
     })
 
@@ -58,15 +61,15 @@ const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, lo
           <div className="inline-block mb-4">
             <div className="flex items-center space-x-3 text-xs text-gray-500">
               <span className="w-12 h-[1px] bg-gray-700"></span>
-              <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'COMMERCIAL SOLUTIONS' : 'KURUMSAL ÜRÜNLER'}</span>
+              <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'COMMERCIAL SOLUTIONS' : copy.sectionEyebrow}</span>
               <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
           </div>
           <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-            {isEnglish ? <>Made-to-measure Solutions for <span className="text-gray-400">Professional Interiors</span></> : <>Profesyonel Mekanlar İçin <span className="text-gray-400">Özel Çözümler</span></>}
+            {isEnglish ? <>Made-to-measure Solutions for <span className="text-gray-400">Professional Interiors</span></> : copy.sectionTitle}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto font-light">
-            {isEnglish ? 'Bespoke curtains, blinds and shading systems for hotels, healthcare settings, restaurants, cafés and workplaces.' : 'Otelden hastaneye, restorandan ofise kadar tüm kurumsal projeleriniz için özel üretim perde ve dekorasyon çözümleri sunuyoruz.'}
+            {isEnglish ? 'Bespoke curtains, blinds and shading systems for hotels, healthcare settings, restaurants, cafés and workplaces.' : copy.sectionDescription}
           </p>
         </motion.div>
 

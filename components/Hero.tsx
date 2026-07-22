@@ -128,7 +128,7 @@ const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
             : undefined,
         })
       } catch {
-        setHeroContent(null)
+        // Keep the CMS value rendered by the server; never replace it with fallback content.
       }
     }
 

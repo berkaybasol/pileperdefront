@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination } from 'swiper/modules'
-import { getPublicModelItems, type CatalogItem } from '@/lib/catalogContent'
+import { defaultModelPageCopy, getPublicModelsPageContent, type CatalogItem } from '@/lib/catalogContent'
 
 // Import Swiper styles
 import 'swiper/css'
@@ -16,11 +16,12 @@ interface ModelsProps {
   showSwiper?: boolean;
   showCTA?: boolean;
   initialItems?: CatalogItem[];
+  initialCopy?: Pick<typeof defaultModelPageCopy, 'sectionEyebrow' | 'sectionTitle' | 'sectionDescription'>;
   locale?: 'tr' | 'en';
   loadCms?: boolean;
 }
 
-const Models = ({ showSwiper = true, showCTA = true, initialItems, locale = 'tr', loadCms = true }: ModelsProps) => {
+const Models = ({ showSwiper = true, showCTA = true, initialItems, initialCopy = defaultModelPageCopy, locale = 'tr', loadCms = true }: ModelsProps) => {
   const isEnglish = locale === 'en'
   const models = [
     {
@@ -110,15 +111,17 @@ const Models = ({ showSwiper = true, showCTA = true, initialItems, locale = 'tr'
   ]
 
   const [cmsModels, setCmsModels] = useState<CatalogItem[] | null>(initialItems || null)
+  const [copy, setCopy] = useState(initialCopy)
   const displayedModels = cmsModels || models
 
   useEffect(() => {
     if (!loadCms) return
     let isMounted = true
 
-    getPublicModelItems().then((items) => {
+    getPublicModelsPageContent().then((content) => {
       if (isMounted) {
-        setCmsModels(items)
+        setCmsModels(content.items)
+        setCopy(content)
       }
     })
 
@@ -146,15 +149,15 @@ const Models = ({ showSwiper = true, showCTA = true, initialItems, locale = 'tr'
             <div className="inline-block mb-4">
               <div className="flex items-center space-x-3 text-xs text-gray-500">
                 <span className="w-12 h-[1px] bg-gray-700"></span>
-                <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'CURTAIN DESIGNS' : 'PERDE MODELLERİ'}</span>
+                <span className="uppercase tracking-[0.2em] font-light">{isEnglish ? 'CURTAIN DESIGNS' : copy.sectionEyebrow}</span>
                 <span className="w-12 h-[1px] bg-gray-700"></span>
               </div>
             </div>
             <h2 className="text-3xl lg:text-5xl font-extralight text-white mb-4">
-              {isEnglish ? 'Curtain Designs Tailored to Your Interior' : 'Tarzınıza Uygun Perde Modelleri'}
+              {isEnglish ? 'Curtain Designs Tailored to Your Interior' : copy.sectionTitle}
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto font-light">
-              {isEnglish ? 'Explore compositions ranging from restrained contemporary schemes to richly layered classical designs.' : 'Klasikten moderne, minimalistten gösterişliye kadar geniş model yelpazemizle mekanlarınıza değer katıyoruz'}
+              {isEnglish ? 'Explore compositions ranging from restrained contemporary schemes to richly layered classical designs.' : copy.sectionDescription}
             </p>
           </motion.div>
         )}

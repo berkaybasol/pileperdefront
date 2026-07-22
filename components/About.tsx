@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
+import { useCmsPage } from '@/components/CmsPageProvider'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
 
@@ -16,7 +17,7 @@ type ApiResponse<T> = {
 
 type CmsSection = {
   sectionKey: string
-  sectionType: string
+  sectionType?: string
   title: string | null
   subtitle: string | null
   body: string | null
@@ -156,7 +157,22 @@ const parseAboutContent = (section: CmsSection | null): AboutContent => {
 
 const About = ({ locale = 'tr', showCta = true }: { locale?: 'tr' | 'en', showCta?: boolean }) => {
   const isEnglish = locale === 'en'
-  const initialContent = isEnglish ? englishAboutContent : fallbackAboutContent
+  const cmsPage = useCmsPage()
+  const initialCmsSection = cmsPage?.pageKey === 'about'
+    ? cmsPage.sections.find((item) => item.sectionKey === 'about.main' && item.enabled) || null
+    : null
+  const initialCmsContent = parseAboutContent(initialCmsSection)
+  const initialContent = isEnglish
+    ? {
+        ...englishAboutContent,
+        image: initialCmsContent.image,
+        stats: englishAboutContent.stats.map((stat, index) => ({
+          ...stat,
+          number: initialCmsContent.stats[index]?.number || stat.number,
+          suffix: initialCmsContent.stats[index]?.suffix ?? stat.suffix,
+        })),
+      }
+    : initialCmsContent
   const [activeTab, setActiveTab] = useState(initialContent.tabs[0].key)
   const [aboutContent, setAboutContent] = useState(initialContent)
 

@@ -46,6 +46,16 @@ export type ProductPageContent = ProductSectionCopy & {
 export type ModelPageContent = {
   heroTitle: string
   heroSubtitle: string
+  sectionEyebrow: string
+  sectionTitle: string
+  sectionDescription: string
+  items: CatalogItem[]
+}
+
+export type CorporatePageContent = {
+  sectionEyebrow: string
+  sectionTitle: string
+  sectionDescription: string
   items: CatalogItem[]
 }
 
@@ -60,6 +70,15 @@ export const defaultProductSectionCopy: ProductSectionCopy = {
 export const defaultModelPageCopy = {
   heroTitle: 'Perde Modelleri',
   heroSubtitle: 'Mekanınıza uygun perde modellerimiz',
+  sectionEyebrow: 'PERDE MODELLERİ',
+  sectionTitle: 'Tarzınıza Uygun Perde Modelleri',
+  sectionDescription: 'Klasikten moderne, minimalistten gösterişliye kadar geniş model yelpazemizle mekanlarınıza değer katıyoruz',
+}
+
+export const defaultCorporateSectionCopy = {
+  sectionEyebrow: 'KURUMSAL ÜRÜNLER',
+  sectionTitle: 'Profesyonel Mekanlar İçin Özel Çözümler',
+  sectionDescription: 'Otelden hastaneye, restorandan ofise kadar tüm kurumsal projeleriniz için özel üretim perde ve dekorasyon çözümleri sunuyoruz.',
 }
 
 export const defaultProductItems: CatalogItem[] = [
@@ -367,6 +386,9 @@ export const getPublicModelsPageContent = async (): Promise<ModelPageContent> =>
     return {
       heroTitle: heroSection?.enabled && heroSection.title ? heroSection.title : defaultModelPageCopy.heroTitle,
       heroSubtitle: heroSection?.enabled && heroSection.body ? heroSection.body : defaultModelPageCopy.heroSubtitle,
+      sectionEyebrow: gridSection?.enabled && gridSection.subtitle ? gridSection.subtitle : defaultModelPageCopy.sectionEyebrow,
+      sectionTitle: gridSection?.enabled && gridSection.title ? gridSection.title : defaultModelPageCopy.sectionTitle,
+      sectionDescription: gridSection?.enabled && gridSection.body ? gridSection.body : defaultModelPageCopy.sectionDescription,
       items: gridSection?.enabled ? parseCatalogItems(gridSection.contentJson, defaultModelItems) : defaultModelItems,
     }
   } catch {
@@ -376,3 +398,23 @@ export const getPublicModelsPageContent = async (): Promise<ModelPageContent> =>
 
 export const getPublicCorporateItems = () =>
   getPublicCatalogItems('corporate-products', 'corporate.grid', defaultCorporateItems)
+
+export const getPublicCorporatePageContent = async (): Promise<CorporatePageContent> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/corporate-products`, { cache: 'no-store' })
+    if (!response.ok) return { ...defaultCorporateSectionCopy, items: defaultCorporateItems }
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const section = body.data.sections.find((item) => item.sectionKey === 'corporate.grid')
+    if (!section?.enabled) return { ...defaultCorporateSectionCopy, items: defaultCorporateItems }
+
+    return {
+      sectionEyebrow: section.subtitle || defaultCorporateSectionCopy.sectionEyebrow,
+      sectionTitle: section.title || defaultCorporateSectionCopy.sectionTitle,
+      sectionDescription: section.body || defaultCorporateSectionCopy.sectionDescription,
+      items: parseCatalogItems(section.contentJson, defaultCorporateItems),
+    }
+  } catch {
+    return { ...defaultCorporateSectionCopy, items: defaultCorporateItems }
+  }
+}
