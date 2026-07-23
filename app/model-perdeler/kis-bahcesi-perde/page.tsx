@@ -425,7 +425,7 @@ export default function ModernPerdePage() {
             </h3>
             <p className="text-gray-400 mb-8 max-w-2xl mx-auto font-light">
               Dilerseniz hemen <strong>0312 241 72 72</strong> no&apos;lu telefondan bize ulaşarak ihtiyacınıza
-              uygun rustik perde modelleri hakkında bilgi alabilir ve sipariş verebilirsiniz.
+              uygun kış bahçesi perde modelleri hakkında bilgi alabilir ve sipariş verebilirsiniz.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link
