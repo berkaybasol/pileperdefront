@@ -79,9 +79,152 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1023px) {
+  .realPremiumPage > .heroSection {
+    padding-top: 2.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .realPremiumPage > .heroSection nav {
+    margin-bottom: 1.5rem;
+  }
+
+  .realPremiumPage > .heroSection :global(.inline-flex.mb-6) {
+    margin-bottom: 1.125rem;
+  }
+
   .realPremiumPage > .heroSection h1 {
-    font-size: 3.375rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .realPremiumPage > .contactSection {
+    padding-bottom: 1.5rem;
+  }
+
+  .realPremiumPage > .gallerySection {
+    padding-top: 1.75rem;
+  }
+
+  .realPremiumPage > .gallerySection :global(.text-center.mb-16) {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .realPremiumPage > .heroSection {
+    padding-top: 1.25rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .realPremiumPage > .heroSection nav {
+    margin-bottom: 1rem;
+  }
+
+  .realPremiumPage > .heroSection :global(.inline-flex.mb-6) {
+    margin-bottom: 0.75rem;
+  }
+
+  .realPremiumPage > .heroSection :global(.max-w-4xl) {
+    max-width: 64rem;
+  }
+
+  .realPremiumPage > .heroSection h1 {
+    margin-bottom: 0.625rem;
+    font-size: 3rem;
+    line-height: 1.08;
+  }
+
+  .realPremiumPage > .heroSection p {
+    max-width: 64rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .realPremiumPage > .contactSection {
+    padding-bottom: 0.75rem;
+  }
+
+  .realPremiumPage > .contactSection :global(.max-w-xl) {
+    display: flex;
+    max-width: 64rem;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .realPremiumPage > .contactSection p {
+    margin-bottom: 0;
+  }
+
+  .realPremiumPage > .gallerySection {
+    padding-top: 1rem;
+  }
+
+  .realPremiumPage > .gallerySection :global(.text-center.mb-16) {
+    margin-bottom: 0.75rem;
+  }
+
+  .realPremiumPage > .gallerySection :global(.text-center.mb-16 > p) {
+    margin-bottom: 0.25rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .realPremiumPage > .heroSection {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .realPremiumPage > .heroSection nav {
+    margin-bottom: 1.125rem;
+  }
+
+  .realPremiumPage > .heroSection :global(.inline-flex.mb-6) {
+    margin-bottom: 0.875rem;
+  }
+
+  .realPremiumPage > .heroSection :global(.max-w-4xl) {
+    max-width: 72rem;
+  }
+
+  .realPremiumPage > .heroSection h1 {
+    margin-bottom: 0.75rem;
+    font-size: 3.125rem;
+    line-height: 1.08;
+  }
+
+  .realPremiumPage > .heroSection p {
+    max-width: 72rem;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+
+  .realPremiumPage > .contactSection {
+    padding-bottom: 1rem;
+  }
+
+  .realPremiumPage > .contactSection :global(.max-w-xl) {
+    display: flex;
+    max-width: 72rem;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+  }
+
+  .realPremiumPage > .contactSection p {
+    margin-bottom: 0;
+  }
+
+  .realPremiumPage > .gallerySection {
+    padding-top: 1.25rem;
+  }
+
+  .realPremiumPage > .gallerySection :global(.text-center.mb-16) {
+    margin-bottom: 1rem;
+  }
+
+  .realPremiumPage > .gallerySection :global(.text-center.mb-16 > p) {
+    margin-bottom: 0.25rem;
   }
 }
 
