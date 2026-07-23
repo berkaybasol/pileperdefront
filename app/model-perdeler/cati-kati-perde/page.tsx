@@ -11,6 +11,7 @@ import { getPublicProductGallery, getPublicProductGalleryHeroCopy, getProductGal
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import styles from './page.module.css'
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-model-perdeler-cati-kati-perde'
 
@@ -187,11 +188,11 @@ export default function ModernPerdePage() {
   return (
     <>
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
-      <main className="bg-black">
+      <main className={`bg-black ${styles.responsivePage}`}>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
       <div className="absolute inset-0 bg-grid-white/[0.02]" />
 
-      <section className="relative overflow-hidden py-20">
+      <section className={`relative overflow-hidden py-20 ${styles.heroSection}`}>
         <div className="container mx-auto px-6">
           <div className="text-center max-w-4xl mx-auto">
             <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
@@ -215,7 +216,7 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className="relative py-16 border-t border-white/5">
+      <section className={`relative py-16 border-t border-white/5 ${styles.infoSection}`}>
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-8">
 
@@ -308,7 +309,7 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className="relative py-20 border-t border-white/5">
+      <section className={`relative py-20 border-t border-white/5 ${styles.gallerySection}`}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
@@ -420,7 +421,7 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className="relative py-20 border-t border-white/5">
+      <section className={`relative py-20 border-t border-white/5 ${styles.contactSection}`}>
         <div className="container mx-auto px-6 text-center">
           <div>
             <h3 className="text-2xl md:text-3xl font-extralight text-white mb-4">

@@ -1,0 +1,102 @@
+.responsivePage {
+  overflow-x: clip;
+}
+
+@media (min-width: 768px) {
+  .responsivePage > .heroSection {
+    padding-top: 2.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .responsivePage > .heroSection nav {
+    margin-bottom: 1.5rem;
+  }
+
+  .responsivePage > .heroSection :global(.inline-flex.mb-6) {
+    margin-bottom: 1.125rem;
+  }
+
+  .responsivePage > .heroSection h1 {
+    margin-bottom: 0.75rem;
+  }
+
+  .responsivePage > .contactSection {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .responsivePage > .gallerySection {
+    padding-top: 1.75rem;
+  }
+
+  .responsivePage > .gallerySection :global(.text-center.mb-16) {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsivePage > .heroSection {
+    padding-top: 1.25rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .responsivePage > .heroSection nav {
+    margin-bottom: 1rem;
+  }
+
+  .responsivePage > .heroSection :global(.inline-flex.mb-6) {
+    margin-bottom: 0.75rem;
+  }
+
+  .responsivePage > .heroSection h1 {
+    margin-bottom: 0.625rem;
+  }
+
+  .responsivePage > .heroSection p {
+    line-height: 1.5;
+  }
+
+  .responsivePage > .contactSection {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .responsivePage > .contactSection :global(.container > div) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "title actions"
+      "copy actions";
+    align-items: center;
+    gap: 0.25rem 2rem;
+    text-align: left;
+  }
+
+  .responsivePage > .contactSection h3 {
+    grid-area: title;
+    margin-bottom: 0;
+    font-size: 1.25rem;
+  }
+
+  .responsivePage > .contactSection p {
+    grid-area: copy;
+    margin-bottom: 0;
+  }
+
+  .responsivePage > .contactSection :global(.container > div > div) {
+    grid-area: actions;
+    flex-wrap: nowrap;
+  }
+
+  .responsivePage > .gallerySection {
+    padding-top: 1rem;
+  }
+
+  .responsivePage > .gallerySection :global(.text-center.mb-16) {
+    margin-bottom: 0.75rem;
+  }
+
+  .responsivePage > .gallerySection :global(.text-center.mb-16 > p) {
+    margin-bottom: 0.25rem;
+  }
+}
