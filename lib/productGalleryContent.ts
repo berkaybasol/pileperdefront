@@ -1,4 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+const getPublicApiBaseUrl = () => typeof window === 'undefined' ? API_BASE_URL : ''
 import { readLocalPreviewSectionJson } from '@/lib/localCmsPreview'
 
 type ApiResponse<T> = {
@@ -272,7 +273,7 @@ export const getPublicProductGallery = async (
   const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
   if (previewJson) return parseProductGalleryImages(previewJson, fallbackImages)
   try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
     })
 
@@ -299,7 +300,7 @@ export const getPublicProductGalleryHeroCopy = async (
   const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
   if (previewJson) return parseProductGalleryHeroCopy(previewJson, fallbackCopy)
   try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
     })
 
@@ -326,7 +327,7 @@ export const getPublicProductGalleryVideo = async (
   const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
   if (previewJson) return parseProductGalleryVideo(previewJson, fallbackVideo)
   try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
     })
 
