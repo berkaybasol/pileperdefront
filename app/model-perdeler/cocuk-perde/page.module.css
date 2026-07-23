@@ -69,6 +69,26 @@
 }
 
 @media (max-width: 767px) {
+  .responsivePage > section {
+    order: 4;
+  }
+
+  .responsivePage > .heroSection {
+    order: 1;
+  }
+
+  .responsivePage > .gallerySection {
+    order: 2;
+  }
+
+  .responsivePage > .infoSection {
+    order: 3;
+  }
+
+  .responsivePage > .contactSection {
+    order: 5;
+  }
+
   .responsivePage {
     display: flex;
     flex-direction: column;
