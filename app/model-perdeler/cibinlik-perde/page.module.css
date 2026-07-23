@@ -25,7 +25,7 @@
   }
 
   .responsivePage > .contactSection {
-    order: 4;
+    order: 3;
   }
 
   .responsivePage > .heroSection {
@@ -72,6 +72,27 @@
 }
 
 @media (min-width: 768px) {
+  .responsivePage {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .responsivePage > section {
+    order: 4;
+  }
+
+  .responsivePage > .heroSection {
+    order: 1;
+  }
+
+  .responsivePage > .contactSection {
+    order: 2;
+  }
+
+  .responsivePage > .gallerySection {
+    order: 3;
+  }
+
   .responsivePage > .heroSection {
     padding-top: 2.5rem;
     padding-bottom: 1.5rem;

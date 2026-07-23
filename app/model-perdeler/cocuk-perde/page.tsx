@@ -190,36 +190,6 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className={`relative border-t border-white/5 ${styles.contactSection}`}>
-        <div className="container mx-auto px-6 text-center">
-          <div>
-            <h3 className="text-2xl md:text-3xl font-extralight text-white mb-4">
-              Çocuk Perde Modelleri Hakkında Sorularınız mı var?
-            </h3>
-            <p className="text-gray-400 mb-8 max-w-2xl mx-auto font-light">
-              Dilerseniz hemen <strong>0312 241 72 72</strong> no&apos;lu telefondan bize ulaşarak ihtiyacınıza
-              uygun çocuk perde modelleri hakkında bilgi alabilir ve sipariş verebilirsiniz.
-            </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-4">
-              <Link
-                href="tel:+903122417272"
-                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-white/15 bg-white text-black text-sm font-medium transition-colors hover:bg-gray-200"
-              >
-                Hemen Arayın
-              </Link>
-              <Link
-                href="https://wa.me/905335127272"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-emerald-400/20 bg-emerald-950/70 text-emerald-100 text-sm font-medium transition-colors hover:bg-emerald-900/80"
-              >
-                WhatsApp’tan Yazın
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className={`relative py-16 border-t border-white/5 ${styles.infoSection}`}>
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-8">
@@ -423,6 +393,36 @@ export default function ModernPerdePage() {
                   </li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={`relative border-t border-white/5 ${styles.contactSection}`}>
+        <div className="container mx-auto px-6 text-center">
+          <div>
+            <h3 className="text-2xl md:text-3xl font-extralight text-white mb-4">
+              Çocuk Perde Modelleri Hakkında Sorularınız mı var?
+            </h3>
+            <p className="text-gray-400 mb-8 max-w-2xl mx-auto font-light">
+              Dilerseniz hemen <strong>0312 241 72 72</strong> no&apos;lu telefondan bize ulaşarak ihtiyacınıza
+              uygun çocuk perde modelleri hakkında bilgi alabilir ve sipariş verebilirsiniz.
+            </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-4">
+              <Link
+                href="tel:+903122417272"
+                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-white/15 bg-white text-black text-sm font-medium transition-colors hover:bg-gray-200"
+              >
+                Hemen Arayın
+              </Link>
+              <Link
+                href="https://wa.me/905335127272"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-emerald-400/20 bg-emerald-950/70 text-emerald-100 text-sm font-medium transition-colors hover:bg-emerald-900/80"
+              >
+                WhatsApp’tan Yazın
+              </Link>
             </div>
           </div>
         </div>
