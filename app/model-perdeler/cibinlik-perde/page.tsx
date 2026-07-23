@@ -189,7 +189,7 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className={`relative py-20 border-t border-white/5 ${styles.contactSection}`}>
+      <section className={`relative border-t border-white/5 ${styles.contactSection}`}>
         <div className="container mx-auto px-6 text-center">
           <div>
             <h3 className="text-2xl md:text-3xl font-extralight text-white mb-4">
@@ -225,7 +225,7 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className={`relative py-20 border-t border-white/5 ${styles.gallerySection}`}>
+      <section className={`relative border-t border-white/5 ${styles.gallerySection}`}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
