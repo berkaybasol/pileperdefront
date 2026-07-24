@@ -57,11 +57,12 @@ export default function MekanizmaliPerdelerContent({
 
   return (
     <main className="bg-black">
+      <ProductNavigationPilot>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
         <div className="absolute inset-0 bg-grid-white/[0.02]" />
 
-        <div className="container relative mx-auto px-6 py-20">
+        <div className="container relative mx-auto px-6 pt-16 pb-12 lg:pt-20 lg:pb-14">
           <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
 
           <motion.div className="mx-auto max-w-3xl text-center">
@@ -84,8 +85,7 @@ export default function MekanizmaliPerdelerContent({
         </div>
       </section>
 
-      <ProductNavigationPilot>
-      <section className="relative py-20">
+      <section className="relative pt-4 pb-16 lg:pb-20">
         <div className="container mx-auto px-6">
           <motion.div className="mb-16 text-center">
             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">{content.categoryEyebrow}</p>

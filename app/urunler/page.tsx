@@ -30,7 +30,7 @@ export default async function ProductsPage() {
     <main>
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
       <div>
-        <div className="bg-gradient-to-b from-gray-900 to-black py-16 px-6">
+        <div className="bg-gradient-to-b from-gray-900 to-black px-6 pt-16 pb-12 lg:pb-14">
           <div className="container mx-auto">
             <Breadcrumbs items={breadcrumbItems} canonicalUrl={canonicalUrl} className="mb-8" />
             <h1 className="text-4xl md:text-5xl font-extralight text-white text-center">{productsPageContent.heroTitle}</h1>

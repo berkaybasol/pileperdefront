@@ -3,6 +3,8 @@
 .desktopNav { display: none; }
 .content { min-width: 0; }
 .quickActions { display: flex; flex-wrap: wrap; gap: .75rem; padding: 1.5rem 1.5rem .5rem; }
+.quickActions + section { padding-top: 1.75rem; }
+.rootLanding .content > section:first-child { padding-top: .75rem; }
 .callAction, .whatsappAction { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; gap: .55rem; border-radius: .65rem; padding: .7rem 1.05rem; font-size: .875rem; font-weight: 500; transition: background-color 200ms ease, color 200ms ease, transform 200ms ease; }
 .callAction { background: #fff; color: #090909; }
 .callAction:hover { background: #e8e8e8; transform: translateY(-1px); }
@@ -33,6 +35,8 @@
 .drawerHeading { color: #fff; font-size: 1rem; font-weight: 400; }
 .closeButton { display: inline-flex; height: 2.5rem; width: 2.5rem; align-items: center; justify-content: center; border: 1px solid rgb(255 255 255 / 14%); border-radius: 999px; color: #fff; }
 @media (min-width: 1200px) {
+  .quickActions + section { padding-top: 2.25rem; }
+  .rootLanding .content > section:first-child { padding-top: 2rem; }
   .drawerButton, .backdrop { display: none; }
   .desktopGrid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 2rem; align-items: start; }
   .desktopNav { position: sticky; top: 112px; display: block; max-height: calc(100vh - 136px); overflow-y: auto; overscroll-behavior: contain; margin-top: 5rem; scrollbar-width: thin; }

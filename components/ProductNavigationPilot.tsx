@@ -302,6 +302,7 @@ export default function ProductNavigationPilot({ activePath, children }: { activ
   const pathname = usePathname()
   const resolvedPath = activePath ?? pathname
   const normalizedPath = resolvedPath.replace(/\/+$/, '') || '/'
+  const isRootLanding = normalizedPath === '/urunler'
   const isDetailPage = normalizedPath.startsWith('/urunler/') && !categoryLandingPaths.has(normalizedPath)
   const isLegacyDetail = legacyDetailPaths.has(normalizedPath)
   const childArray = Children.toArray(children)
@@ -319,7 +320,7 @@ export default function ProductNavigationPilot({ activePath, children }: { activ
     </>
   )
   return (
-    <div className={styles.shell}>
+    <div className={`${styles.shell} ${isRootLanding ? styles.rootLanding : ''}`}>
       <ProductNavigationDrawer activePath={resolvedPath} />
       <div className={styles.desktopGrid}>
         <aside className={styles.desktopNav}><ProductSideNavigation activePath={resolvedPath} /></aside>
