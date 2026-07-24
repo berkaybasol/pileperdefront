@@ -63,8 +63,6 @@ const Header = () => {
   }, [mobileMenuOpen])
 
   const navigation = [
-    { name: 'Anasayfa', href: '/' },
-    { name: 'Hakkımızda', href: '/hakkimizda' },
     {
       name: 'Ürünler',
       href: '/urunler',
@@ -131,12 +129,14 @@ const Header = () => {
         ]
       }
     },
+    { name: 'Motorlu Perdeler', href: '/urunler/motorlu-perdeler' },
     {
-      name: 'Kurumsal Ürünler',
+      name: 'Kurumsal',
       href: '/kurumsal-urunler',
       megaMenu: true,
       content: {
         corporate: [
+          { title: 'Hakkımızda', image: '/api/public/media/images/8cecc447-bb34-4dec-a8ac-dc8ab189fe81/file', href: '/hakkimizda' },
           { title: 'Özel Proje Perdeleri', image: '/api/public/media/images/e939490a-f630-474f-a048-c25558109c07/file', href: '/kurumsal-urunler/ozel-proje-perdeleri' },
           { title: 'Cafe Restoran', image: '/api/public/media/images/024932ef-a4e3-4ecd-99b7-4ae638859b49/file', href: '/kurumsal-urunler/cafe-restoran-perdeleri' },
           { title: 'Hastane Perdeleri', image: '/api/public/media/images/fa0a224a-6d56-4bc2-93f3-cdffa7563026/file', href: '/kurumsal-urunler/hastane-perdeleri' },
@@ -146,7 +146,6 @@ const Header = () => {
       }
     },
     { name: 'Blog', href: '/blog' },
-    { name: 'İletişim', href: '/iletisim' },
   ]
 
   const activeNavigation = navigation
@@ -186,6 +185,10 @@ const Header = () => {
                 >
                   {item.megaMenu ? (
                     <button
+                      type="button"
+                      aria-haspopup="true"
+                      aria-expanded={activeDropdown === item.name}
+                      onClick={() => setActiveDropdown(activeDropdown === item.name ? null : item.name)}
                       className={`text-sm font-extralight tracking-[0.15em] transition-all duration-300 flex items-center gap-2 py-2 ${
                         pathname?.startsWith(item.href) ? 'text-white' : 'text-gray-400 hover:text-white'
                       }`}
@@ -312,7 +315,7 @@ const Header = () => {
                         {/* Kurumsal Mega Menu */}
                         {item.content?.corporate && (
                           <div className="p-8">
-                            <div className="grid grid-cols-5 gap-6 mb-6">
+                            <div className="grid grid-cols-6 gap-6 mb-6">
                               {item.content.corporate.map((corp) => (
                                 <Link key={corp.title} href={corp.href} className="group/item">
                                   <div className="relative h-36 mb-3 rounded-lg overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 group-hover/item:border-white/20 transition-all duration-500">
@@ -391,16 +394,6 @@ const Header = () => {
                   </svg>
                 </a>
               ))}
-            </div>
-
-            {/* CTA Button */}
-            <div className="hidden lg:block">
-              <Link
-                href="/iletisim"
-                className="whitespace-nowrap px-4 py-2 bg-white text-[#1d1d1f] text-sm font-normal hover:bg-gray-100 transition-all duration-300"
-              >
-                İletişime Geç
-              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -591,23 +584,6 @@ const Header = () => {
                 ))}
               </nav>
 
-              {/* Contact Section */}
-              <motion.div
-                initial={{ opacity: 0.8, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="flex-shrink-0 mt-8 z-20"
-              >
-                <Link
-                  href="/iletisim"
-                  className="group relative block w-full py-4 bg-white text-black text-center text-sm font-medium tracking-wider uppercase overflow-hidden transition-all duration-300"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="relative z-10">İletişime Geç</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
-                </Link>
-
-              </motion.div>
             </div>
           </motion.div>
         )}

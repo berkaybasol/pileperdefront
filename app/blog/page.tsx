@@ -4,6 +4,7 @@ import { BreadcrumbListJsonLd } from "@/components/BreadcrumbListJsonLd";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { BreadcrumbItem } from "@/lib/breadcrumbs";
 import { getCmsPageMetadata } from "@/lib/cmsMetadata";
+import { getPublicBlogPosts } from "@/lib/blogContent";
 
 const canonicalUrl = "https://pileperde.com.tr/blog";
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -18,7 +19,9 @@ const fallbackMetadata: Metadata = {
 
 export const generateMetadata = () => getCmsPageMetadata("blog", fallbackMetadata);
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const blogPosts = await getPublicBlogPosts();
+
   return (
     <main>
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
@@ -44,7 +47,7 @@ export default function BlogPage() {
             </div>
           </div>
         </section>
-        <BlogList />
+        <BlogList initialPosts={blogPosts} loadCms={false} />
       </div>
     </main>
   );

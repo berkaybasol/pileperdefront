@@ -3,6 +3,7 @@ import { BreadcrumbListJsonLd } from "@/components/BreadcrumbListJsonLd";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { BreadcrumbItem } from "@/lib/breadcrumbs";
 import Products from "@/components/Products";
+import ProductNavigationPilot from "@/components/ProductNavigationPilot";
 import { getPublicProductsPageContent } from "@/lib/catalogContent";
 import { getCmsPageMetadata } from "@/lib/cmsMetadata";
 import { turkishLocaleAlternates } from "@/lib/siteLocales";
@@ -36,17 +37,19 @@ export default async function ProductsPage() {
             <p className="text-gray-400 text-center mt-4 text-lg font-light">{productsPageContent.heroSubtitle}</p>
           </div>
         </div>
-        <Products
-          showSwiper={false}
-          initialItems={productsPageContent.items}
-          initialCopy={{
-            heroTitle: productsPageContent.heroTitle,
-            heroSubtitle: productsPageContent.heroSubtitle,
-            sectionEyebrow: productsPageContent.sectionEyebrow,
-            sectionTitle: productsPageContent.sectionTitle,
-            sectionDescription: productsPageContent.sectionDescription,
-          }}
-        />
+        <ProductNavigationPilot>
+          <Products
+            showSwiper={false}
+            initialItems={productsPageContent.items}
+            initialCopy={{
+              heroTitle: productsPageContent.heroTitle,
+              heroSubtitle: productsPageContent.heroSubtitle,
+              sectionEyebrow: productsPageContent.sectionEyebrow,
+              sectionTitle: productsPageContent.sectionTitle,
+              sectionDescription: productsPageContent.sectionDescription,
+            }}
+          />
+        </ProductNavigationPilot>
       </div>
     </main>
   );

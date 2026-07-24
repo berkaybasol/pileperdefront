@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 import {
   defaultMekanizmaliPerdelerContent,
   getProductDetailContent,
@@ -30,6 +31,14 @@ export default function MekanizmaliPerdelerContent({
   const initialContentJson = useCmsSectionJson(pageKey, 'product.detail')
   const [content, setContent] = useState<ProductDetailContent>(() =>
     parseProductDetailContent(initialContentJson, fallbackContent)
+  )
+  const hiddenVisibleCategoryHrefs = pageKey === 'product-metal-zincir-perde'
+    ? new Set(['/urunler/metal-zincir-perde/pro-collection'])
+    : pageKey === 'product-motorlu-perdeler'
+      ? new Set(['/urunler/motorlu-perdeler/projeksiyon-perde'])
+      : new Set<string>()
+  const visibleCategories = content.categories.filter(
+    (category) => !hiddenVisibleCategoryHrefs.has(category.href)
   )
 
   useEffect(() => {
@@ -75,6 +84,7 @@ export default function MekanizmaliPerdelerContent({
         </div>
       </section>
 
+      <ProductNavigationPilot>
       <section className="relative py-20">
         <div className="container mx-auto px-6">
           <motion.div className="mb-16 text-center">
@@ -85,7 +95,7 @@ export default function MekanizmaliPerdelerContent({
           </motion.div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {content.categories.map((category) => (
+            {visibleCategories.map((category) => (
               <motion.div key={category.id} className="group">
                 <Link href={category.href}>
                   <div className="relative h-[600px] overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-gray-800/50 to-gray-900/50 transition-all duration-500 hover:border-white/20">
@@ -166,6 +176,7 @@ export default function MekanizmaliPerdelerContent({
           </motion.div>
         </div>
       </section>
+      </ProductNavigationPilot>
     </main>
   )
 }

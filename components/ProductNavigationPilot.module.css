@@ -1,0 +1,40 @@
+.shell { position: relative; z-index: 1; width: min(100%, 1536px); margin-inline: auto; padding-inline: 1.5rem; }
+.desktopGrid { display: block; }
+.desktopNav { display: none; }
+.content { min-width: 0; }
+.quickActions { display: flex; flex-wrap: wrap; gap: .75rem; padding: 1.5rem 1.5rem .5rem; }
+.callAction, .whatsappAction { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; gap: .55rem; border-radius: .65rem; padding: .7rem 1.05rem; font-size: .875rem; font-weight: 500; transition: background-color 200ms ease, color 200ms ease, transform 200ms ease; }
+.callAction { background: #fff; color: #090909; }
+.callAction:hover { background: #e8e8e8; transform: translateY(-1px); }
+.whatsappAction { background: #25d366; color: #fff; }
+.whatsappAction:hover { background: #20ba5a; transform: translateY(-1px); }
+.callAction svg, .whatsappAction svg { width: 1rem; height: 1rem; flex: 0 0 1rem; }
+.callAction:focus-visible, .whatsappAction:focus-visible { outline: 2px solid #c9a76a; outline-offset: 3px; }
+.legacyInfo > section { padding-top: 3rem; }
+.legacyInfo > section > div > div { grid-template-columns: minmax(0, 1fr) !important; }
+.legacyInfo > section > div > div > :nth-child(2) { display: none; }
+.drawerButton { display: inline-flex; align-items: center; gap: .65rem; margin: 1.25rem 0 0; border: 1px solid rgb(255 255 255 / 16%); border-radius: 999px; background: rgb(255 255 255 / 5%); padding: .75rem 1rem; color: #fff; font-size: .875rem; letter-spacing: .04em; }
+.drawerButton:focus-visible, .closeButton:focus-visible, .navLink:focus-visible, .toggle:focus-visible { outline: 2px solid #c9a76a; outline-offset: 3px; }
+.navCard { border: 1px solid rgb(255 255 255 / 10%); border-radius: 1rem; background: linear-gradient(145deg, rgb(255 255 255 / 6%), rgb(255 255 255 / 2%)); padding: 1rem; }
+.navTitle { display: block; margin-bottom: .75rem; border-left: 2px solid transparent; padding: .35rem .5rem; color: #d8bb83; font-size: .75rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
+.navList, .children { margin: 0; padding: 0; list-style: none; }
+.row { display: flex; align-items: stretch; border-bottom: 1px solid rgb(255 255 255 / 7%); }
+.navLink { display: block; flex: 1; border-left: 2px solid transparent; padding: .72rem .65rem; color: #c4c4c4; font-size: .875rem; line-height: 1.35; transition: color 160ms ease, background 160ms ease, border-color 160ms ease; }
+.navLink:hover { color: #fff; }
+.active { border-left-color: #c9a76a; background: rgb(201 167 106 / 10%); color: #fff; }
+.toggle { display: inline-flex; width: 2.75rem; flex: 0 0 2.75rem; align-items: center; justify-content: center; color: #b8b4ad; transition: color 200ms ease; }
+.toggle:hover { color: #c9a76a; }
+.chevron { display: block; width: .9rem; height: .9rem; transform: rotate(0deg); transition: transform 200ms ease; }
+.chevronOpen { transform: rotate(90deg); }
+.children .navLink { padding-left: 1.25rem; font-size: .8125rem; }
+.backdrop { position: fixed; inset: 0; z-index: 80; background: rgb(0 0 0 / 72%); backdrop-filter: blur(3px); }
+.drawer { position: fixed; inset: 0 auto 0 0; width: min(88vw, 360px); overflow-y: auto; overscroll-behavior: contain; background: #0b0b0b; padding: 1rem; box-shadow: 18px 0 48px rgb(0 0 0 / 45%); }
+.drawerHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.drawerHeading { color: #fff; font-size: 1rem; font-weight: 400; }
+.closeButton { display: inline-flex; height: 2.5rem; width: 2.5rem; align-items: center; justify-content: center; border: 1px solid rgb(255 255 255 / 14%); border-radius: 999px; color: #fff; }
+@media (min-width: 1200px) {
+  .drawerButton, .backdrop { display: none; }
+  .desktopGrid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 2rem; align-items: start; }
+  .desktopNav { position: sticky; top: 112px; display: block; max-height: calc(100vh - 136px); overflow-y: auto; overscroll-behavior: contain; margin-top: 5rem; scrollbar-width: thin; }
+}
+@media (max-width: 1199px) { .shell { padding-inline: 1rem; } }

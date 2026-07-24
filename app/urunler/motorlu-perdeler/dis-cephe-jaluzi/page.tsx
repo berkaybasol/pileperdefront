@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 
 const canonicalUrl = 'https://pileperde.com.tr/urunler/motorlu-perdeler/dis-cephe-jaluzi'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -231,6 +232,7 @@ export default function ProksiyonPerdePage() {
           </div>
         </div>
       </section>
+      <ProductNavigationPilot>
 
       {/* Compact Product Info Section */}
       <section className="relative py-16 border-t border-white/5">
@@ -334,38 +336,6 @@ export default function ProksiyonPerdePage() {
           </div>
         </div>
       </section>
-
-      {productVideo.enabled !== false && videoEmbedUrl && (
-        <section className="relative py-20 border-t border-white/5">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center">
-              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
-              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-6">
-                {productVideo.title}
-              </h2>
-              {productVideo.description && (
-                <p className="text-gray-400 font-light leading-relaxed max-w-2xl mx-auto mb-12">
-                  {productVideo.description}
-                </p>
-              )}
-            </div>
-
-            <div className="max-w-5xl mx-auto">
-              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10 shadow-2xl">
-                <div className="relative" style={{ paddingBottom: '56.25%' }}>
-                  <iframe
-                    src={videoEmbedUrl}
-                    title={productVideo.title}
-                    className="absolute inset-0 h-full w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Full Product Gallery - Dark Glassmorphism Grid */}
       <section className="relative py-20 border-t border-white/5">
@@ -528,6 +498,38 @@ export default function ProksiyonPerdePage() {
         </div>
       </section>
 
+      {productVideo.enabled !== false && videoEmbedUrl && (
+        <section className="relative py-20 border-t border-white/5">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto text-center">
+              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
+              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-6">
+                {productVideo.title}
+              </h2>
+              {productVideo.description && (
+                <p className="text-gray-400 font-light leading-relaxed max-w-2xl mx-auto mb-12">
+                  {productVideo.description}
+                </p>
+              )}
+            </div>
+
+            <div className="max-w-5xl mx-auto">
+              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10 shadow-2xl">
+                <div className="relative" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    src={videoEmbedUrl}
+                    title={productVideo.title}
+                    className="absolute inset-0 h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Lightbox Modal */}
       <AnimatePresence>
         {lightboxOpen && (
@@ -601,6 +603,7 @@ export default function ProksiyonPerdePage() {
       </AnimatePresence>
 
       {/* Contact Form Modal */}
+      </ProductNavigationPilot>
       </main>
     </>
   )

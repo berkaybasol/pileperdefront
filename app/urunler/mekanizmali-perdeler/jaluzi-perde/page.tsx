@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 
 const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler/jaluzi-perde'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -74,6 +75,7 @@ export default function JaluziPerdePage() {
           </motion.div>
         </div>
       </section>
+      <ProductNavigationPilot>
 
       {/* Categories Section */}
       <section className="relative py-20">
@@ -182,6 +184,7 @@ export default function JaluziPerdePage() {
           </motion.div>
         </div>
       </section>
+      </ProductNavigationPilot>
       </main>
     </>
   )

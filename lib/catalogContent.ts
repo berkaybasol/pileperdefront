@@ -1,4 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+const getPublicApiBaseUrl = () => typeof window === 'undefined' ? API_BASE_URL : ''
 
 type ApiResponse<T> = {
   success: boolean
@@ -427,6 +428,39 @@ export const getPublicModelsPageContent = async (): Promise<ModelPageContent> =>
 export const getPublicCorporateItems = () =>
   getPublicCatalogItems('corporate-products', 'corporate.grid', defaultCorporateItems)
 
+export const getPublicAboutCorporateItem = async (): Promise<CatalogItem | null> => {
+  try {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/about`, { cache: 'no-store' })
+    if (!response.ok) return null
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const section = body.data.sections.find((item) => item.sectionKey === 'about.main')
+    if (!section?.enabled) return null
+
+    const parsed = section.contentJson ? JSON.parse(section.contentJson) as {
+      image?: string
+      imageAlt?: string
+      hero?: {
+        description?: string
+      }
+    } : {}
+
+    if (!parsed.image) return null
+
+    return {
+      id: -1,
+      title: body.data.title || 'Hakkımızda',
+      image: parsed.image,
+      href: '/hakkimizda',
+      description: parsed.hero?.description || section.body || '',
+      badge: section.subtitle || undefined,
+      enabled: true,
+    }
+  } catch {
+    return null
+  }
+}
+
 export const getPublicCorporatePageContent = async (): Promise<CorporatePageContent> => {
   const previewSection = readLocalPreviewSection('corporate-products', 'corporate.grid')
   if (previewSection) return {
@@ -436,7 +470,7 @@ export const getPublicCorporatePageContent = async (): Promise<CorporatePageCont
     items: parseCatalogItems(previewSection.contentJson, defaultCorporateItems),
   }
   try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/corporate-products`, { cache: 'no-store' })
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/corporate-products`, { cache: 'no-store' })
     if (!response.ok) return { ...defaultCorporateSectionCopy, items: defaultCorporateItems }
 
     const body = await response.json() as ApiResponse<CmsPage>

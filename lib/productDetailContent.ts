@@ -1,4 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+const getPublicApiBaseUrl = () => typeof window === 'undefined' ? API_BASE_URL : ''
 
 type ApiResponse<T> = {
   success: boolean
@@ -380,7 +381,7 @@ export const getProductDetailContent = async (pageKey: string) => {
   const fallback = productDetailDefaults[pageKey] || defaultProductDetailContent
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/${pageKey}`, {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
     })
 

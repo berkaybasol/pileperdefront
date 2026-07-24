@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 
 const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler/jaluzi-perde/ahsap-jaluzi-perde'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -377,6 +378,7 @@ export default function AluminyumJaluziPerdePage() {
           </div>
         </div>
       </section>
+      <ProductNavigationPilot>
 
       {/* Compact Product Info Section */}
       <section className="relative py-16 border-t border-white/5">
@@ -464,40 +466,6 @@ export default function AluminyumJaluziPerdePage() {
                   <span className="font-medium">WhatsApp</span>
                 </Link>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* YouTube Video Section - How It Works */}
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div
-            className="max-w-4xl mx-auto"
-          >
-            <div className="text-center mb-12">
-              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
-              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-4">
-                Nasıl Çalışır?
-              </h2>
-              <p className="text-gray-400 font-light max-w-2xl mx-auto">
-                Ahşap jaluzi perde sistemimizin çalışma prensibini ve montaj detaylarını videomuzda izleyebilirsiniz.
-              </p>
-            </div>
-
-            {/* YouTube Video Embed */}
-            <div
-              className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10"
-              style={{ paddingBottom: '56.25%' }} // 16:9 Aspect Ratio
-            >
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/VTjS0mSOoQ8"
-                title="Ahşap Jaluzi Perde - Nasıl Çalışır?"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
             </div>
           </div>
         </div>
@@ -663,6 +631,40 @@ export default function AluminyumJaluziPerdePage() {
         </div>
       </section>
 
+      {/* YouTube Video Section - How It Works */}
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div
+            className="max-w-4xl mx-auto"
+          >
+            <div className="text-center mb-12">
+              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
+              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-4">
+                Nasıl Çalışır?
+              </h2>
+              <p className="text-gray-400 font-light max-w-2xl mx-auto">
+                Ahşap jaluzi perde sistemimizin çalışma prensibini ve montaj detaylarını videomuzda izleyebilirsiniz.
+              </p>
+            </div>
+
+            {/* YouTube Video Embed */}
+            <div
+              className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10"
+              style={{ paddingBottom: '56.25%' }} // 16:9 Aspect Ratio
+            >
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/VTjS0mSOoQ8"
+                title="Ahşap Jaluzi Perde - Nasıl Çalışır?"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Lightbox Modal */}
       <AnimatePresence>
         {lightboxOpen && (
@@ -730,6 +732,7 @@ export default function AluminyumJaluziPerdePage() {
       </AnimatePresence>
 
       {/* Contact Form Modal */}
+      </ProductNavigationPilot>
       </main>
   )
 }

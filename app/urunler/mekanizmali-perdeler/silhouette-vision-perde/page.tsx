@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 
 const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler/silhouette-vision-perde'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -220,6 +221,7 @@ export default function SilhouetteVisionPerdePage() {
           </div>
         </div>
       </section>
+      <ProductNavigationPilot>
 
       {/* Compact Product Info Section */}
       <section className="relative py-16 border-t border-white/5">
@@ -311,38 +313,6 @@ export default function SilhouetteVisionPerdePage() {
                 </Link>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* YouTube Videos Section */}
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Galerisi</p>
-            <h2 className="text-3xl md:text-4xl font-extralight text-white">
-              Ürün Tanıtım Videoları
-            </h2>
-          </div>
-
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {youtubeVideos.map((video) => (
-              <div
-                key={video.id}
-                className="group"
-              >
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 hover:border-white/20 transition-all duration-500">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${video.videoId}`}
-                    title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full"
-                  />
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -508,6 +478,38 @@ export default function SilhouetteVisionPerdePage() {
         </div>
       </section>
 
+      {/* YouTube Videos Section */}
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Galerisi</p>
+            <h2 className="text-3xl md:text-4xl font-extralight text-white">
+              Ürün Tanıtım Videoları
+            </h2>
+          </div>
+
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {youtubeVideos.map((video) => (
+              <div
+                key={video.id}
+                className="group"
+              >
+                <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 hover:border-white/20 transition-all duration-500">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${video.videoId}`}
+                    title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Lightbox Modal */}
       <AnimatePresence>
         {lightboxOpen && (
@@ -575,6 +577,7 @@ export default function SilhouetteVisionPerdePage() {
       </AnimatePresence>
 
       {/* Contact Form Modal */}
+      </ProductNavigationPilot>
       </main>
     </>
   )

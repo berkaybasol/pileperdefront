@@ -6,7 +6,12 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Autoplay } from 'swiper/modules'
-import { defaultCorporateItems, defaultCorporateSectionCopy, getPublicCorporatePageContent } from '@/lib/catalogContent'
+import {
+  defaultCorporateItems,
+  defaultCorporateSectionCopy,
+  getPublicAboutCorporateItem,
+  getPublicCorporatePageContent,
+} from '@/lib/catalogContent'
 
 // Import Swiper styles
 import 'swiper/css'
@@ -18,9 +23,10 @@ interface CorporateProps {
   initialCopy?: typeof defaultCorporateSectionCopy;
   locale?: 'tr' | 'en';
   loadCms?: boolean;
+  includeAbout?: boolean;
 }
 
-const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, initialCopy = defaultCorporateSectionCopy, locale = 'tr', loadCms = true }: CorporateProps) => {
+const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, initialCopy = defaultCorporateSectionCopy, locale = 'tr', loadCms = true, includeAbout = false }: CorporateProps) => {
   const isEnglish = locale === 'en'
   const [corporateProducts, setCorporateProducts] = useState(initialItems)
   const [copy, setCopy] = useState(initialCopy)
@@ -29,9 +35,14 @@ const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, in
     if (!loadCms) return
     let isMounted = true
 
-    getPublicCorporatePageContent().then((content) => {
+    Promise.all([
+      getPublicCorporatePageContent(),
+      includeAbout ? getPublicAboutCorporateItem() : Promise.resolve(null),
+    ]).then(([content, aboutItem]) => {
       if (isMounted) {
-        setCorporateProducts(content.items)
+        setCorporateProducts(aboutItem
+          ? [aboutItem, ...content.items.filter((item) => item.href !== '/hakkimizda')]
+          : content.items)
         setCopy(content)
       }
     })
@@ -39,7 +50,7 @@ const Corporate = ({ showSwiper = true, initialItems = defaultCorporateItems, in
     return () => {
       isMounted = false
     }
-  }, [loadCms])
+  }, [includeAbout, loadCms])
 
   return (
     <section className="py-20 lg:py-32 bg-gradient-to-b from-stone-950 to-black relative overflow-hidden">

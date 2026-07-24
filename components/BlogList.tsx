@@ -4,10 +4,15 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { defaultBlogPosts, getPublicBlogPosts } from '@/lib/blogContent'
+import { defaultBlogPosts, getPublicBlogPosts, type BlogPost } from '@/lib/blogContent'
 
-const BlogList = () => {
-  const [allBlogPosts, setAllBlogPosts] = useState(defaultBlogPosts)
+interface BlogListProps {
+  initialPosts?: BlogPost[]
+  loadCms?: boolean
+}
+
+const BlogList = ({ initialPosts = defaultBlogPosts, loadCms = true }: BlogListProps) => {
+  const [allBlogPosts, setAllBlogPosts] = useState(initialPosts)
 
   const categoryColors: { [key: string]: string } = {
     'Perde Bilgisi': 'bg-blue-900/20 text-blue-400 border border-blue-800',
@@ -27,8 +32,17 @@ const BlogList = () => {
   const postsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const categoryOrder = [
+    'Proje Hikayeleri',
+    'Blog',
+    'Döşemelik Kumaşlar',
+    'Perde Bilgisi',
+    'Motorlu Perdeler',
+    'Mutfak',
+  ]
 
   useEffect(() => {
+    if (!loadCms) return
     let isMounted = true
 
     getPublicBlogPosts().then((posts) => {
@@ -40,7 +54,7 @@ const BlogList = () => {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [loadCms])
 
   // Filter posts by category
   const filteredPosts = selectedCategory
@@ -54,7 +68,8 @@ const BlogList = () => {
   const currentPosts = filteredPosts.slice(startIndex, endIndex)
 
   // Get unique categories
-  const categories = Array.from(new Set(allBlogPosts.map(post => post.category)))
+  const availableCategories = new Set(allBlogPosts.map(post => post.category))
+  const categories = categoryOrder.filter(category => availableCategories.has(category))
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)

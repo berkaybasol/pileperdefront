@@ -4,6 +4,7 @@ import { BreadcrumbListJsonLd } from "@/components/BreadcrumbListJsonLd";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { BreadcrumbItem } from "@/lib/breadcrumbs";
 import { getCmsPageMetadata } from "@/lib/cmsMetadata";
+import { getPublicAboutCorporateItem, getPublicCorporatePageContent } from "@/lib/catalogContent";
 
 const canonicalUrl = "https://pileperde.com.tr/kurumsal-urunler";
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -18,7 +19,15 @@ const fallbackMetadata: Metadata = {
 
 export const generateMetadata = () => getCmsPageMetadata("corporate-products", fallbackMetadata);
 
-export default function KurumsalUrunlerPage() {
+export default async function KurumsalUrunlerPage() {
+  const [corporateContent, aboutItem] = await Promise.all([
+    getPublicCorporatePageContent(),
+    getPublicAboutCorporateItem(),
+  ]);
+  const corporateItems = aboutItem
+    ? [aboutItem, ...corporateContent.items.filter((item) => item.href !== "/hakkimizda")]
+    : corporateContent.items;
+
   return (
     <main>
       <BreadcrumbListJsonLd items={breadcrumbItems} canonicalUrl={canonicalUrl} />
@@ -30,7 +39,12 @@ export default function KurumsalUrunlerPage() {
             <p className="text-gray-400 text-center mt-4 text-lg font-light">Profesyonel mekanlar için özel çözümler</p>
           </div>
         </div>
-        <Corporate showSwiper={false} />
+        <Corporate
+          showSwiper={false}
+          initialItems={corporateItems}
+          initialCopy={corporateContent}
+          loadCms={false}
+        />
       </div>
     </main>
   );

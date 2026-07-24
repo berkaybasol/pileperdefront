@@ -1,6 +1,7 @@
 import blogData from '../blog_posts.json'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+const getPublicApiBaseUrl = () => typeof window === 'undefined' ? API_BASE_URL : ''
 
 type ApiResponse<T> = {
   success: boolean
@@ -87,7 +88,7 @@ export const getPublicBlogPosts = async () => {
   const previewJson = readLocalPreviewSectionJson('blog', 'blog.list')
   if (previewJson) return parseBlogPosts(previewJson).filter((post) => post.enabled !== false)
   try {
-    const response = await fetch(`${API_BASE_URL}/api/public/cms/pages/blog`, {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/blog`, {
       cache: 'no-store',
     })
 

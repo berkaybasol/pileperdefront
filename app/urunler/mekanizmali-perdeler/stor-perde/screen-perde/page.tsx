@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 
 const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler/stor-perde/screen-perde'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -227,6 +228,7 @@ export default function ScreenPerdePage() {
         </div>
       </section>
 
+      <ProductNavigationPilot>
       {/* Compact Product Info Section */}
       <section className="relative py-16 border-t border-white/5">
         <div className="container mx-auto px-6">
@@ -313,39 +315,6 @@ export default function ScreenPerdePage() {
                   <span className="font-medium">WhatsApp</span>
                 </Link>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* YouTube Video Section - Motorlu Screen Perde */}
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div
-            className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
-              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-4">
-                Motorlu Screen Perde
-              </h2>
-              <p className="text-gray-400 font-light max-w-2xl mx-auto">
-                Stor perdelerde tercih edilen motorlu mekanizmalar nasıl çalışır?
-              </p>
-            </div>
-
-            {/* YouTube Video Embed */}
-            <div
-              className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10"
-              style={{ paddingBottom: '56.25%' }} // 16:9 Aspect Ratio}}
-            >
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/W8rh9V6R7Cw"
-                title="Motorlu Screen Perde"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
             </div>
           </div>
         </div>
@@ -507,6 +476,39 @@ export default function ScreenPerdePage() {
         </div>
       </section>
 
+      {/* YouTube Video Section - Motorlu Screen Perde */}
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div
+            className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
+              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-4">
+                Motorlu Screen Perde
+              </h2>
+              <p className="text-gray-400 font-light max-w-2xl mx-auto">
+                Stor perdelerde tercih edilen motorlu mekanizmalar nasıl çalışır?
+              </p>
+            </div>
+
+            {/* YouTube Video Embed */}
+            <div
+              className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10"
+              style={{ paddingBottom: '56.25%' }} // 16:9 Aspect Ratio}}
+            >
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/W8rh9V6R7Cw"
+                title="Motorlu Screen Perde"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Lightbox Modal */}
       <AnimatePresence>
         {lightboxOpen && (
@@ -574,6 +576,7 @@ export default function ScreenPerdePage() {
       </AnimatePresence>
 
       {/* Contact Form Modal */}
+      </ProductNavigationPilot>
       </main>
     </>
   )

@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 
 const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler/dikey-perde'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -202,6 +203,7 @@ export default function DikeyPerdePage() {
           </div>
         </div>
       </section>
+      <ProductNavigationPilot>
 
       {/* Compact Product Info Section */}
       <section className="relative py-16 border-t border-white/5">
@@ -532,6 +534,7 @@ export default function DikeyPerdePage() {
       </AnimatePresence>
 
       {/* Contact Form Modal */}
+      </ProductNavigationPilot>
       </main>
     </>
   )

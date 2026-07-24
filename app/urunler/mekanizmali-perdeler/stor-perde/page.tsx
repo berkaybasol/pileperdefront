@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 
 const canonicalUrl = 'https://pileperde.com.tr/urunler/mekanizmali-perdeler/stor-perde'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -103,40 +104,7 @@ export default function StorPerdePage() {
         </div>
       </section>
 
-      {/* YouTube Video Section */}
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <motion.div
-            className="max-w-4xl mx-auto"
-          >
-            <div className="text-center mb-12">
-              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
-              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-4">
-                Motorlu Screen Perde
-              </h2>
-              <p className="text-gray-400 font-light max-w-2xl mx-auto">
-                Stor perdelerde tercih edilen motorlu mekanizmalar nasıl çalışır?
-              </p>
-            </div>
-
-            {/* YouTube Video Embed */}
-            <motion.div
-              className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10"
-              style={{ paddingBottom: '56.25%' }}
-            >
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/W8rh9V6R7Cw"
-                title="Motorlu Screen Perde"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
+      <ProductNavigationPilot>
       {/* Categories Section */}
       <section className="relative py-20">
         <div className="container mx-auto px-6">
@@ -250,6 +218,41 @@ export default function StorPerdePage() {
           </motion.div>
         </div>
       </section>
+
+      {/* YouTube Video Section */}
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="max-w-4xl mx-auto"
+          >
+            <div className="text-center mb-12">
+              <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Video Anlatım</p>
+              <h2 className="text-3xl md:text-4xl font-extralight text-white mb-4">
+                Motorlu Screen Perde
+              </h2>
+              <p className="text-gray-400 font-light max-w-2xl mx-auto">
+                Stor perdelerde tercih edilen motorlu mekanizmalar nasıl çalışır?
+              </p>
+            </div>
+
+            {/* YouTube Video Embed */}
+            <motion.div
+              className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/10"
+              style={{ paddingBottom: '56.25%' }}
+            >
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/W8rh9V6R7Cw"
+                title="Motorlu Screen Perde"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+      </ProductNavigationPilot>
       </main>
     </>
   )
