@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { fallbackSiteSettings, getPublicSiteSettings, normalizePhoneHref, normalizeWhatsAppNumber } from '@/lib/siteSettings'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+const WHATSAPP_URL = 'https://wa.me/905335127272'
 
 const Contact = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
   const isEnglish = locale === 'en'
@@ -44,40 +45,34 @@ const Contact = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
     }
   }, [settings])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const buildWhatsAppUrl = () => {
+    const whatsappMessage = isEnglish
+      ? [
+          '*NEW ENQUIRY - PILE PERDE WEBSITE*',
+          `*Name:* ${formData.name}`,
+          `*Telephone:* ${formData.phone}`,
+          `*Email:* ${formData.email}`,
+          '',
+          '*Message:*',
+          formData.message,
+        ].join('\n')
+      : [
+          '*YENİ MESAJ - PİLE PERDE WEB SİTESİ*',
+          `*İsim:* ${formData.name}`,
+          `*Telefon:* ${formData.phone}`,
+          `*E-posta:* ${formData.email}`,
+          '',
+          '*Mesaj:*',
+          formData.message,
+        ].join('\n')
+
+    return `${WHATSAPP_URL}?text=${encodeURIComponent(whatsappMessage)}`
+  }
+
+  const handleEmailSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitStatus(null)
-
-    // Format message for WhatsApp
-    const whatsappMessage = isEnglish ? `
-*NEW ENQUIRY - PILE PERDE WEBSITE*
-━━━━━━━━━━━━━━━━━━━━
-*Name:* ${formData.name}
-*Telephone:* ${formData.phone}
-*Email:* ${formData.email}
-━━━━━━━━━━━━━━━━━━━━
-*Message:*
-${formData.message}
-━━━━━━━━━━━━━━━━━━━━
-_Sent from the website contact form._
-    `.trim() : `
-*YENİ MESAJ - PİLE PERDE WEB SİTESİ*
-━━━━━━━━━━━━━━━━━━━━
-*İsim:* ${formData.name}
-*Telefon:* ${formData.phone}
-*E-posta:* ${formData.email}
-━━━━━━━━━━━━━━━━━━━━
-*Mesaj:*
-${formData.message}
-━━━━━━━━━━━━━━━━━━━━
-_Bu mesaj web sitesi iletişim formundan gönderilmiştir._
-    `.trim()
-
-    // Encode message for WhatsApp URL
-    const encodedMessage = encodeURIComponent(whatsappMessage)
-    const whatsappURL = `${contactSettings.whatsappUrl}?text=${encodedMessage}`
-    const whatsappWindow = window.open('', '_blank')
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/public/contact-requests`, {
@@ -99,11 +94,6 @@ _Bu mesaj web sitesi iletişim formundan gönderilmiştir._
       }
 
       setSubmitStatus('success')
-      if (whatsappWindow) {
-        whatsappWindow.location.href = whatsappURL
-      } else {
-        window.location.href = whatsappURL
-      }
 
       // Reset form
       setFormData({
@@ -113,11 +103,20 @@ _Bu mesaj web sitesi iletişim formundan gönderilmiştir._
         message: ''
       })
     } catch {
-      whatsappWindow?.close()
       setSubmitStatus('error')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleWhatsAppSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const form = e.currentTarget.form
+    if (!form?.reportValidity()) {
+      return
+    }
+
+    setSubmitStatus(null)
+    window.open(buildWhatsAppUrl(), '_blank', 'noopener,noreferrer')
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -246,7 +245,7 @@ _Bu mesaj web sitesi iletişim formundan gönderilmiştir._
             <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-white/10 p-6 sm:p-8 lg:p-10 h-full">
               <h3 className="text-xl sm:text-2xl font-extralight text-white mb-6 lg:mb-8 uppercase tracking-wider">{isEnglish ? 'Send an Enquiry' : 'Mesaj Gönderin'}</h3>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleEmailSubmit} className="space-y-6">
                 <div>
                   <input
                     type="text"
@@ -300,23 +299,38 @@ _Bu mesaj web sitesi iletişim formundan gönderilmiştir._
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="group relative w-full py-4 bg-white text-black overflow-hidden transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2 font-medium">
-                    <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                    </svg>
-                    <span>{isSubmitting ? (isEnglish ? 'Saving…' : 'Kaydediliyor...') : (isEnglish ? 'Send via WhatsApp' : 'WhatsApp ile Gönder')}</span>
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
-                </button>
+                <div className="space-y-3">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="group relative w-full py-4 bg-white text-black overflow-hidden transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2 font-medium">
+                      <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span>{isSubmitting ? (isEnglish ? 'Sending…' : 'Gönderiliyor...') : (isEnglish ? 'Send by Email' : 'E-posta ile Gönder')}</span>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppSubmit}
+                    className="group relative w-full py-4 bg-emerald-900 text-white overflow-hidden transition-all duration-300 hover:bg-emerald-800"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2 font-medium">
+                      <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                      </svg>
+                      <span>{isEnglish ? 'Send via WhatsApp' : 'WhatsApp ile Gönder'}</span>
+                    </span>
+                  </button>
+                </div>
 
                 {submitStatus === 'success' && (
                   <p className="text-xs text-green-400 text-center mt-3">
-                    {isEnglish ? 'Your enquiry has been saved. WhatsApp is opening.' : 'Talebiniz kaydedildi. WhatsApp penceresi aciliyor.'}
+                    {isEnglish ? 'Your message has been sent successfully.' : 'Mesajınız başarıyla gönderildi.'}
                   </p>
                 )}
 
@@ -326,9 +340,6 @@ _Bu mesaj web sitesi iletişim formundan gönderilmiştir._
                   </p>
                 )}
 
-                <p className="text-xs text-gray-500 text-center mt-3">
-                  {isEnglish ? 'Submitting the form will open WhatsApp with your message.' : 'Form doldurulduğunda WhatsApp üzerinden mesajınız iletilecektir.'}
-                </p>
               </form>
             </div>
           </motion.div>
