@@ -1,5 +1,4 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
-const getPublicApiBaseUrl = () => typeof window === 'undefined' ? API_BASE_URL : ''
 
 export const fallbackSiteSettings: Record<string, string> = {
   'company.phone.primary': '+90 (312) 241 72 72',
@@ -23,7 +22,7 @@ export const normalizeWhatsAppNumber = (value: string) => value.replace(/\D/g, '
 
 export const getPublicSiteSettings = async () => {
   try {
-    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/settings`, { cache: 'no-store' })
+    const response = await fetch(`${API_BASE_URL}/api/public/settings`, { cache: 'no-store' })
     if (!response.ok) {
       return fallbackSiteSettings
     }

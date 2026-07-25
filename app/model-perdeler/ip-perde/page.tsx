@@ -313,7 +313,7 @@ export default function ModernPerdePage() {
 
                 <p className="text-gray-300 text-sm leading-relaxed">
                   Fiyat bilgisi için müşteri danışma hattı: Tel: +90 312 2417272 arayabilir ya da
-                  info@pileperde.com.tr adresinden bize ulaşabilirsiniz.
+                  siparis@pileperde.com.tr adresinden bize ulaşabilirsiniz.
                 </p>
               </div>
 

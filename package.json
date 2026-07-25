@@ -11,19 +11,16 @@
     "stop:pm2": "pm2 stop pileperde",
     "restart:pm2": "pm2 restart pileperde",
     "logs:pm2": "pm2 logs pileperde",
-    "lint": "eslint",
-    "test:contact": "node --experimental-strip-types --test tests/contactValidation.test.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "cross-spawn": "^7.0.6",
     "framer-motion": "^12.23.21",
-    "libphonenumber-js": "^1.13.9",
     "lucide-react": "^0.544.0",
     "next": "^16.0.10",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-phone-number-input": "^3.4.17",
     "swiper": "^12.0.2"
   },
   "devDependencies": {
