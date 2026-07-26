@@ -110,6 +110,8 @@ const Contact = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
   }
 
   const handleWhatsAppSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+
     const form = e.currentTarget.form
     if (!form?.reportValidity()) {
       return
@@ -117,6 +119,20 @@ const Contact = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
 
     setSubmitStatus(null)
     window.open(buildWhatsAppUrl(), '_blank', 'noopener,noreferrer')
+  }
+
+  const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (
+      e.key !== 'Enter'
+      || e.shiftKey
+      || e.nativeEvent.isComposing
+      || !(e.target instanceof HTMLInputElement)
+    ) {
+      return
+    }
+
+    e.preventDefault()
+    e.currentTarget.requestSubmit()
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -245,7 +261,7 @@ const Contact = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
             <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-white/10 p-6 sm:p-8 lg:p-10 h-full">
               <h3 className="text-xl sm:text-2xl font-extralight text-white mb-6 lg:mb-8 uppercase tracking-wider">{isEnglish ? 'Send an Enquiry' : 'Mesaj Gönderin'}</h3>
 
-              <form onSubmit={handleEmailSubmit} className="space-y-6">
+              <form onSubmit={handleEmailSubmit} onKeyDown={handleFormKeyDown} className="space-y-6">
                 <div>
                   <input
                     type="text"
