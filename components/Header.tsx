@@ -146,6 +146,7 @@ const Header = () => {
       }
     },
     { name: 'Blog', href: '/blog' },
+    { name: 'İletişim', href: '/iletisim' },
   ]
 
   const activeNavigation = navigation
