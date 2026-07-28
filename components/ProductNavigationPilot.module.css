@@ -39,6 +39,8 @@
   .rootLanding .content > section:first-child { padding-top: 2rem; }
   .drawerButton, .backdrop { display: none; }
   .desktopGrid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 2rem; align-items: start; }
+  .rootLanding .desktopGrid { grid-template-columns: 272px minmax(0, 1fr); gap: 0; }
   .desktopNav { position: sticky; top: 112px; display: block; max-height: calc(100vh - 136px); overflow-y: auto; overscroll-behavior: contain; margin-top: 5rem; scrollbar-width: thin; }
+  .rootLanding .desktopNav .navList > li > .row > .navLink { font-size: .9375rem; font-weight: 450; line-height: 1.4; }
 }
 @media (max-width: 1199px) { .shell { padding-inline: 1rem; } }
