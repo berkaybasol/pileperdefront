@@ -75,9 +75,9 @@ const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
     try {
       const contentJson = section.contentJson ? JSON.parse(section.contentJson) as { primaryCtaHref?: string; stats?: HeroStat[]; slides?: HeroSlide[] } : {}
       return {
-        title: section.title || undefined,
-        subtitle: section.subtitle || undefined,
-        description: section.body || undefined,
+        title: section.title ?? undefined,
+        subtitle: section.subtitle ?? undefined,
+        description: section.body ?? undefined,
         primaryCtaHref: contentJson.primaryCtaHref,
         stats: Array.isArray(contentJson.stats) && contentJson.stats.length > 0 ? normalizeVerifiedStats(contentJson.stats) : undefined,
         slides: Array.isArray(contentJson.slides) ? contentJson.slides.filter((slide) => slide.enabled !== false) : undefined,
@@ -116,9 +116,9 @@ const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
         }
 
         setHeroContent({
-          title: heroSection.title || undefined,
-          subtitle: heroSection.subtitle || undefined,
-          description: heroSection.body || undefined,
+          title: heroSection.title ?? undefined,
+          subtitle: heroSection.subtitle ?? undefined,
+          description: heroSection.body ?? undefined,
           primaryCtaHref: contentJson.primaryCtaHref,
           stats: Array.isArray(contentJson.stats) && contentJson.stats.length > 0
             ? normalizeVerifiedStats(contentJson.stats)
@@ -171,9 +171,9 @@ const Hero = ({ locale = 'tr' }: { locale?: 'tr' | 'en' }) => {
   ] : [
     {
       id: 1,
-      title: heroContent?.title || 'Modern Perde',
-      subtitle: heroContent?.subtitle || 'Yeni Nesil Tasarım',
-      description: heroContent?.description || 'Bir mekana modern veya klasik perde yapma kararı dekorasyondaki en kritik kararlardan biridir. Çünkü perde dekorasyonun karakterini değiştirebilecek güce sahip olan son dokunuştur.',
+      title: heroContent?.title ?? 'Modern Perde',
+      subtitle: heroContent?.subtitle ?? 'Yeni Nesil Tasarım',
+      description: heroContent?.description ?? 'Bir mekana modern veya klasik perde yapma kararı dekorasyondaki en kritik kararlardan biridir. Çünkü perde dekorasyonun karakterini değiştirebilecek güce sahip olan son dokunuştur.',
       image: '/api/public/media/images/2ec18b59-7848-4fcf-9b14-e72e00850a47/file',
       link: heroContent?.primaryCtaHref || '/model-perdeler/modern-perde/'
     },

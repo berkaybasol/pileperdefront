@@ -189,11 +189,11 @@ export const parseProductGalleryHeroCopy = (
     const hero = parsed.hero || {}
 
     return {
-      breadcrumbLabel: hero.breadcrumbLabel || fallbackCopy.breadcrumbLabel,
-      eyebrow: hero.eyebrow || fallbackCopy.eyebrow,
-      title: hero.title || fallbackCopy.title,
-      highlightedTitle: hero.highlightedTitle || fallbackCopy.highlightedTitle,
-      description: hero.description || fallbackCopy.description,
+      breadcrumbLabel: hero.breadcrumbLabel ?? fallbackCopy.breadcrumbLabel,
+      eyebrow: hero.eyebrow ?? fallbackCopy.eyebrow,
+      title: hero.title ?? fallbackCopy.title,
+      highlightedTitle: hero.highlightedTitle ?? fallbackCopy.highlightedTitle,
+      description: hero.description ?? fallbackCopy.description,
     }
   } catch {
     return fallbackCopy
@@ -213,7 +213,7 @@ export const parseProductGalleryVideo = (
     const video = parsed.video || {}
 
     return {
-      title: video.title || fallbackVideo.title,
+      title: video.title ?? fallbackVideo.title,
       description: video.description ?? fallbackVideo.description,
       youtubeUrl: video.youtubeUrl || fallbackVideo.youtubeUrl,
       enabled: video.enabled === true,

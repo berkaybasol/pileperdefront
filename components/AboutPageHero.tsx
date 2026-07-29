@@ -49,9 +49,9 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) =>
     try {
       const parsed = JSON.parse(initialContentJson) as { hero?: Partial<AboutHeroContent> }
       return {
-        eyebrow: parsed.hero?.eyebrow || fallbackHero.eyebrow,
-        title: parsed.hero?.title || fallbackHero.title,
-        description: parsed.hero?.description || fallbackHero.description,
+        eyebrow: parsed.hero?.eyebrow ?? fallbackHero.eyebrow,
+        title: parsed.hero?.title ?? fallbackHero.title,
+        description: parsed.hero?.description ?? fallbackHero.description,
       }
     } catch {
       return fallbackHero
@@ -75,9 +75,9 @@ const AboutPageHero = ({ breadcrumbItems, canonicalUrl }: AboutPageHeroProps) =>
 
         const parsed = JSON.parse(section.contentJson) as { hero?: Partial<AboutHeroContent> }
         setHero({
-          eyebrow: parsed.hero?.eyebrow || fallbackHero.eyebrow,
-          title: parsed.hero?.title || fallbackHero.title,
-          description: parsed.hero?.description || fallbackHero.description,
+          eyebrow: parsed.hero?.eyebrow ?? fallbackHero.eyebrow,
+          title: parsed.hero?.title ?? fallbackHero.title,
+          description: parsed.hero?.description ?? fallbackHero.description,
         })
       } catch {
       }

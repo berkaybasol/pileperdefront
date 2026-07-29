@@ -133,13 +133,13 @@ const parseAboutContent = (section: CmsSection | null): AboutContent => {
 
     return {
       ...fallbackAboutContent,
-      eyebrow: section.subtitle || parsed.hero?.eyebrow || fallbackAboutContent.eyebrow,
-      title: section.title || fallbackAboutContent.title,
-      lead: section.body || fallbackAboutContent.lead,
+      eyebrow: section.subtitle ?? parsed.hero?.eyebrow ?? fallbackAboutContent.eyebrow,
+      title: section.title ?? fallbackAboutContent.title,
+      lead: section.body ?? fallbackAboutContent.lead,
       image: parsed.image || fallbackAboutContent.image,
-      imageAlt: parsed.imageAlt || fallbackAboutContent.imageAlt,
-      experienceLabel: parsed.experienceLabel || fallbackAboutContent.experienceLabel,
-      ctaLabel: parsed.ctaLabel || fallbackAboutContent.ctaLabel,
+      imageAlt: parsed.imageAlt ?? fallbackAboutContent.imageAlt,
+      experienceLabel: parsed.experienceLabel ?? fallbackAboutContent.experienceLabel,
+      ctaLabel: parsed.ctaLabel ?? fallbackAboutContent.ctaLabel,
       ctaHref: parsed.ctaHref || fallbackAboutContent.ctaHref,
       tabs: Array.isArray(parsed.tabs) && parsed.tabs.length > 0 ? parsed.tabs : fallbackAboutContent.tabs,
       services: Array.isArray(parsed.services) && parsed.services.length > 0 ? parsed.services : fallbackAboutContent.services,
@@ -148,9 +148,9 @@ const parseAboutContent = (section: CmsSection | null): AboutContent => {
   } catch {
     return {
       ...fallbackAboutContent,
-      eyebrow: section.subtitle || fallbackAboutContent.eyebrow,
-      title: section.title || fallbackAboutContent.title,
-      lead: section.body || fallbackAboutContent.lead,
+      eyebrow: section.subtitle ?? fallbackAboutContent.eyebrow,
+      title: section.title ?? fallbackAboutContent.title,
+      lead: section.body ?? fallbackAboutContent.lead,
     }
   }
 }
@@ -168,7 +168,7 @@ const About = ({ locale = 'tr', showCta = true }: { locale?: 'tr' | 'en', showCt
         image: initialCmsContent.image,
         stats: englishAboutContent.stats.map((stat, index) => ({
           ...stat,
-          number: initialCmsContent.stats[index]?.number || stat.number,
+          number: initialCmsContent.stats[index]?.number ?? stat.number,
           suffix: initialCmsContent.stats[index]?.suffix ?? stat.suffix,
         })),
       }
@@ -194,7 +194,7 @@ const About = ({ locale = 'tr', showCta = true }: { locale?: 'tr' | 'en', showCt
               image: cmsContent.image,
               stats: englishAboutContent.stats.map((stat, index) => ({
                 ...stat,
-                number: cmsContent.stats[index]?.number || stat.number,
+                number: cmsContent.stats[index]?.number ?? stat.number,
                 suffix: cmsContent.stats[index]?.suffix ?? stat.suffix,
               })),
             }

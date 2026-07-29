@@ -487,6 +487,19 @@ const normalizeSearchText = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/ı/g, 'i')
 
+const productGalleryCollator = new Intl.Collator('tr', {
+  sensitivity: 'base',
+  numeric: true,
+})
+
+const hiddenProductGalleryLabels = new Set([
+  'deney',
+  'pro collection galerisi',
+])
+
+const isHiddenProductGallery = (page: ProductGalleryAdminPage) =>
+  hiddenProductGalleryLabels.has(page.label.trim().toLocaleLowerCase('tr'))
+
 const isMotorizedFabricGalleryLabel = (label: string) => {
   const normalizedLabel = normalizeSearchText(label)
   return (
@@ -673,9 +686,9 @@ const parseHeroStats = (contentJson: string) => {
     return defaultHeroStats.map((fallback, index) => {
       const stat = parsed.stats?.[index]
       return {
-        number: stat?.number || fallback.number,
+        number: stat?.number ?? fallback.number,
         suffix: stat?.suffix ?? fallback.suffix,
-        label: stat?.label || fallback.label,
+        label: stat?.label ?? fallback.label,
       }
     })
   } catch {
@@ -709,16 +722,16 @@ const parseAboutForm = (section: CmsSection | null): AboutForm => {
 
     return {
       ...defaultAboutForm,
-      heroEyebrow: parsed.hero?.eyebrow || defaultAboutForm.heroEyebrow,
-      heroTitle: parsed.hero?.title || defaultAboutForm.heroTitle,
-      heroDescription: parsed.hero?.description || defaultAboutForm.heroDescription,
-      eyebrow: section.subtitle || defaultAboutForm.eyebrow,
-      title: section.title || defaultAboutForm.title,
-      lead: section.body || defaultAboutForm.lead,
+      heroEyebrow: parsed.hero?.eyebrow ?? defaultAboutForm.heroEyebrow,
+      heroTitle: parsed.hero?.title ?? defaultAboutForm.heroTitle,
+      heroDescription: parsed.hero?.description ?? defaultAboutForm.heroDescription,
+      eyebrow: section.subtitle ?? defaultAboutForm.eyebrow,
+      title: section.title ?? defaultAboutForm.title,
+      lead: section.body ?? defaultAboutForm.lead,
       image: parsed.image || defaultAboutForm.image,
-      imageAlt: parsed.imageAlt || defaultAboutForm.imageAlt,
-      experienceLabel: parsed.experienceLabel || defaultAboutForm.experienceLabel,
-      ctaLabel: parsed.ctaLabel || defaultAboutForm.ctaLabel,
+      imageAlt: parsed.imageAlt ?? defaultAboutForm.imageAlt,
+      experienceLabel: parsed.experienceLabel ?? defaultAboutForm.experienceLabel,
+      ctaLabel: parsed.ctaLabel ?? defaultAboutForm.ctaLabel,
       ctaHref: parsed.ctaHref || defaultAboutForm.ctaHref,
       tabs: Array.isArray(parsed.tabs) && parsed.tabs.length > 0 ? parsed.tabs : defaultAboutForm.tabs,
       services: Array.isArray(parsed.services) && parsed.services.length > 0 ? parsed.services : defaultAboutForm.services,
@@ -727,9 +740,9 @@ const parseAboutForm = (section: CmsSection | null): AboutForm => {
   } catch {
     return {
       ...defaultAboutForm,
-      eyebrow: section.subtitle || defaultAboutForm.eyebrow,
-      title: section.title || defaultAboutForm.title,
-      lead: section.body || defaultAboutForm.lead,
+      eyebrow: section.subtitle ?? defaultAboutForm.eyebrow,
+      title: section.title ?? defaultAboutForm.title,
+      lead: section.body ?? defaultAboutForm.lead,
     }
   }
 }
@@ -1095,7 +1108,8 @@ const AdminPage = () => {
         !isMotorizedFabricGalleryLabel(page.label) ||
         page.pageKey === motorizedFabricGalleryPageKey
       ))
-      .sort((a, b) => a.label.localeCompare(b.label, 'tr'))
+      .filter((page) => !isHiddenProductGallery(page))
+      .sort((a, b) => productGalleryCollator.compare(a.label, b.label))
   }, [corporateItems, mechanizedForm.categories, modelItems, pages, productItems])
 
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
@@ -1380,18 +1394,18 @@ const AdminPage = () => {
         setAboutForm(parseAboutForm(aboutSection))
       }
       setProductsPageCopy({
-        heroTitle: productsHeroSection?.title || defaultProductSectionCopy.heroTitle,
-        heroSubtitle: productsHeroSection?.body || defaultProductSectionCopy.heroSubtitle,
-        sectionEyebrow: productsSection?.subtitle || defaultProductSectionCopy.sectionEyebrow,
-        sectionTitle: productsSection?.title || defaultProductSectionCopy.sectionTitle,
-        sectionDescription: productsSection?.body || defaultProductSectionCopy.sectionDescription,
+        heroTitle: productsHeroSection?.title ?? defaultProductSectionCopy.heroTitle,
+        heroSubtitle: productsHeroSection?.body ?? defaultProductSectionCopy.heroSubtitle,
+        sectionEyebrow: productsSection?.subtitle ?? defaultProductSectionCopy.sectionEyebrow,
+        sectionTitle: productsSection?.title ?? defaultProductSectionCopy.sectionTitle,
+        sectionDescription: productsSection?.body ?? defaultProductSectionCopy.sectionDescription,
       })
       if (productsSection) {
         setProductItems(parseCatalogItems(productsSection.contentJson))
       }
       setModelsPageCopy({
-        heroTitle: modelsHeroSection?.title || defaultModelPageCopy.heroTitle,
-        heroSubtitle: modelsHeroSection?.body || defaultModelPageCopy.heroSubtitle,
+        heroTitle: modelsHeroSection?.title ?? defaultModelPageCopy.heroTitle,
+        heroSubtitle: modelsHeroSection?.body ?? defaultModelPageCopy.heroSubtitle,
       })
       if (modelsSection) {
         setModelItems(parseCatalogItems(modelsSection.contentJson, defaultModelItems))
@@ -2050,16 +2064,16 @@ const AdminPage = () => {
     if (keys.has('products.hero')) {
       setProductsPageCopy((current) => ({
         ...current,
-        heroTitle: productsHero?.title || defaultProductSectionCopy.heroTitle,
-        heroSubtitle: productsHero?.body || defaultProductSectionCopy.heroSubtitle,
+        heroTitle: productsHero?.title ?? defaultProductSectionCopy.heroTitle,
+        heroSubtitle: productsHero?.body ?? defaultProductSectionCopy.heroSubtitle,
       }))
     }
     if (keys.has('products.grid')) {
       setProductsPageCopy((current) => ({
         ...current,
-        sectionEyebrow: productsGrid?.subtitle || defaultProductSectionCopy.sectionEyebrow,
-        sectionTitle: productsGrid?.title || defaultProductSectionCopy.sectionTitle,
-        sectionDescription: productsGrid?.body || defaultProductSectionCopy.sectionDescription,
+        sectionEyebrow: productsGrid?.subtitle ?? defaultProductSectionCopy.sectionEyebrow,
+        sectionTitle: productsGrid?.title ?? defaultProductSectionCopy.sectionTitle,
+        sectionDescription: productsGrid?.body ?? defaultProductSectionCopy.sectionDescription,
       }))
       if (productsGrid) setProductItems(parseCatalogItems(productsGrid.contentJson))
     }
@@ -2069,8 +2083,8 @@ const AdminPage = () => {
     if (keys.has('models.hero')) {
       setModelsPageCopy((current) => ({
         ...current,
-        heroTitle: modelsHero?.title || defaultModelPageCopy.heroTitle,
-        heroSubtitle: modelsHero?.body || defaultModelPageCopy.heroSubtitle,
+        heroTitle: modelsHero?.title ?? defaultModelPageCopy.heroTitle,
+        heroSubtitle: modelsHero?.body ?? defaultModelPageCopy.heroSubtitle,
       }))
     }
     if (keys.has('models.grid') && modelsGrid) {
@@ -5713,8 +5727,12 @@ const AdminPage = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    const firstGalleryPage = productGalleryPages[0]
                     setActivePanel('productGalleries')
-                    void loadPageByKey(selectedProductGalleryPageKey)
+                    if (firstGalleryPage) {
+                      setSelectedProductGalleryPageKey(firstGalleryPage.pageKey)
+                      void loadPageByKey(firstGalleryPage.pageKey, authHeader, firstGalleryPage)
+                    }
                   }}
                   className={`w-full rounded-md px-3 py-2.5 text-left text-sm font-medium transition ${
                     activePanel === 'productGalleries'

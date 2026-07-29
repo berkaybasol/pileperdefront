@@ -296,12 +296,12 @@ export const parseCatalogItems = (
 
     return parsed.items.map((item, index) => ({
       id: Number(item.id) || index + 1,
-      title: item.title || '',
+      title: item.title ?? '',
       image: item.image || '/api/public/media/images/d67000cc-c999-4e24-9023-87774b037372/file',
       href: item.href || '/iletisim',
-      description: item.description || '',
+      description: item.description ?? '',
       enabled: item.enabled !== false,
-      badge: item.badge || fallbackItems[index]?.badge,
+      badge: item.badge ?? fallbackItems[index]?.badge,
     }))
   } catch {
     return fallbackItems
@@ -370,11 +370,11 @@ export const getPublicProductsPageContent = async (): Promise<ProductPageContent
     const gridSection = body.data.sections.find((item) => item.sectionKey === 'products.grid')
 
     return {
-      heroTitle: heroSection?.enabled && heroSection.title ? heroSection.title : defaultProductSectionCopy.heroTitle,
-      heroSubtitle: heroSection?.enabled && heroSection.body ? heroSection.body : defaultProductSectionCopy.heroSubtitle,
-      sectionEyebrow: gridSection?.enabled && gridSection.subtitle ? gridSection.subtitle : defaultProductSectionCopy.sectionEyebrow,
-      sectionTitle: gridSection?.enabled && gridSection.title ? gridSection.title : defaultProductSectionCopy.sectionTitle,
-      sectionDescription: gridSection?.enabled && gridSection.body ? gridSection.body : defaultProductSectionCopy.sectionDescription,
+      heroTitle: heroSection?.enabled ? heroSection.title ?? defaultProductSectionCopy.heroTitle : defaultProductSectionCopy.heroTitle,
+      heroSubtitle: heroSection?.enabled ? heroSection.body ?? defaultProductSectionCopy.heroSubtitle : defaultProductSectionCopy.heroSubtitle,
+      sectionEyebrow: gridSection?.enabled ? gridSection.subtitle ?? defaultProductSectionCopy.sectionEyebrow : defaultProductSectionCopy.sectionEyebrow,
+      sectionTitle: gridSection?.enabled ? gridSection.title ?? defaultProductSectionCopy.sectionTitle : defaultProductSectionCopy.sectionTitle,
+      sectionDescription: gridSection?.enabled ? gridSection.body ?? defaultProductSectionCopy.sectionDescription : defaultProductSectionCopy.sectionDescription,
       items: gridSection?.enabled ? parseCatalogItems(gridSection.contentJson, defaultProductItems) : defaultProductItems,
     }
   } catch {
@@ -413,11 +413,11 @@ export const getPublicModelsPageContent = async (): Promise<ModelPageContent> =>
     const gridSection = body.data.sections.find((item) => item.sectionKey === 'models.grid')
 
     return {
-      heroTitle: heroSection?.enabled && heroSection.title ? heroSection.title : defaultModelPageCopy.heroTitle,
-      heroSubtitle: heroSection?.enabled && heroSection.body ? heroSection.body : defaultModelPageCopy.heroSubtitle,
-      sectionEyebrow: gridSection?.enabled && gridSection.subtitle ? gridSection.subtitle : defaultModelPageCopy.sectionEyebrow,
-      sectionTitle: gridSection?.enabled && gridSection.title ? gridSection.title : defaultModelPageCopy.sectionTitle,
-      sectionDescription: gridSection?.enabled && gridSection.body ? gridSection.body : defaultModelPageCopy.sectionDescription,
+      heroTitle: heroSection?.enabled ? heroSection.title ?? defaultModelPageCopy.heroTitle : defaultModelPageCopy.heroTitle,
+      heroSubtitle: heroSection?.enabled ? heroSection.body ?? defaultModelPageCopy.heroSubtitle : defaultModelPageCopy.heroSubtitle,
+      sectionEyebrow: gridSection?.enabled ? gridSection.subtitle ?? defaultModelPageCopy.sectionEyebrow : defaultModelPageCopy.sectionEyebrow,
+      sectionTitle: gridSection?.enabled ? gridSection.title ?? defaultModelPageCopy.sectionTitle : defaultModelPageCopy.sectionTitle,
+      sectionDescription: gridSection?.enabled ? gridSection.body ?? defaultModelPageCopy.sectionDescription : defaultModelPageCopy.sectionDescription,
       items: gridSection?.enabled ? parseCatalogItems(gridSection.contentJson, defaultModelItems) : defaultModelItems,
     }
   } catch {
@@ -452,8 +452,8 @@ export const getPublicAboutCorporateItem = async (): Promise<CatalogItem | null>
       title: body.data.title || 'Hakkımızda',
       image: parsed.image,
       href: '/hakkimizda',
-      description: parsed.hero?.description || section.body || '',
-      badge: section.subtitle || undefined,
+      description: parsed.hero?.description ?? section.body ?? '',
+      badge: section.subtitle ?? undefined,
       enabled: true,
     }
   } catch {
@@ -478,9 +478,9 @@ export const getPublicCorporatePageContent = async (): Promise<CorporatePageCont
     if (!section?.enabled) return { ...defaultCorporateSectionCopy, items: defaultCorporateItems }
 
     return {
-      sectionEyebrow: section.subtitle || defaultCorporateSectionCopy.sectionEyebrow,
-      sectionTitle: section.title || defaultCorporateSectionCopy.sectionTitle,
-      sectionDescription: section.body || defaultCorporateSectionCopy.sectionDescription,
+      sectionEyebrow: section.subtitle ?? defaultCorporateSectionCopy.sectionEyebrow,
+      sectionTitle: section.title ?? defaultCorporateSectionCopy.sectionTitle,
+      sectionDescription: section.body ?? defaultCorporateSectionCopy.sectionDescription,
       items: parseCatalogItems(section.contentJson, defaultCorporateItems),
     }
   } catch {
