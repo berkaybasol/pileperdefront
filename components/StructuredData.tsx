@@ -42,7 +42,7 @@ export async function BusinessStructuredData() {
         },
         email,
         telephone,
-        sameAs: ['https://www.instagram.com/pile.perde/'],
+        sameAs: ['https://www.instagram.com/pileperdecayyolu/'],
         location: { '@id': LOCAL_BUSINESS_ID },
       },
       {
@@ -56,6 +56,7 @@ export async function BusinessStructuredData() {
         parentOrganization: { '@id': ORGANIZATION_ID },
         telephone,
         email,
+        sameAs: ['https://www.instagram.com/pileperdecayyolu/'],
         address: {
           '@type': 'PostalAddress',
           streetAddress: addressText,
