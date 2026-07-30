@@ -11,6 +11,7 @@
     "stop:pm2": "pm2 stop pileperde",
     "restart:pm2": "pm2 restart pileperde",
     "logs:pm2": "pm2 logs pileperde",
+    "test": "vitest run",
     "lint": "eslint"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

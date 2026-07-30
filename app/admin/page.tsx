@@ -40,6 +40,11 @@ import {
   type ProductGalleryHeroCopy,
   type ProductGalleryVideo,
 } from '@/lib/productGalleryContent'
+import {
+  buildProductGalleryAdminPages,
+  getGalleryPageFromCatalogItem,
+  type ProductGalleryAdminPage,
+} from '@/lib/productGalleryAdminPages'
 import { runVerifiedSave, SaveVerificationError } from '@/lib/adminVerifiedSave'
 import { revalidateCmsPage } from './actions'
 import { createLocalPreview } from '@/lib/localCmsPreview'
@@ -89,12 +94,6 @@ type CmsSection = {
   contentJson: string | null
   sortOrder: number
   enabled: boolean
-}
-
-type ProductGalleryAdminPage = {
-  pageKey: string
-  label: string
-  href?: string
 }
 
 type CmsPageDetail = {
@@ -436,38 +435,7 @@ const productDetailAdminPages = [
 
 const productDetailPanels = productDetailAdminPages.map((item) => item.panel) as AdminPanel[]
 
-const motorizedFabricGalleryPageKey = 'product-gallery-urunler-motorlu-tul-ve-kumas-perdeler'
 const activeProductGalleryLocale: ProductGalleryLocale = 'tr'
-
-const normalizeSearchText = (value: string) =>
-  value
-    .toLocaleLowerCase('tr')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/ı/g, 'i')
-
-const productGalleryCollator = new Intl.Collator('tr', {
-  sensitivity: 'base',
-  numeric: true,
-})
-
-const hiddenProductGalleryLabels = new Set([
-  'deney',
-  'pro collection galerisi',
-])
-
-const isHiddenProductGallery = (page: ProductGalleryAdminPage) =>
-  hiddenProductGalleryLabels.has(page.label.trim().toLocaleLowerCase('tr'))
-
-const isMotorizedFabricGalleryLabel = (label: string) => {
-  const normalizedLabel = normalizeSearchText(label)
-  return (
-    normalizedLabel.includes('motorlu') &&
-    normalizedLabel.includes('tul') &&
-    normalizedLabel.includes('kumas') &&
-    normalizedLabel.includes('perde')
-  )
-}
 
 const getDefaultProductGalleryHeroCopy = (label: string): ProductGalleryHeroCopy => {
   if (label === 'Klasik ve Avangart Perde') {
@@ -914,52 +882,6 @@ const fallbackCardImage = '/api/public/media/images/d67000cc-c999-4e24-9023-8777
 const getNextNumericId = (items: Array<{ id: number }>) =>
   items.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1
 
-const normalizeInternalHref = (href: string) => {
-  const trimmedHref = href.trim()
-  if (!trimmedHref || trimmedHref.startsWith('http') || trimmedHref.startsWith('mailto:') || trimmedHref.startsWith('tel:')) {
-    return ''
-  }
-
-  return `/${trimmedHref.replace(/^\/+|\/+$/g, '')}`
-}
-
-const getProductGalleryPageKeyFromHref = (href: string) => {
-  const normalizedHref = normalizeInternalHref(href)
-  if (!normalizedHref) {
-    return ''
-  }
-
-  return `product-gallery-${normalizedHref.replace(/^\/+/, '').replace(/\//g, '-')}`
-}
-
-const productDetailGalleryPageKeys = new Set([
-  'product-gallery-urunler-mekanizmali-perdeler',
-  'product-gallery-urunler-tul-fon-perde',
-  'product-gallery-urunler-dosemelik-kumas',
-  'product-gallery-urunler-motorlu-perdeler',
-  'product-gallery-urunler-perde-aksesuarlari',
-  'product-gallery-urunler-metal-zincir-perde',
-])
-
-const getGalleryPageFromCatalogItem = (item: CatalogItem | ProductCategoryItem): ProductGalleryAdminPage | null => {
-  const normalizedHref = normalizeInternalHref(item.href)
-  const pageKey = getProductGalleryPageKeyFromHref(normalizedHref)
-  if (
-    !normalizedHref ||
-    productDetailGalleryPageKeys.has(pageKey) ||
-    !item.title.trim() ||
-    !['/urunler/', '/model-perdeler/', '/kurumsal-urunler/'].some((prefix) => normalizedHref.startsWith(prefix))
-  ) {
-    return null
-  }
-
-  return {
-    pageKey,
-    label: item.title,
-    href: normalizedHref,
-  }
-}
-
 const moveItemById = <T extends { id: number }>(items: T[], itemId: number, direction: 'up' | 'down') => {
   const index = items.findIndex((item) => item.id === itemId)
   const targetIndex = direction === 'up' ? index - 1 : index + 1
@@ -1065,34 +987,13 @@ const AdminPage = () => {
     return `Bearer ${authToken}`
   }, [authToken])
 
-  const productGalleryPages = useMemo(() => {
-    const pageMap = new Map<string, ProductGalleryAdminPage>()
-
-    pages
-      .filter((page) => page.pageKey.startsWith('product-gallery-') && !productDetailGalleryPageKeys.has(page.pageKey))
-      .forEach((page) => pageMap.set(page.pageKey, {
-        pageKey: page.pageKey,
-        label: page.title,
-        href: page.slug,
-      }))
-
-    ;[...productItems, ...modelItems, ...corporateItems, ...mechanizedForm.categories]
-      .map(getGalleryPageFromCatalogItem)
-      .filter((page): page is ProductGalleryAdminPage => Boolean(page))
-      .forEach((page) => pageMap.set(page.pageKey, page))
-
-    const galleryPages = Array.from(pageMap.values())
-    const hasMotorizedFabricGallery = galleryPages.some((page) => page.pageKey === motorizedFabricGalleryPageKey)
-
-    return galleryPages
-      .filter((page) => (
-        !hasMotorizedFabricGallery ||
-        !isMotorizedFabricGalleryLabel(page.label) ||
-        page.pageKey === motorizedFabricGalleryPageKey
-      ))
-      .filter((page) => !isHiddenProductGallery(page))
-      .sort((a, b) => productGalleryCollator.compare(a.label, b.label))
-  }, [corporateItems, mechanizedForm.categories, modelItems, pages, productItems])
+  const productGalleryPages = useMemo(() => buildProductGalleryAdminPages({
+    pages,
+    productItems,
+    modelItems,
+    corporateItems,
+    mechanizedCategories: mechanizedForm.categories,
+  }), [corporateItems, mechanizedForm.categories, modelItems, pages, productItems])
 
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
   const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey)

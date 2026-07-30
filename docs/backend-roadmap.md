@@ -54,10 +54,25 @@ sadece metadata ve URL/key bilgisi tutulmali.
 - Telefon/WhatsApp numaralari farkli yerlerde tekrar ediyor.
 - Blog sidebar icinde farkli telefon/adres degerleri var.
 - SEO metadata her sayfada daginik.
-- Urun galerileri her sayfanin icinde hardcoded.
+- Urun galerileri ortak CMS/katalog kaynaklarindan dinamik uretiliyor; basliklar ortak locale uyumlu model ve public bilesenle yonetiliyor.
 - Build config TypeScript ve ESLint hatalarini build sirasinda yok sayiyor.
 
 Backend tasariminda bu tekrarlar tek kaynak haline getirilmeli.
+
+## Ürün Galerisi Başlık Sözleşmesi
+
+Çalışan referans commit: `02fd37ae5c5c8ab109b8e1295ae731ed2413ed28`.
+
+- Ortak veri alanları `galleryEyebrow` ve `galleryTitle` alanlarıdır.
+- Alanlar locale bazlı değerleri destekler; mevcut model `tr`, `en`, `de`, `es` ve `ar` kodlarına genişletilebilir yapısını korur.
+- İlgili locale değerinin hiç bulunmaması ile bilinçli olarak `""` kaydedilmesi farklı durumlardır.
+- Eksik değerlerde legacy fallback kullanılabilir; bilinçli boş değerde fallback kullanılmaz.
+- Eski düz string kayıtlar geriye uyumluluk için Türkçe (`tr`) değer olarak okunur.
+- Ortak public bileşen `ProductGalleryHeading` bileşenidir. Özel ürün sayfalarında aynı başlık JSX'i tekrar oluşturulmamalıdır.
+- Admin ürün galerisi listesi gerçek CMS ve katalog ürün kaynaklarından dinamik üretilir.
+- Yeni ürünler için manuel admin listesi, Türkçe başlık eşlemesi veya slug eşlemesi eklenmemelidir.
+- Google başlığı, Google açıklaması ve diğer SEO alanları bu sistemden bağımsızdır.
+- Gelecekteki refactor çalışmalarında boş değer, locale izolasyonu, dinamik liste ve koşullu render davranışları korunmalıdır.
 
 ## Modular Monolith Modul Haritasi
 
