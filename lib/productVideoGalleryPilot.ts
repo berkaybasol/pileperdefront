@@ -22,3 +22,10 @@ const productVideoGalleryEnabledPageKeySet = new Set<string>(
 
 export const isProductVideoGalleryEnabled = (pageKey: string) =>
   productVideoGalleryEnabledPageKeySet.has(pageKey)
+
+export const isProductVideoGalleryAdminEnabled = (
+  activePageKey: string,
+  loadedCmsPageKey?: string | null,
+) => loadedCmsPageKey
+  ? isProductVideoGalleryEnabled(loadedCmsPageKey)
+  : isProductVideoGalleryEnabled(activePageKey)

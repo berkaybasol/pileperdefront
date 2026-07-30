@@ -12,6 +12,7 @@ import {
   type ProductVideoGallery,
 } from '@/lib/productGalleryContent'
 import {
+  isProductVideoGalleryAdminEnabled,
   isProductVideoGalleryEnabled,
   isProductVideoGalleryPilot,
   productVideoGalleryEnabledPageKeys,
@@ -142,6 +143,20 @@ describe('product video gallery content', () => {
     )).toBe(false)
     expect(isProductVideoGalleryEnabled(
       'product-gallery-urunler-mekanizmali-perdeler-stor-perde',
+    )).toBe(false)
+  })
+
+  it('renders the admin section from the loaded CMS pageKey when catalog selection state is stale', () => {
+    productVideoGalleryEnabledPageKeys.forEach((pageKey) => {
+      expect(isProductVideoGalleryAdminEnabled(
+        'product-gallery-urunler-mekanizmali-perdeler-stor-perde',
+        pageKey,
+      )).toBe(true)
+    })
+
+    expect(isProductVideoGalleryAdminEnabled(
+      productVideoGalleryPilotPageKey,
+      'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde',
     )).toBe(false)
   })
 })

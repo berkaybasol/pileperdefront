@@ -53,6 +53,7 @@ import { runVerifiedSave, SaveVerificationError } from '@/lib/adminVerifiedSave'
 import { revalidateCmsPage } from './actions'
 import { createLocalPreview } from '@/lib/localCmsPreview'
 import {
+  isProductVideoGalleryAdminEnabled,
   isProductVideoGalleryEnabled,
   isProductVideoGalleryPilot,
   productVideoGalleryPilotHref,
@@ -1019,6 +1020,11 @@ const AdminPage = () => {
   const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey)
     || productGalleryPages[0]
     || { pageKey: '', label: 'Ürün', displayLabel: 'Ürün' }
+  const loadedProductGalleryPageKey = selectedPage?.sections.some(
+    (section) => section.sectionKey === 'product.gallery',
+  )
+    ? selectedPage.pageKey
+    : null
   const getProductGalleryHeadingForWrite = () => {
     const localeHeading: Partial<ProductGalleryHeading> = {
       ...(hasLocalizedValue(storedProductGalleryHeading.galleryEyebrow, activeProductGalleryLocale)
@@ -4508,7 +4514,10 @@ const AdminPage = () => {
         </div>
       </div>
 
-      {isProductVideoGalleryEnabled(activeProductGalleryPage.pageKey) && (
+      {isProductVideoGalleryAdminEnabled(
+        activeProductGalleryPage.pageKey,
+        loadedProductGalleryPageKey,
+      ) && (
         <ProductVideoGalleryAdmin
           value={productVideoGallery}
           onChange={setProductVideoGallery}
