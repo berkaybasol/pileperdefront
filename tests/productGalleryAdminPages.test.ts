@@ -108,6 +108,11 @@ describe('dynamic product gallery admin pages', () => {
         slug: '/urunler/motorlu-perdeler/dis-cephe-jaluzi',
         title: 'Dış Cephe Jaluzi',
       },
+      {
+        pageKey: 'product-gallery-model-perdeler-kis-bahcesi-perde',
+        slug: '/model-perdeler/kis-bahcesi-perde',
+        title: 'Kış Bahçesi Perde Modelleri',
+      },
     ]
     const pages = buildProductGalleryAdminPages({
       pages: cmsPages,

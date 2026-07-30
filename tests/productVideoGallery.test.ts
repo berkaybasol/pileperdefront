@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import {
   buildProductGalleryContentJson,
   defaultProductVideoGallery,
@@ -132,12 +134,15 @@ describe('product video gallery content', () => {
     expect(parseProductGalleryImages('{"images":[]}', fallbackImages)).toEqual(fallbackImages)
   })
 
-  it('enables the feature only for the approved motorized product pageKeys', () => {
-    expect(new Set(productVideoGalleryEnabledPageKeys).size).toBe(6)
+  it('enables the feature only for the approved product pageKeys', () => {
+    expect(new Set(productVideoGalleryEnabledPageKeys).size).toBe(7)
     expect(isProductVideoGalleryPilot(productVideoGalleryPilotPageKey)).toBe(true)
     productVideoGalleryEnabledPageKeys.forEach((pageKey) => {
       expect(isProductVideoGalleryEnabled(pageKey)).toBe(true)
     })
+    expect(isProductVideoGalleryEnabled(
+      'product-gallery-model-perdeler-kis-bahcesi-perde',
+    )).toBe(true)
     expect(isProductVideoGalleryEnabled(
       'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde',
     )).toBe(false)
@@ -158,5 +163,31 @@ describe('product video gallery content', () => {
       productVideoGalleryPilotPageKey,
       'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde',
     )).toBe(false)
+  })
+
+  it('keeps the shared empty-state and click-to-load iframe guards intact', () => {
+    const componentSource = readFileSync(
+      resolve(process.cwd(), 'components/ProductVideoGallery.tsx'),
+      'utf8',
+    )
+
+    expect(componentSource).toContain('if (videos.length === 0)')
+    expect(componentSource).toContain('return null')
+    expect(componentSource.indexOf('{isLoaded ? (')).toBeLessThan(
+      componentSource.indexOf('<iframe'),
+    )
+  })
+
+  it('places the shared video gallery before the existing winter garden photo gallery', () => {
+    const pageSource = readFileSync(
+      resolve(process.cwd(), 'app/model-perdeler/kis-bahcesi-perde/page.tsx'),
+      'utf8',
+    )
+    const videoGalleryIndex = pageSource.indexOf('<ManagedProductVideoGallery')
+    const photoGalleryIndex = pageSource.indexOf('<ProductGalleryHeading')
+
+    expect(videoGalleryIndex).toBeGreaterThan(-1)
+    expect(photoGalleryIndex).toBeGreaterThan(videoGalleryIndex)
+    expect(pageSource.match(/<ManagedProductVideoGallery/g)).toHaveLength(1)
   })
 })

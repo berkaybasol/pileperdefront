@@ -1,6 +1,7 @@
 'use client'
 
 import ProductGalleryHeading from '@/components/ProductGalleryHeading'
+import ManagedProductVideoGallery from '@/components/ManagedProductVideoGallery'
 
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
@@ -117,8 +118,9 @@ const staggerContainerVariants = {
 export default function ModernPerdePage() {
   const [galleryImages, setGalleryImages] = useState(productImages)
   const [selectedImage, setSelectedImage] = useState(productImages[0])
+  const initialContentJson = useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery')
   const initialHeroCopy = parseProductGalleryHeroCopy(
-    useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery'),
+    initialContentJson,
     defaultHeroCopy,
   )
   const [heroCopy, setHeroCopy] = useState(initialHeroCopy)
@@ -232,6 +234,11 @@ export default function ModernPerdePage() {
           </div>
         </div>
       </section>
+
+      <ManagedProductVideoGallery
+        pageKey={PRODUCT_GALLERY_PAGE_KEY}
+        initialContentJson={initialContentJson}
+      />
 
       <section className={`relative border-t border-white/5 ${styles.gallerySection}`}>
         <div className="container mx-auto px-6">

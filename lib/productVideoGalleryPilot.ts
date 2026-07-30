@@ -14,6 +14,7 @@ export const productVideoGalleryEnabledPageKeys = [
   'product-gallery-urunler-motorlu-perdeler-motorlu-dikey-perdeler',
   'product-gallery-urunler-motorlu-perdeler-zip-perde',
   'product-gallery-urunler-motorlu-perdeler-dis-cephe-jaluzi',
+  'product-gallery-model-perdeler-kis-bahcesi-perde',
 ] as const
 
 const productVideoGalleryEnabledPageKeySet = new Set<string>(
