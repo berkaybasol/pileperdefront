@@ -46,7 +46,32 @@ describe('dynamic product gallery admin pages', () => {
     expect(pages).toContainEqual({
       pageKey: 'product-gallery-urunler-mekanizmali-perdeler-igne-perde',
       label: 'İğne Perde',
+      displayLabel: 'İğne Perde',
       href: '/urunler/mekanizmali-perdeler/igne-perde',
     })
+  })
+
+  it('keeps the real CMS title visible when a catalog label targets the same gallery record', () => {
+    const pages = buildProductGalleryAdminPages({
+      pages: [{
+        pageKey: 'product-gallery-model-perdeler-modern-perde',
+        slug: '/model-perdeler/modern-perde',
+        title: 'Modern Perde Modelleri',
+      }],
+      productItems: [],
+      modelItems: [{
+        title: 'Modern Perde',
+        href: '/model-perdeler/modern-perde',
+      }],
+      corporateItems: [],
+      mechanizedCategories: [],
+    })
+
+    expect(pages).toEqual([{
+      pageKey: 'product-gallery-model-perdeler-modern-perde',
+      label: 'Modern Perde',
+      displayLabel: 'Modern Perde Modelleri',
+      href: '/model-perdeler/modern-perde',
+    }])
   })
 })

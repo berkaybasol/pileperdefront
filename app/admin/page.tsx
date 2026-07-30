@@ -998,7 +998,7 @@ const AdminPage = () => {
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
   const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey)
     || productGalleryPages[0]
-    || { pageKey: '', label: 'Ürün' }
+    || { pageKey: '', label: 'Ürün', displayLabel: 'Ürün' }
   const getProductGalleryHeadingForWrite = () => {
     const localeHeading: Partial<ProductGalleryHeading> = {
       ...(hasLocalizedValue(storedProductGalleryHeading.galleryEyebrow, activeProductGalleryLocale)
@@ -4314,7 +4314,7 @@ const AdminPage = () => {
           >
             {productGalleryPages.map((item) => (
               <option key={item.pageKey} value={item.pageKey}>
-                {item.label}
+                {item.displayLabel}
               </option>
             ))}
           </select>

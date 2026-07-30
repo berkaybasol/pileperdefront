@@ -1,6 +1,7 @@
 export type ProductGalleryAdminPage = {
   pageKey: string
   label: string
+  displayLabel: string
   href?: string
 }
 
@@ -43,7 +44,8 @@ const hiddenProductGalleryLabels = new Set([
 ])
 
 const isHiddenProductGallery = (page: ProductGalleryAdminPage) =>
-  hiddenProductGalleryLabels.has(page.label.trim().toLocaleLowerCase('tr'))
+  [page.label, page.displayLabel].some((label) =>
+    hiddenProductGalleryLabels.has(label.trim().toLocaleLowerCase('tr')))
 
 const isMotorizedFabricGalleryLabel = (label: string) => {
   const normalizedLabel = normalizeSearchText(label)
@@ -99,6 +101,7 @@ export const getGalleryPageFromCatalogItem = (
   return {
     pageKey,
     label: item.title,
+    displayLabel: item.title,
     href: normalizedHref,
   }
 }
@@ -117,13 +120,20 @@ export const buildProductGalleryAdminPages = ({
     .forEach((page) => pageMap.set(page.pageKey, {
       pageKey: page.pageKey,
       label: page.title,
+      displayLabel: page.title,
       href: page.slug,
     }))
 
   ;[...productItems, ...modelItems, ...corporateItems, ...mechanizedCategories]
     .map(getGalleryPageFromCatalogItem)
     .filter((page): page is ProductGalleryAdminPage => Boolean(page))
-    .forEach((page) => pageMap.set(page.pageKey, page))
+    .forEach((page) => {
+      const cmsPage = pageMap.get(page.pageKey)
+      pageMap.set(page.pageKey, {
+        ...page,
+        displayLabel: cmsPage?.displayLabel || page.displayLabel,
+      })
+    })
 
   const galleryPages = Array.from(pageMap.values())
   const hasMotorizedFabricGallery = galleryPages.some((page) => page.pageKey === motorizedFabricGalleryPageKey)
@@ -135,5 +145,5 @@ export const buildProductGalleryAdminPages = ({
       page.pageKey === motorizedFabricGalleryPageKey
     ))
     .filter((page) => !isHiddenProductGallery(page))
-    .sort((a, b) => productGalleryCollator.compare(a.label, b.label))
+    .sort((a, b) => productGalleryCollator.compare(a.displayLabel, b.displayLabel))
 }
