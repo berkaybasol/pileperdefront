@@ -1,5 +1,7 @@
 'use client'
 
+import ProductGalleryHeading from '@/components/ProductGalleryHeading'
+
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
 
@@ -215,12 +217,14 @@ export default function ModernPerdePage() {
 
       <section className={`relative border-t border-white/5 ${styles.gallerySection}`}>
         <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <p className="text-sm text-gray-500 uppercase tracking-[0.3em] mb-4">Ürün Galerisi</p>
-            <h2 className="text-3xl md:text-4xl font-extralight text-white">
-              Cibinlik Perde Modelleri
-            </h2>
-          </div>
+          <ProductGalleryHeading
+            fallbackEyebrow="Ürün Galerisi"
+            fallbackTitle="Cibinlik Perde Modelleri"
+            className="text-center mb-16"
+            eyebrowClassName="text-sm text-gray-500 uppercase tracking-[0.3em]"
+            eyebrowTitleSpacingClassName="mb-4"
+            titleClassName="text-3xl md:text-4xl font-extralight text-white"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {galleryImages.map((image, index) => (

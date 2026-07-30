@@ -9,6 +9,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem as SeoBreadcrumbItem } from '@/lib/breadcrumbs'
 import ProductNavigationPilot from '@/components/ProductNavigationPilot'
+import ProductGalleryHeading from '@/components/ProductGalleryHeading'
 import {
   defaultProductGalleryVideo,
   getPublicProductGallery,
@@ -209,12 +210,13 @@ export default function ManagedProductGalleryPage({
       <ProductNavigationPilot>
       <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">
-          <div className="mb-16 text-center">
-            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-gray-500">Ürün Galerisi</p>
-            <h2 className="text-3xl font-extralight text-white md:text-4xl">
-              {galleryTitle}
-            </h2>
-          </div>
+          <ProductGalleryHeading
+            fallbackEyebrow="Ürün Galerisi"
+            fallbackTitle={galleryTitle}
+            className="mb-16 text-center"
+            eyebrowClassName="text-sm uppercase tracking-[0.3em] text-gray-500"
+            titleClassName="text-3xl font-extralight text-white md:text-4xl"
+          />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {images.map((image) => (

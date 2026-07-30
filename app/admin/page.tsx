@@ -27,9 +27,15 @@ import {
 } from '@/lib/blogContent'
 import {
   buildProductGalleryContentJson,
+  getStoredProductGalleryHeading,
+  mergeProductGalleryHeadingLocale,
   parseProductGalleryHeroCopy,
+  parseProductGalleryHeading,
   parseProductGalleryImages,
   parseProductGalleryVideo,
+  type ProductGalleryHeading,
+  type ProductGalleryLocale,
+  type LocalizedProductGalleryHeading,
   type ProductGalleryImage,
   type ProductGalleryHeroCopy,
   type ProductGalleryVideo,
@@ -430,55 +436,8 @@ const productDetailAdminPages = [
 
 const productDetailPanels = productDetailAdminPages.map((item) => item.panel) as AdminPanel[]
 
-const productGalleryAdminPages = [
-  { pageKey: 'product-gallery-model-perdeler-modern-perde', label: 'Modern Perde' },
-  { pageKey: 'product-gallery-model-perdeler-kruvaze-perde', label: 'Kruvaze Perde' },
-  { pageKey: 'product-gallery-model-perdeler-klasik-ve-avangart-perde', label: 'Klasik ve Avangart Perde' },
-  { pageKey: 'product-gallery-model-perdeler-rustikli-perde', label: 'Rustikli Perde' },
-  { pageKey: 'product-gallery-model-perdeler-katlamali-perde', label: 'Katlamalı Perde' },
-  { pageKey: 'product-gallery-model-perdeler-ip-perde', label: 'İp Perde' },
-  { pageKey: 'product-gallery-model-perdeler-yuksek-tavanli-galeri-perde', label: 'Yüksek Tavanlı Galeri Perde' },
-  { pageKey: 'product-gallery-model-perdeler-balon-perde', label: 'Balon Perde' },
-  { pageKey: 'product-gallery-model-perdeler-cati-kati-perde', label: 'Çatı Katı Perde' },
-  { pageKey: 'product-gallery-model-perdeler-kis-bahcesi-perde', label: 'Kış Bahçesi Perde' },
-  { pageKey: 'product-gallery-model-perdeler-cocuk-perde', label: 'Çocuk Perde' },
-  { pageKey: 'product-gallery-model-perdeler-cibinlik-perde', label: 'Cibinlik Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-jaluzi-perde-aluminyum-jaluzi-perde', label: 'Alüminyum Jaluzi Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-jaluzi-perde-ahsap-jaluzi-perde', label: 'Ahşap Jaluzi Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-jaluzi-perde-deri-jaluzi-perde', label: 'Deri Jaluzi Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-zebra-perde', label: 'Zebra Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-dikey-perde', label: 'Dikey Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-plise-perde', label: 'Plise Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-cam-balkon-perdeleri', label: 'Cam Balkon Perdeleri' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-silhouette-vision-perde', label: 'Silhouette Vision Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-stor-perde-screen-perde', label: 'Screen Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-stor-perde-tul-stor-perde', label: 'Tül Stor Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-stor-perde-karartma-stor-perde', label: 'Karartma Stor Perde' },
-  { pageKey: 'product-gallery-urunler-mekanizmali-perdeler-stor-perde-desenli-stor-perde', label: 'Desenli Stor Perde' },
-  { pageKey: 'product-gallery-urunler-tul-fon-perde-modern-fon-perde', label: 'Modern Fon Perde' },
-  { pageKey: 'product-gallery-urunler-tul-fon-perde-desenli-fon-perde', label: 'Desenli Fon Perde' },
-  { pageKey: 'product-gallery-urunler-tul-fon-perde-keten-fon-perde', label: 'Keten Fon Perde' },
-  { pageKey: 'product-gallery-urunler-dosemelik-kumas-dokulu-kumas', label: 'Dokulu Kumaş' },
-  { pageKey: 'product-gallery-urunler-dosemelik-kumas-kadife-kumas', label: 'Kadife Kumaş' },
-  { pageKey: 'product-gallery-urunler-dosemelik-kumas-desenli-kumas', label: 'Desenli Kumaş' },
-  { pageKey: 'product-gallery-urunler-perde-aksesuarlari-rustik-takimlari', label: 'Rustik Takımları' },
-  { pageKey: 'product-gallery-urunler-perde-aksesuarlari-kol-bagi', label: 'Kol Bağı' },
-  { pageKey: 'product-gallery-urunler-perde-aksesuarlari-bracol', label: 'Braçol' },
-  { pageKey: 'product-gallery-urunler-metal-zincir-perde-metal-zincir-perde', label: 'Metal Zincir Perde' },
-  { pageKey: 'product-gallery-urunler-metal-zincir-perde-metal-zincir-seperator', label: 'Metal Zincir Seperatör' },
-  { pageKey: 'product-gallery-urunler-metal-zincir-perde-pro-collection', label: 'Pro Collection' },
-  { pageKey: 'product-gallery-urunler-motorlu-tul-ve-kumas-perdeler', label: 'Motorlu Tül ve Kumaş Perdeler' },
-  { pageKey: 'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde', label: 'Projeksiyon Perde' },
-  { pageKey: 'product-gallery-urunler-motorlu-perdeler-zip-perde', label: 'Zip Perde' },
-  { pageKey: 'product-gallery-urunler-motorlu-perdeler-dis-cephe-jaluzi', label: 'Dış Cephe Jaluzi' },
-  { pageKey: 'product-gallery-kurumsal-urunler-ozel-proje-perdeleri', label: 'Özel Proje Perdeleri' },
-  { pageKey: 'product-gallery-kurumsal-urunler-cafe-restoran-perdeleri', label: 'Cafe Restoran Perdeleri' },
-  { pageKey: 'product-gallery-kurumsal-urunler-hastane-perdeleri', label: 'Hastane Perdeleri' },
-  { pageKey: 'product-gallery-kurumsal-urunler-ofis-perdeleri', label: 'Ofis Perdeleri' },
-  { pageKey: 'product-gallery-kurumsal-urunler-otel-perdeleri', label: 'Otel Perdeleri' },
-] as const
-
 const motorizedFabricGalleryPageKey = 'product-gallery-urunler-motorlu-tul-ve-kumas-perdeler'
+const activeProductGalleryLocale: ProductGalleryLocale = 'tr'
 
 const normalizeSearchText = (value: string) =>
   value
@@ -537,28 +496,45 @@ const getDefaultProductGalleryVideo = (label: string): ProductGalleryVideo => ({
   enabled: false,
 })
 
-const productDetailCategoryGalleryPages: Record<string, Record<string, string>> = {
-  'product-tul-fon-perde': {
-    'Modern Fon Perde': 'product-gallery-urunler-tul-fon-perde-modern-fon-perde',
-    'Desenli Fon Perde': 'product-gallery-urunler-tul-fon-perde-desenli-fon-perde',
-    'Keten Fon Perde': 'product-gallery-urunler-tul-fon-perde-keten-fon-perde',
-  },
-  'product-dosemelik-kumas': {
-    'Dokulu Kumaş': 'product-gallery-urunler-dosemelik-kumas-dokulu-kumas',
-    'Kadife Kumaş': 'product-gallery-urunler-dosemelik-kumas-kadife-kumas',
-    'Desenli Kumaş': 'product-gallery-urunler-dosemelik-kumas-desenli-kumas',
-  },
-  'product-perde-aksesuarlari': {
-    'Rustik Takımları': 'product-gallery-urunler-perde-aksesuarlari-rustik-takimlari',
-    'Kol Bağı': 'product-gallery-urunler-perde-aksesuarlari-kol-bagi',
-    'Braçol': 'product-gallery-urunler-perde-aksesuarlari-bracol',
-  },
-  'product-metal-zincir-perde': {
-    'Metal Zincir Perde': 'product-gallery-urunler-metal-zincir-perde-metal-zincir-perde',
-    'Metal Zincir Seperatör': 'product-gallery-urunler-metal-zincir-perde-metal-zincir-seperator',
-    'Pro Collection': 'product-gallery-urunler-metal-zincir-perde-pro-collection',
-  },
+const emptyProductGalleryHeading: ProductGalleryHeading = {
+  galleryEyebrow: '',
+  galleryTitle: '',
 }
+
+const readPublicProductGalleryFallbackHeading = async (slug: string): Promise<ProductGalleryHeading | null> => {
+  if (!slug.startsWith('/')) {
+    return null
+  }
+
+  try {
+    const response = await fetch(slug, { cache: 'no-store' })
+    if (!response.ok) {
+      return null
+    }
+
+    const document = new DOMParser().parseFromString(await response.text(), 'text/html')
+    const marker = document.querySelector<HTMLElement>('[data-product-gallery-heading]')
+    if (!marker) {
+      return null
+    }
+
+    return {
+      galleryEyebrow: marker.dataset.galleryFallbackEyebrow ?? '',
+      galleryTitle: marker.dataset.galleryFallbackTitle ?? '',
+    }
+  } catch {
+    return null
+  }
+}
+
+const hasLocalizedValue = (
+  field: LocalizedProductGalleryHeading['galleryEyebrow'],
+  locale: string,
+) => Boolean(field && Object.prototype.hasOwnProperty.call(field, locale))
+
+const getDefaultProductGalleryHeading = (): ProductGalleryHeading => ({
+  ...emptyProductGalleryHeading,
+})
 
 const defaultHeroSlides: HeroSlideForm[] = [
   {
@@ -1023,14 +999,21 @@ const AdminPage = () => {
   const [corporateItems, setCorporateItems] = useState<CatalogItem[]>(defaultCorporateItems)
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(defaultBlogPosts)
   const [mechanizedForm, setMechanizedForm] = useState<ProductDetailContent>(defaultMekanizmaliPerdelerContent)
-  const [selectedProductGalleryPageKey, setSelectedProductGalleryPageKey] = useState<string>(productGalleryAdminPages[0].pageKey)
+  const [selectedProductGalleryPageKey, setSelectedProductGalleryPageKey] = useState('')
   const [productGalleryImages, setProductGalleryImages] = useState<ProductGalleryImage[]>([])
   const [productGalleryHeroCopy, setProductGalleryHeroCopy] = useState<ProductGalleryHeroCopy>(
-    getDefaultProductGalleryHeroCopy(productGalleryAdminPages[0].label),
+    getDefaultProductGalleryHeroCopy('Ürün'),
   )
   const [productGalleryVideo, setProductGalleryVideo] = useState<ProductGalleryVideo>(
-    getDefaultProductGalleryVideo(productGalleryAdminPages[0].label),
+    getDefaultProductGalleryVideo('Ürün'),
   )
+  const [productGalleryHeading, setProductGalleryHeading] = useState<ProductGalleryHeading>(
+    getDefaultProductGalleryHeading(),
+  )
+  const [productGalleryFallbackHeading, setProductGalleryFallbackHeading] = useState<ProductGalleryHeading>(
+    getDefaultProductGalleryHeading(),
+  )
+  const [storedProductGalleryHeading, setStoredProductGalleryHeading] = useState<LocalizedProductGalleryHeading>({})
   const [aboutForm, setAboutForm] = useState<AboutForm>(defaultAboutForm)
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([])
   const [expandedMediaPickerKey, setExpandedMediaPickerKey] = useState<string | null>(null)
@@ -1085,7 +1068,6 @@ const AdminPage = () => {
   const productGalleryPages = useMemo(() => {
     const pageMap = new Map<string, ProductGalleryAdminPage>()
 
-    productGalleryAdminPages.forEach((page) => pageMap.set(page.pageKey, page))
     pages
       .filter((page) => page.pageKey.startsWith('product-gallery-') && !productDetailGalleryPageKeys.has(page.pageKey))
       .forEach((page) => pageMap.set(page.pageKey, {
@@ -1113,7 +1095,23 @@ const AdminPage = () => {
   }, [corporateItems, mechanizedForm.categories, modelItems, pages, productItems])
 
   const activeProductDetailPage = productDetailAdminPages.find((item) => item.panel === activePanel)
-  const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey) || productGalleryPages[0] || productGalleryAdminPages[0]
+  const activeProductGalleryPage = productGalleryPages.find((item) => item.pageKey === selectedProductGalleryPageKey)
+    || productGalleryPages[0]
+    || { pageKey: '', label: 'Ürün' }
+  const getProductGalleryHeadingForWrite = () => {
+    const localeHeading: Partial<ProductGalleryHeading> = {
+      ...(hasLocalizedValue(storedProductGalleryHeading.galleryEyebrow, activeProductGalleryLocale)
+        || productGalleryHeading.galleryEyebrow !== productGalleryFallbackHeading.galleryEyebrow
+        ? { galleryEyebrow: productGalleryHeading.galleryEyebrow }
+        : {}),
+      ...(hasLocalizedValue(storedProductGalleryHeading.galleryTitle, activeProductGalleryLocale)
+        || productGalleryHeading.galleryTitle !== productGalleryFallbackHeading.galleryTitle
+        ? { galleryTitle: productGalleryHeading.galleryTitle }
+        : {}),
+    }
+
+    return mergeProductGalleryHeadingLocale(storedProductGalleryHeading, activeProductGalleryLocale, localeHeading)
+  }
   const selectedContactRequest = contactRequests.find((requestItem) => requestItem.id === selectedContactRequestId) || null
   const getMediaPickerAssets = (pickerKey: string) =>
     expandedMediaPickerKey === pickerKey ? mediaAssets : mediaAssets.slice(0, 16)
@@ -1376,6 +1374,12 @@ const AdminPage = () => {
       const blogSection = page.sections.find((section) => section.sectionKey === 'blog.list') || null
       const productDetailSection = page.sections.find((section) => section.sectionKey === 'product.detail') || null
       const productGallerySection = page.sections.find((section) => section.sectionKey === 'product.gallery') || null
+      const productGalleryFallback = productGallerySection
+        ? await readPublicProductGalleryFallbackHeading(page.slug) || getDefaultProductGalleryHeading()
+        : getDefaultProductGalleryHeading()
+      if (requestId !== pageLoadRequestId.current) {
+        return
+      }
       setPageForm({
         slug: page.slug,
         title: page.title,
@@ -1429,10 +1433,20 @@ const AdminPage = () => {
           productGallerySection.contentJson,
           getDefaultProductGalleryVideo(loadedProductGalleryPage.label),
         ))
+        setProductGalleryFallbackHeading(productGalleryFallback)
+        setProductGalleryHeading(parseProductGalleryHeading(
+          productGallerySection.contentJson,
+          productGalleryFallback,
+          activeProductGalleryLocale,
+        ))
+        setStoredProductGalleryHeading(getStoredProductGalleryHeading(productGallerySection.contentJson))
       } else {
         setProductGalleryImages([])
         setProductGalleryHeroCopy(getDefaultProductGalleryHeroCopy(loadedProductGalleryPage.label))
         setProductGalleryVideo(getDefaultProductGalleryVideo(loadedProductGalleryPage.label))
+        setProductGalleryFallbackHeading(getDefaultProductGalleryHeading())
+        setProductGalleryHeading(getDefaultProductGalleryHeading())
+        setStoredProductGalleryHeading({})
       }
     } catch (error) {
       if (requestId === pageLoadRequestId.current) {
@@ -2118,6 +2132,12 @@ const AdminPage = () => {
           section.contentJson,
           getDefaultProductGalleryVideo(activeProductGalleryPage.label),
         ))
+        setProductGalleryHeading(parseProductGalleryHeading(
+          section.contentJson,
+          productGalleryFallbackHeading,
+          activeProductGalleryLocale,
+        ))
+        setStoredProductGalleryHeading(getStoredProductGalleryHeading(section.contentJson))
       }
     }
   }
@@ -2555,7 +2575,12 @@ const AdminPage = () => {
         title: gallerySection.title || '',
         subtitle: gallerySection.subtitle || '',
         body: gallerySection.body || '',
-        contentJson: buildProductGalleryContentJson(savedGalleryImages, productGalleryHeroCopy, productGalleryVideo),
+        contentJson: buildProductGalleryContentJson(
+          savedGalleryImages,
+          productGalleryHeroCopy,
+          productGalleryVideo,
+          getProductGalleryHeadingForWrite(),
+        ),
         sortOrder: gallerySection.sortOrder,
         enabled: gallerySection.enabled,
       },
@@ -3141,7 +3166,12 @@ const AdminPage = () => {
     if (activePanel === 'productGalleries') {
       const current = section('product.gallery')
       return current ? differs('product.gallery', requestFrom(current, {
-        contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy, productGalleryVideo),
+        contentJson: buildProductGalleryContentJson(
+          productGalleryImages,
+          productGalleryHeroCopy,
+          productGalleryVideo,
+          getProductGalleryHeadingForWrite(),
+        ),
       })) : false
     }
     if (productDetailPanels.includes(activePanel)) {
@@ -3195,7 +3225,12 @@ const AdminPage = () => {
     if (activePanel === 'corporateProducts') patchSection('corporate.grid', { contentJson: buildCatalogContentJson(corporateItems) })
     if (activePanel === 'blog') patchSection('blog.list', { contentJson: buildBlogContentJson(blogPosts) })
     if (activePanel === 'productGalleries') patchSection('product.gallery', {
-      contentJson: buildProductGalleryContentJson(productGalleryImages, productGalleryHeroCopy, productGalleryVideo),
+      contentJson: buildProductGalleryContentJson(
+        productGalleryImages,
+        productGalleryHeroCopy,
+        productGalleryVideo,
+        getProductGalleryHeadingForWrite(),
+      ),
     })
     if (productDetailPanels.includes(activePanel)) patchSection('product.detail', {
       title: mechanizedForm.heroTitle, subtitle: mechanizedForm.heroEyebrow,
@@ -4443,6 +4478,45 @@ const AdminPage = () => {
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
+            <h2 className="text-lg font-semibold">Galeri başlıkları</h2>
+            <p className="mt-1 text-sm text-[#6f6960]">
+              Public ürün galerisinin üstünde görünen küçük etiket ve ana başlık. Bilerek boş kaydedilen alanlar public sayfada gösterilmez.
+            </p>
+          </div>
+          <span className="rounded-full bg-[#f1eadf] px-3 py-1 text-xs font-semibold text-[#6b4f1d]">
+            Türkçe (tr)
+          </span>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <label className="text-sm font-medium text-[#3a342c]">
+            Galeri küçük etiketi
+            <input
+              value={productGalleryHeading.galleryEyebrow}
+              onChange={(event) => setProductGalleryHeading((current) => ({
+                ...current,
+                galleryEyebrow: event.target.value,
+              }))}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+          <label className="text-sm font-medium text-[#3a342c]">
+            Galeri ana başlığı
+            <input
+              value={productGalleryHeading.galleryTitle}
+              onChange={(event) => setProductGalleryHeading((current) => ({
+                ...current,
+                galleryTitle: event.target.value,
+              }))}
+              className="mt-2 w-full rounded-md border border-[#d8d0c3] bg-[#fbfaf7] px-3 py-2 text-sm outline-none focus:border-[#9d7b46]"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
             <h2 className="text-lg font-semibold">Video anlatım</h2>
             <p className="mt-1 text-sm text-[#6f6960]">
               Public ürün sayfasında galeri öncesinde görünen tek YouTube videosu.
@@ -5024,12 +5098,7 @@ const AdminPage = () => {
                 </label>
 
                 {(() => {
-                  const mappedGalleryPageKey = activeProductDetailPage
-                    ? productDetailCategoryGalleryPages[activeProductDetailPage.pageKey]?.[item.title]
-                    : null
-                  const galleryPage = mappedGalleryPageKey
-                    ? productGalleryPages.find((page) => page.pageKey === mappedGalleryPageKey) || getGalleryPageFromCatalogItem(item)
-                    : getGalleryPageFromCatalogItem(item)
+                  const galleryPage = getGalleryPageFromCatalogItem(item)
 
                   if (!galleryPage) {
                     return null

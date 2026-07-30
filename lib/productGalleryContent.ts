@@ -42,6 +42,19 @@ export type ProductGalleryVideo = {
   enabled?: boolean
 }
 
+export type ProductGalleryHeading = {
+  galleryEyebrow: string
+  galleryTitle: string
+}
+
+export const productGalleryLocaleCodes = ['tr', 'en', 'de', 'es', 'ar'] as const
+export type ProductGalleryLocale = typeof productGalleryLocaleCodes[number]
+export type LocalizedProductGalleryText = Partial<Record<ProductGalleryLocale | string, string>>
+export type LocalizedProductGalleryHeading = {
+  galleryEyebrow?: LocalizedProductGalleryText
+  galleryTitle?: LocalizedProductGalleryText
+}
+
 export const defaultProductGalleryVideo: ProductGalleryVideo = {
   title: 'Nasıl Çalışır?',
   description: '',
@@ -223,14 +236,93 @@ export const parseProductGalleryVideo = (
   }
 }
 
+export const parseProductGalleryHeading = (
+  contentJson: string | null | undefined,
+  fallbackHeading: ProductGalleryHeading,
+  locale: ProductGalleryLocale = 'tr',
+) => {
+  if (!contentJson) {
+    return fallbackHeading
+  }
+
+  try {
+    const storedHeading = getStoredProductGalleryHeading(contentJson)
+    const storedEyebrow = storedHeading.galleryEyebrow
+    const storedTitle = storedHeading.galleryTitle
+
+    return {
+      galleryEyebrow: storedEyebrow && Object.prototype.hasOwnProperty.call(storedEyebrow, locale)
+        ? storedEyebrow[locale] as string
+        : fallbackHeading.galleryEyebrow,
+      galleryTitle: storedTitle && Object.prototype.hasOwnProperty.call(storedTitle, locale)
+        ? storedTitle[locale] as string
+        : fallbackHeading.galleryTitle,
+    }
+  } catch {
+    return fallbackHeading
+  }
+}
+
+export const getStoredProductGalleryHeading = (
+  contentJson: string | null | undefined,
+): LocalizedProductGalleryHeading => {
+  if (!contentJson) {
+    return {}
+  }
+
+  try {
+    const parsed = JSON.parse(contentJson) as {
+      galleryEyebrow?: string | Record<string, unknown>
+      galleryTitle?: string | Record<string, unknown>
+    }
+    const heading: LocalizedProductGalleryHeading = {}
+    const normalizeField = (field: string | Record<string, unknown> | undefined) => {
+      if (typeof field === 'string') {
+        return { tr: field }
+      }
+      if (!field || typeof field !== 'object' || Array.isArray(field)) {
+        return undefined
+      }
+
+      return Object.fromEntries(
+        Object.entries(field).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+      )
+    }
+    const galleryEyebrow = normalizeField(parsed.galleryEyebrow)
+    const galleryTitle = normalizeField(parsed.galleryTitle)
+
+    if (galleryEyebrow) heading.galleryEyebrow = galleryEyebrow
+    if (galleryTitle) heading.galleryTitle = galleryTitle
+
+    return heading
+  } catch {
+    return {}
+  }
+}
+
+export const mergeProductGalleryHeadingLocale = (
+  storedHeading: LocalizedProductGalleryHeading,
+  locale: ProductGalleryLocale,
+  heading: Partial<ProductGalleryHeading>,
+): LocalizedProductGalleryHeading => ({
+  ...(heading.galleryEyebrow !== undefined
+    ? { galleryEyebrow: { ...storedHeading.galleryEyebrow, [locale]: heading.galleryEyebrow } }
+    : storedHeading.galleryEyebrow ? { galleryEyebrow: storedHeading.galleryEyebrow } : {}),
+  ...(heading.galleryTitle !== undefined
+    ? { galleryTitle: { ...storedHeading.galleryTitle, [locale]: heading.galleryTitle } }
+    : storedHeading.galleryTitle ? { galleryTitle: storedHeading.galleryTitle } : {}),
+})
+
 export const buildProductGalleryContentJson = (
   images: ProductGalleryImage[],
   hero?: ProductGalleryHeroCopy,
   video?: ProductGalleryVideo,
+  heading?: LocalizedProductGalleryHeading,
 ) =>
   JSON.stringify({
     ...(hero ? { hero } : {}),
     ...(video ? { video } : {}),
+    ...(heading || {}),
     images,
   }, null, 2)
 
@@ -344,5 +436,33 @@ export const getPublicProductGalleryVideo = async (
     return parseProductGalleryVideo(section.contentJson, fallbackVideo)
   } catch {
     return fallbackVideo
+  }
+}
+
+export const getPublicProductGalleryHeading = async (
+  pageKey: string,
+  fallbackHeading: ProductGalleryHeading,
+  locale: ProductGalleryLocale = 'tr',
+) => {
+  const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
+  if (previewJson) return parseProductGalleryHeading(previewJson, fallbackHeading, locale)
+  try {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/${pageKey}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      return fallbackHeading
+    }
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
+    if (!section || !section.enabled) {
+      return fallbackHeading
+    }
+
+    return parseProductGalleryHeading(section.contentJson, fallbackHeading, locale)
+  } catch {
+    return fallbackHeading
   }
 }
