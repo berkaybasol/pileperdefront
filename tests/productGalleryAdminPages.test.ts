@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildProductGalleryAdminPages } from '@/lib/productGalleryAdminPages'
+import { productVideoGalleryEnabledPageKeys } from '@/lib/productVideoGalleryPilot'
 
 describe('dynamic product gallery admin pages', () => {
   it('adds a new source product without a manual mapping and preserves filters and Turkish sorting', () => {
@@ -73,5 +74,54 @@ describe('dynamic product gallery admin pages', () => {
       displayLabel: 'Modern Perde Modelleri',
       href: '/model-perdeler/modern-perde',
     }])
+  })
+
+  it('keeps every enabled motorized gallery page exactly once when CMS and catalog sources overlap', () => {
+    const cmsPages = [
+      {
+        pageKey: 'product-gallery-urunler-motorlu-tul-ve-kumas-perdeler',
+        slug: '/urunler-motorlu-tul-ve-kumas-perdeler',
+        title: 'Motorlu Tül ve Kumaş Perdeler',
+      },
+      {
+        pageKey: 'product-gallery-urunler-motorlu-perdeler-ahsap-jaluzi',
+        slug: '/urunler/motorlu-perdeler/ahsap-jaluzi',
+        title: 'Motorlu Ahşap Jaluziler',
+      },
+      {
+        pageKey: 'product-gallery-urunler-motorlu-perdeler-motorlu-stor-perdeler',
+        slug: '/urunler/motorlu-perdeler/motorlu-stor-perdeler',
+        title: 'Motorlu Stor Perdeler',
+      },
+      {
+        pageKey: 'product-gallery-urunler-motorlu-perdeler-motorlu-dikey-perdeler',
+        slug: '/urunler/motorlu-perdeler/motorlu-dikey-perdeler',
+        title: 'Motorlu Dikey Perdeler',
+      },
+      {
+        pageKey: 'product-gallery-urunler-motorlu-perdeler-zip-perde',
+        slug: '/urunler/motorlu-perdeler/zip-perde',
+        title: 'Zip Perde',
+      },
+      {
+        pageKey: 'product-gallery-urunler-motorlu-perdeler-dis-cephe-jaluzi',
+        slug: '/urunler/motorlu-perdeler/dis-cephe-jaluzi',
+        title: 'Dış Cephe Jaluzi',
+      },
+    ]
+    const pages = buildProductGalleryAdminPages({
+      pages: cmsPages,
+      productItems: cmsPages.slice(1).map((page) => ({
+        title: page.title,
+        href: page.slug,
+      })),
+      modelItems: [],
+      corporateItems: [],
+      mechanizedCategories: [],
+    })
+
+    productVideoGalleryEnabledPageKeys.forEach((pageKey) => {
+      expect(pages.filter((page) => page.pageKey === pageKey)).toHaveLength(1)
+    })
   })
 })

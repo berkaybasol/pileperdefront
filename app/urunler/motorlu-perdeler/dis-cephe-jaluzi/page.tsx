@@ -1,6 +1,7 @@
 'use client'
 
 import ProductGalleryHeading from '@/components/ProductGalleryHeading'
+import ManagedProductVideoGallery from '@/components/ManagedProductVideoGallery'
 
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
@@ -120,9 +121,10 @@ const staggerContainerVariants = {
 
 export default function ProksiyonPerdePage() {
   const [galleryImages, setGalleryImages] = useState<ProductGalleryImage[]>(productImages)
-  const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(productImages[0])
+  const [selectedImage, setSelectedImage] = useState<ProductGalleryImage | null>(productImages[0] || null)
+  const initialContentJson = useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery')
   const initialHeroCopy = parseProductGalleryHeroCopy(
-    useCmsSectionJson(PRODUCT_GALLERY_PAGE_KEY, 'product.gallery'),
+    initialContentJson,
     defaultHeroCopy,
   )
   const [heroCopy, setHeroCopy] = useState(initialHeroCopy)
@@ -138,10 +140,12 @@ export default function ProksiyonPerdePage() {
       enabled: false,
     }
 
-    getPublicProductGallery(PRODUCT_GALLERY_PAGE_KEY, productImages).then((images) => {
-      if (isMounted && images.length > 0) {
+    getPublicProductGallery(PRODUCT_GALLERY_PAGE_KEY, productImages, true).then((images) => {
+      if (isMounted) {
         setGalleryImages(images)
-        setSelectedImage(images[0])
+        setSelectedImage((current) => (
+          images.find((image) => image.id === current?.id) || images[0] || null
+        ))
       }
     })
 
@@ -167,15 +171,19 @@ export default function ProksiyonPerdePage() {
   }, [])
   
   // Lightbox navigation functions
-  const currentImageIndex = galleryImages.findIndex(img => img.id === selectedImage.id)
+  const currentImageIndex = selectedImage
+    ? galleryImages.findIndex(img => img.id === selectedImage.id)
+    : -1
   const videoEmbedUrl = getYouTubeEmbedUrl(productVideo.youtubeUrl)
 
   const goToPrevious = () => {
+    if (galleryImages.length === 0) return
     const prevIndex = currentImageIndex > 0 ? currentImageIndex - 1 : galleryImages.length - 1
     setSelectedImage(galleryImages[prevIndex])
   }
 
   const goToNext = () => {
+    if (galleryImages.length === 0) return
     const nextIndex = currentImageIndex < galleryImages.length - 1 ? currentImageIndex + 1 : 0
     setSelectedImage(galleryImages[nextIndex])
   }
@@ -339,8 +347,13 @@ export default function ProksiyonPerdePage() {
         </div>
       </section>
 
+      <ManagedProductVideoGallery
+        pageKey={PRODUCT_GALLERY_PAGE_KEY}
+        initialContentJson={initialContentJson}
+      />
+
       {/* Full Product Gallery - Dark Glassmorphism Grid */}
-      <section className="relative py-20 border-t border-white/5">
+      {galleryImages.length > 0 && <section className="relative py-20 border-t border-white/5">
         <div className="container mx-auto px-6">
           <ProductGalleryHeading
             fallbackEyebrow="Ürün Galerisi"
@@ -400,7 +413,7 @@ export default function ProksiyonPerdePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Product Features - Dark Glassmorphism Cards */}
       <section className="relative py-20 border-t border-white/5">
@@ -536,7 +549,7 @@ export default function ProksiyonPerdePage() {
 
       {/* Lightbox Modal */}
       <AnimatePresence>
-        {lightboxOpen && (
+        {lightboxOpen && selectedImage && (
           <motion.div
             className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
             onClick={() => setLightboxOpen(false)}

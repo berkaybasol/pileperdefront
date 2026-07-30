@@ -12,16 +12,25 @@ import {
   type ProductVideoGallery,
 } from '@/lib/productGalleryContent'
 import {
+  isProductVideoGalleryEnabled,
   isProductVideoGalleryPilot,
+  productVideoGalleryEnabledPageKeys,
   productVideoGalleryPilotPageKey,
 } from '@/lib/productVideoGalleryPilot'
 
 describe('product video gallery content', () => {
+  it('uses the shared motorized gallery fallback headings without writing CMS data', () => {
+    expect(defaultProductVideoGallery.eyebrow).toEqual({ tr: 'VİDEO GALERİSİ' })
+    expect(defaultProductVideoGallery.title).toEqual({ tr: 'Motorlu Perde Uygulamaları' })
+    expect(defaultProductVideoGallery.videos).toEqual([])
+  })
+
   it.each([
     ['https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'dQw4w9WgXcQ'],
     ['https://youtu.be/dQw4w9WgXcQ?t=2', 'dQw4w9WgXcQ'],
     ['https://youtube.com/shorts/dQw4w9WgXcQ', 'dQw4w9WgXcQ'],
     ['youtube.com/embed/dQw4w9WgXcQ', 'dQw4w9WgXcQ'],
+    ['https://youtube.com/live/dQw4w9WgXcQ', 'dQw4w9WgXcQ'],
   ])('parses supported YouTube URL %s', (url, expectedId) => {
     expect(getYouTubeVideoId(url)).toBe(expectedId)
   })
@@ -122,9 +131,17 @@ describe('product video gallery content', () => {
     expect(parseProductGalleryImages('{"images":[]}', fallbackImages)).toEqual(fallbackImages)
   })
 
-  it('enables the feature only for the approved pilot pageKey', () => {
+  it('enables the feature only for the approved motorized product pageKeys', () => {
+    expect(new Set(productVideoGalleryEnabledPageKeys).size).toBe(6)
     expect(isProductVideoGalleryPilot(productVideoGalleryPilotPageKey)).toBe(true)
-    expect(isProductVideoGalleryPilot('product-gallery-urunler-motorlu-perdeler-ahsap-jaluzi')).toBe(false)
-    expect(isProductVideoGalleryPilot('product-gallery-urunler-motorlu-perdeler-zip-perde')).toBe(false)
+    productVideoGalleryEnabledPageKeys.forEach((pageKey) => {
+      expect(isProductVideoGalleryEnabled(pageKey)).toBe(true)
+    })
+    expect(isProductVideoGalleryEnabled(
+      'product-gallery-urunler-motorlu-perdeler-projeksiyon-perde',
+    )).toBe(false)
+    expect(isProductVideoGalleryEnabled(
+      'product-gallery-urunler-mekanizmali-perdeler-stor-perde',
+    )).toBe(false)
   })
 })

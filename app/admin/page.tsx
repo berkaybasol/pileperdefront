@@ -53,6 +53,7 @@ import { runVerifiedSave, SaveVerificationError } from '@/lib/adminVerifiedSave'
 import { revalidateCmsPage } from './actions'
 import { createLocalPreview } from '@/lib/localCmsPreview'
 import {
+  isProductVideoGalleryEnabled,
   isProductVideoGalleryPilot,
   productVideoGalleryPilotHref,
 } from '@/lib/productVideoGalleryPilot'
@@ -2512,7 +2513,7 @@ const AdminPage = () => {
           productGalleryHeroCopy,
           productGalleryVideo,
           getProductGalleryHeadingForWrite(),
-          isProductVideoGalleryPilot(pageAtSave.pageKey) || productVideoGalleryStored
+          isProductVideoGalleryEnabled(pageAtSave.pageKey) || productVideoGalleryStored
             ? productVideoGallery
             : undefined,
         ),
@@ -3106,7 +3107,7 @@ const AdminPage = () => {
           productGalleryHeroCopy,
           productGalleryVideo,
           getProductGalleryHeadingForWrite(),
-          isProductVideoGalleryPilot(selectedPage.pageKey) || productVideoGalleryStored
+          isProductVideoGalleryEnabled(selectedPage.pageKey) || productVideoGalleryStored
             ? productVideoGallery
             : undefined,
         ),
@@ -3168,7 +3169,7 @@ const AdminPage = () => {
         productGalleryHeroCopy,
         productGalleryVideo,
         getProductGalleryHeadingForWrite(),
-        isProductVideoGalleryPilot(selectedPage.pageKey) || productVideoGalleryStored
+        isProductVideoGalleryEnabled(selectedPage.pageKey) || productVideoGalleryStored
           ? productVideoGallery
           : undefined,
       ),
@@ -4507,7 +4508,7 @@ const AdminPage = () => {
         </div>
       </div>
 
-      {isProductVideoGalleryPilot(activeProductGalleryPage.pageKey) && (
+      {isProductVideoGalleryEnabled(activeProductGalleryPage.pageKey) && (
         <ProductVideoGalleryAdmin
           value={productVideoGallery}
           onChange={setProductVideoGallery}

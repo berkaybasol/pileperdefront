@@ -72,7 +72,7 @@ export type ProductVideoGallery = {
 
 export const defaultProductVideoGallery: ProductVideoGallery = {
   eyebrow: { tr: 'VİDEO GALERİSİ' },
-  title: { tr: 'Motorlu Perde Videoları' },
+  title: { tr: 'Motorlu Perde Uygulamaları' },
   videos: [],
 }
 

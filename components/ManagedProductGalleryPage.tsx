@@ -10,24 +10,20 @@ import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem as SeoBreadcrumbItem } from '@/lib/breadcrumbs'
 import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 import ProductGalleryHeading from '@/components/ProductGalleryHeading'
-import ProductVideoGallery from '@/components/ProductVideoGallery'
-import { isProductVideoGalleryPilot } from '@/lib/productVideoGalleryPilot'
+import ManagedProductVideoGallery from '@/components/ManagedProductVideoGallery'
+import { isProductVideoGalleryEnabled } from '@/lib/productVideoGalleryPilot'
 import {
-  defaultProductVideoGallery,
   defaultProductGalleryVideo,
   getPublicProductGallery,
   getPublicProductGalleryHeroCopy,
   getPublicProductGalleryVideo,
-  getPublicProductVideoGallery,
   getYouTubeEmbedUrl,
   parseProductGalleryHeroCopy,
   parseProductGalleryImages,
   parseProductGalleryVideo,
-  parseProductVideoGallery,
   type ProductGalleryHeroCopy,
   type ProductGalleryImage,
   type ProductGalleryVideo,
-  type ProductVideoGallery as ProductVideoGalleryData,
 } from '@/lib/productGalleryContent'
 
 type BreadcrumbItem = {
@@ -60,7 +56,7 @@ export default function ManagedProductGalleryPage({
   breadcrumbCanonicalUrl,
   fallbackHeroCopy,
 }: ManagedProductGalleryPageProps) {
-  const videoGalleryEnabled = isProductVideoGalleryPilot(pageKey)
+  const videoGalleryEnabled = isProductVideoGalleryEnabled(pageKey)
   const resolvedBreadcrumbItems = useMemo(() => breadcrumbItems || [
     { label: '\u00dcr\u00fcnler', href: '/urunler' },
     { label: 'T\u00fcl & Fon Perde', href: '/urunler/tul-fon-perde' },
@@ -86,17 +82,10 @@ export default function ManagedProductGalleryPage({
     () => parseProductGalleryVideo(initialContentJson, defaultProductGalleryVideo),
     [initialContentJson],
   )
-  const initialVideoGallery = useMemo(
-    () => videoGalleryEnabled
-      ? parseProductVideoGallery(initialContentJson, defaultProductVideoGallery)
-      : defaultProductVideoGallery,
-    [initialContentJson, videoGalleryEnabled],
-  )
   const [images, setImages] = useState<ProductGalleryImage[]>(initialImages)
   const [selectedImage, setSelectedImage] = useState<ProductGalleryImage | null>(initialImages[0] || null)
   const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>(initialHeroCopy)
   const [productVideo, setProductVideo] = useState<ProductGalleryVideo>(initialVideo)
-  const [videoGallery, setVideoGallery] = useState<ProductVideoGalleryData>(initialVideoGallery)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
@@ -128,14 +117,6 @@ export default function ManagedProductGalleryPage({
         setProductVideo(nextVideo)
       }
     })
-
-    if (videoGalleryEnabled) {
-      getPublicProductVideoGallery(pageKey, defaultProductVideoGallery).then((nextGallery) => {
-        if (isMounted) {
-          setVideoGallery(nextGallery)
-        }
-      })
-    }
 
     return () => {
       isMounted = false
@@ -236,7 +217,10 @@ export default function ManagedProductGalleryPage({
       </section>
 
       <ProductNavigationPilot>
-      {videoGalleryEnabled && <ProductVideoGallery gallery={videoGallery} />}
+      <ManagedProductVideoGallery
+        pageKey={pageKey}
+        initialContentJson={initialContentJson}
+      />
 
       {images.length > 0 && <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">
