@@ -31,6 +31,11 @@ const nextConfig: NextConfig = {
         hostname: '*.s3.eu-central-1.amazonaws.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
+        pathname: '/vi/**',
+      },
     ],
   },
   async rewrites() {

@@ -1,0 +1,238 @@
+.section {
+  position: relative;
+  min-width: 0;
+  border-top: 1px solid rgb(255 255 255 / 5%);
+  padding: 5rem 0;
+}
+
+.container {
+  width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.heading {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: rgb(107 114 128);
+  font-size: 0.875rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: white;
+  font-size: clamp(1.875rem, 4vw, 2.25rem);
+  font-weight: 200;
+  line-height: 1.2;
+}
+
+.carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.arrow {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 6%);
+  color: white;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.arrow:hover:not(:disabled),
+.arrow:focus-visible {
+  border-color: rgb(255 255 255 / 45%);
+  background: white;
+  color: black;
+}
+
+.arrow:focus-visible,
+.scroller:focus-visible,
+.facade:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 90%);
+  outline-offset: 3px;
+}
+
+.arrow:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.arrow svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.scroller {
+  display: flex;
+  min-width: 0;
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  flex: 0 0 100%;
+  min-width: 0;
+  overflow: hidden;
+  scroll-snap-align: start;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgb(31 41 55 / 65%), rgb(17 24 39 / 75%));
+  box-shadow: 0 1.25rem 3rem rgb(0 0 0 / 20%);
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #090909;
+}
+
+.facade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  background: #090909;
+  cursor: pointer;
+}
+
+.thumbnail {
+  object-fit: cover;
+  opacity: 0.85;
+  transition: transform 500ms ease, opacity 300ms ease;
+}
+
+.facade:hover .thumbnail {
+  transform: scale(1.035);
+  opacity: 1;
+}
+
+.mediaShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 45%), transparent 58%);
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: inline-flex;
+  width: 4rem;
+  height: 4rem;
+  transform: translate(-50%, -50%);
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 9999px;
+  background: rgb(0 0 0 / 58%);
+  color: white;
+  box-shadow: 0 0.75rem 2.5rem rgb(0 0 0 / 45%);
+  backdrop-filter: blur(10px);
+  transition: transform 200ms ease, background 200ms ease;
+}
+
+.facade:hover .playButton {
+  transform: translate(-50%, -50%) scale(1.07);
+  background: rgb(255 255 255 / 92%);
+  color: black;
+}
+
+.playButton svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  fill: currentColor;
+}
+
+.iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.copy {
+  padding: 1.25rem 1.25rem 1.4rem;
+}
+
+.copy h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.copy p {
+  margin: 0.65rem 0 0;
+  color: rgb(156 163 175);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+@media (min-width: 640px) {
+  .heading {
+    margin-bottom: 3rem;
+  }
+
+  .scroller {
+    gap: 1.25rem;
+  }
+
+  .card {
+    flex-basis: calc((100% - 1.25rem) / 2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    flex-basis: calc((100% - 2.5rem) / 3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroller {
+    scroll-behavior: auto;
+  }
+
+  .thumbnail,
+  .playButton {
+    transition: none;
+  }
+}

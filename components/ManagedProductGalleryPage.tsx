@@ -10,18 +10,24 @@ import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import type { BreadcrumbItem as SeoBreadcrumbItem } from '@/lib/breadcrumbs'
 import ProductNavigationPilot from '@/components/ProductNavigationPilot'
 import ProductGalleryHeading from '@/components/ProductGalleryHeading'
+import ProductVideoGallery from '@/components/ProductVideoGallery'
+import { isProductVideoGalleryPilot } from '@/lib/productVideoGalleryPilot'
 import {
+  defaultProductVideoGallery,
   defaultProductGalleryVideo,
   getPublicProductGallery,
   getPublicProductGalleryHeroCopy,
   getPublicProductGalleryVideo,
+  getPublicProductVideoGallery,
   getYouTubeEmbedUrl,
   parseProductGalleryHeroCopy,
   parseProductGalleryImages,
   parseProductGalleryVideo,
+  parseProductVideoGallery,
   type ProductGalleryHeroCopy,
   type ProductGalleryImage,
   type ProductGalleryVideo,
+  type ProductVideoGallery as ProductVideoGalleryData,
 } from '@/lib/productGalleryContent'
 
 type BreadcrumbItem = {
@@ -54,6 +60,7 @@ export default function ManagedProductGalleryPage({
   breadcrumbCanonicalUrl,
   fallbackHeroCopy,
 }: ManagedProductGalleryPageProps) {
+  const videoGalleryEnabled = isProductVideoGalleryPilot(pageKey)
   const resolvedBreadcrumbItems = useMemo(() => breadcrumbItems || [
     { label: '\u00dcr\u00fcnler', href: '/urunler' },
     { label: 'T\u00fcl & Fon Perde', href: '/urunler/tul-fon-perde' },
@@ -68,8 +75,8 @@ export default function ManagedProductGalleryPage({
   }), [description, eyebrow, fallbackHeroCopy, resolvedBreadcrumbItems, title])
   const initialContentJson = useCmsSectionJson(pageKey, 'product.gallery')
   const initialImages = useMemo(
-    () => parseProductGalleryImages(initialContentJson, fallbackImages),
-    [fallbackImages, initialContentJson],
+    () => parseProductGalleryImages(initialContentJson, fallbackImages, videoGalleryEnabled),
+    [fallbackImages, initialContentJson, videoGalleryEnabled],
   )
   const initialHeroCopy = useMemo(
     () => parseProductGalleryHeroCopy(initialContentJson, resolvedFallbackHeroCopy),
@@ -79,10 +86,17 @@ export default function ManagedProductGalleryPage({
     () => parseProductGalleryVideo(initialContentJson, defaultProductGalleryVideo),
     [initialContentJson],
   )
+  const initialVideoGallery = useMemo(
+    () => videoGalleryEnabled
+      ? parseProductVideoGallery(initialContentJson, defaultProductVideoGallery)
+      : defaultProductVideoGallery,
+    [initialContentJson, videoGalleryEnabled],
+  )
   const [images, setImages] = useState<ProductGalleryImage[]>(initialImages)
-  const [selectedImage, setSelectedImage] = useState<ProductGalleryImage>(initialImages[0])
+  const [selectedImage, setSelectedImage] = useState<ProductGalleryImage | null>(initialImages[0] || null)
   const [heroCopy, setHeroCopy] = useState<ProductGalleryHeroCopy>(initialHeroCopy)
   const [productVideo, setProductVideo] = useState<ProductGalleryVideo>(initialVideo)
+  const [videoGallery, setVideoGallery] = useState<ProductVideoGalleryData>(initialVideoGallery)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
@@ -94,10 +108,12 @@ export default function ManagedProductGalleryPage({
       enabled: false,
     }
 
-    getPublicProductGallery(pageKey, fallbackImages).then((nextImages) => {
-      if (isMounted && nextImages.length > 0) {
+    getPublicProductGallery(pageKey, fallbackImages, videoGalleryEnabled).then((nextImages) => {
+      if (isMounted) {
         setImages(nextImages)
-        setSelectedImage((current) => nextImages.find((image) => image.id === current.id) || nextImages[0])
+        setSelectedImage((current) => (
+          nextImages.find((image) => image.id === current?.id) || nextImages[0] || null
+        ))
       }
     })
 
@@ -113,20 +129,32 @@ export default function ManagedProductGalleryPage({
       }
     })
 
+    if (videoGalleryEnabled) {
+      getPublicProductVideoGallery(pageKey, defaultProductVideoGallery).then((nextGallery) => {
+        if (isMounted) {
+          setVideoGallery(nextGallery)
+        }
+      })
+    }
+
     return () => {
       isMounted = false
     }
-  }, [fallbackImages, pageKey, resolvedFallbackHeroCopy, title])
+  }, [fallbackImages, pageKey, resolvedFallbackHeroCopy, title, videoGalleryEnabled])
 
-  const currentImageIndex = images.findIndex((image) => image.id === selectedImage.id)
+  const currentImageIndex = selectedImage
+    ? images.findIndex((image) => image.id === selectedImage.id)
+    : -1
   const videoEmbedUrl = getYouTubeEmbedUrl(productVideo.youtubeUrl)
 
   const goToPrevious = useCallback(() => {
+    if (images.length === 0) return
     const previousIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1
     setSelectedImage(images[previousIndex])
   }, [currentImageIndex, images])
 
   const goToNext = useCallback(() => {
+    if (images.length === 0) return
     const nextIndex = currentImageIndex < images.length - 1 ? currentImageIndex + 1 : 0
     setSelectedImage(images[nextIndex])
   }, [currentImageIndex, images])
@@ -208,7 +236,9 @@ export default function ManagedProductGalleryPage({
       </section>
 
       <ProductNavigationPilot>
-      <section className="relative border-t border-white/5 py-20">
+      {videoGalleryEnabled && <ProductVideoGallery gallery={videoGallery} />}
+
+      {images.length > 0 && <section className="relative border-t border-white/5 py-20">
         <div className="container mx-auto px-6">
           <ProductGalleryHeading
             fallbackEyebrow="Ürün Galerisi"
@@ -260,7 +290,7 @@ export default function ManagedProductGalleryPage({
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {productVideo.enabled !== false && videoEmbedUrl && (
         <section className="relative border-t border-white/5 py-20">
@@ -295,7 +325,7 @@ export default function ManagedProductGalleryPage({
       )}
 
       <AnimatePresence>
-        {lightboxOpen && (
+        {lightboxOpen && selectedImage && (
           <motion.div
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"

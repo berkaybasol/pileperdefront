@@ -55,6 +55,27 @@ export type LocalizedProductGalleryHeading = {
   galleryTitle?: LocalizedProductGalleryText
 }
 
+export type ProductVideoGalleryItem = {
+  id: string
+  title: LocalizedProductGalleryText
+  description: LocalizedProductGalleryText
+  youtubeUrl: string
+  enabled: boolean
+  sortOrder: number
+}
+
+export type ProductVideoGallery = {
+  eyebrow: LocalizedProductGalleryText
+  title: LocalizedProductGalleryText
+  videos: ProductVideoGalleryItem[]
+}
+
+export const defaultProductVideoGallery: ProductVideoGallery = {
+  eyebrow: { tr: 'VİDEO GALERİSİ' },
+  title: { tr: 'Motorlu Perde Videoları' },
+  videos: [],
+}
+
 export const defaultProductGalleryVideo: ProductGalleryVideo = {
   title: 'Nasıl Çalışır?',
   description: '',
@@ -161,6 +182,7 @@ export const getProductGalleryDefaultHeroCopy = (pageKey: string, fallbackLabel 
 export const parseProductGalleryImages = (
   contentJson: string | null | undefined,
   fallbackImages: ProductGalleryImage[],
+  allowEmpty = false,
 ) => {
   if (!contentJson) {
     return fallbackImages
@@ -168,7 +190,7 @@ export const parseProductGalleryImages = (
 
   try {
     const parsed = JSON.parse(contentJson) as { images?: Partial<ProductGalleryImage>[] }
-    if (!Array.isArray(parsed.images) || parsed.images.length === 0) {
+    if (!Array.isArray(parsed.images) || (!allowEmpty && parsed.images.length === 0)) {
       return fallbackImages
     }
 
@@ -233,6 +255,105 @@ export const parseProductGalleryVideo = (
     }
   } catch {
     return fallbackVideo
+  }
+}
+
+const normalizeLocalizedProductGalleryText = (
+  value: unknown,
+): LocalizedProductGalleryText => {
+  if (typeof value === 'string') {
+    return { tr: value }
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {}
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+  )
+}
+
+export const getLocalizedProductGalleryText = (
+  value: LocalizedProductGalleryText | undefined,
+  locale: ProductGalleryLocale = 'tr',
+  fallback = '',
+) => value && Object.prototype.hasOwnProperty.call(value, locale)
+  ? value[locale] as string
+  : fallback
+
+export const setLocalizedProductGalleryText = (
+  value: LocalizedProductGalleryText | undefined,
+  locale: ProductGalleryLocale,
+  text: string,
+): LocalizedProductGalleryText => ({
+  ...value,
+  [locale]: text,
+})
+
+export const parseProductVideoGallery = (
+  contentJson: string | null | undefined,
+  fallbackGallery: ProductVideoGallery = defaultProductVideoGallery,
+): ProductVideoGallery => {
+  if (!contentJson) {
+    return fallbackGallery
+  }
+
+  try {
+    const parsed = JSON.parse(contentJson) as {
+      videoGallery?: {
+        eyebrow?: unknown
+        title?: unknown
+        videos?: Array<{
+          id?: unknown
+          title?: unknown
+          description?: unknown
+          youtubeUrl?: unknown
+          enabled?: unknown
+          sortOrder?: unknown
+        }>
+      }
+    }
+    if (!parsed.videoGallery || typeof parsed.videoGallery !== 'object') {
+      return fallbackGallery
+    }
+
+    const storedGallery = parsed.videoGallery
+    const videos = Array.isArray(storedGallery.videos)
+      ? storedGallery.videos.map((video, index) => ({
+        id: typeof video.id === 'string' && video.id.trim()
+          ? video.id
+          : `video-${index + 1}`,
+        title: normalizeLocalizedProductGalleryText(video.title),
+        description: normalizeLocalizedProductGalleryText(video.description),
+        youtubeUrl: typeof video.youtubeUrl === 'string' ? video.youtubeUrl : '',
+        enabled: video.enabled !== false,
+        sortOrder: Number.isFinite(Number(video.sortOrder)) ? Number(video.sortOrder) : index,
+      })).sort((a, b) => a.sortOrder - b.sortOrder)
+      : []
+
+    return {
+      eyebrow: storedGallery.eyebrow === undefined
+        ? fallbackGallery.eyebrow
+        : normalizeLocalizedProductGalleryText(storedGallery.eyebrow),
+      title: storedGallery.title === undefined
+        ? fallbackGallery.title
+        : normalizeLocalizedProductGalleryText(storedGallery.title),
+      videos,
+    }
+  } catch {
+    return fallbackGallery
+  }
+}
+
+export const hasStoredProductVideoGallery = (
+  contentJson: string | null | undefined,
+) => {
+  if (!contentJson) return false
+  try {
+    const parsed = JSON.parse(contentJson) as Record<string, unknown>
+    return Object.prototype.hasOwnProperty.call(parsed, 'videoGallery')
+  } catch {
+    return false
   }
 }
 
@@ -318,30 +439,33 @@ export const buildProductGalleryContentJson = (
   hero?: ProductGalleryHeroCopy,
   video?: ProductGalleryVideo,
   heading?: LocalizedProductGalleryHeading,
+  videoGallery?: ProductVideoGallery,
 ) =>
   JSON.stringify({
     ...(hero ? { hero } : {}),
     ...(video ? { video } : {}),
     ...(heading || {}),
+    ...(videoGallery ? { videoGallery } : {}),
     images,
   }, null, 2)
 
-export const getYouTubeEmbedUrl = (youtubeUrl: string) => {
+const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/
+
+export const getYouTubeVideoId = (youtubeUrl: string) => {
   const value = youtubeUrl.trim()
   if (!value) {
     return ''
   }
 
   try {
-    const url = new URL(value)
-    const host = url.hostname.replace(/^www\./, '')
+    const normalizedValue = /^[a-z][a-z\d+.-]*:\/\//i.test(value) ? value : `https://${value}`
+    const url = new URL(normalizedValue)
+    const host = url.hostname.toLowerCase().replace(/^www\./, '')
     let videoId = ''
 
     if (host === 'youtu.be') {
       videoId = url.pathname.split('/').filter(Boolean)[0] || ''
-    }
-
-    if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+    } else if (['youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtube-nocookie.com'].includes(host)) {
       if (url.pathname === '/watch') {
         videoId = url.searchParams.get('v') || ''
       } else {
@@ -352,18 +476,29 @@ export const getYouTubeEmbedUrl = (youtubeUrl: string) => {
       }
     }
 
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : ''
+    return youtubeVideoIdPattern.test(videoId) ? videoId : ''
   } catch {
     return ''
   }
 }
 
+export const getYouTubeEmbedUrl = (youtubeUrl: string) => {
+  const videoId = getYouTubeVideoId(youtubeUrl)
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : ''
+}
+
+export const getYouTubeNoCookieEmbedUrl = (youtubeUrl: string) => {
+  const videoId = getYouTubeVideoId(youtubeUrl)
+  return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : ''
+}
+
 export const getPublicProductGallery = async (
   pageKey: string,
   fallbackImages: ProductGalleryImage[],
+  allowEmpty = false,
 ) => {
   const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
-  if (previewJson) return parseProductGalleryImages(previewJson, fallbackImages)
+  if (previewJson) return parseProductGalleryImages(previewJson, fallbackImages, allowEmpty)
   try {
     const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/${pageKey}`, {
       cache: 'no-store',
@@ -379,7 +514,7 @@ export const getPublicProductGallery = async (
       return fallbackImages
     }
 
-    return parseProductGalleryImages(section.contentJson, fallbackImages)
+    return parseProductGalleryImages(section.contentJson, fallbackImages, allowEmpty)
   } catch {
     return fallbackImages
   }
@@ -436,6 +571,33 @@ export const getPublicProductGalleryVideo = async (
     return parseProductGalleryVideo(section.contentJson, fallbackVideo)
   } catch {
     return fallbackVideo
+  }
+}
+
+export const getPublicProductVideoGallery = async (
+  pageKey: string,
+  fallbackGallery: ProductVideoGallery = defaultProductVideoGallery,
+) => {
+  const previewJson = readLocalPreviewSectionJson(pageKey, 'product.gallery')
+  if (previewJson) return parseProductVideoGallery(previewJson, fallbackGallery)
+  try {
+    const response = await fetch(`${getPublicApiBaseUrl()}/api/public/cms/pages/${pageKey}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      return fallbackGallery
+    }
+
+    const body = await response.json() as ApiResponse<CmsPage>
+    const section = body.data.sections.find((item) => item.sectionKey === 'product.gallery')
+    if (!section || !section.enabled) {
+      return fallbackGallery
+    }
+
+    return parseProductVideoGallery(section.contentJson, fallbackGallery)
+  } catch {
+    return fallbackGallery
   }
 }
 

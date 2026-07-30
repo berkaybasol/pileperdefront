@@ -27,18 +27,22 @@ import {
 } from '@/lib/blogContent'
 import {
   buildProductGalleryContentJson,
+  defaultProductVideoGallery,
+  hasStoredProductVideoGallery,
   getStoredProductGalleryHeading,
   mergeProductGalleryHeadingLocale,
   parseProductGalleryHeroCopy,
   parseProductGalleryHeading,
   parseProductGalleryImages,
   parseProductGalleryVideo,
+  parseProductVideoGallery,
   type ProductGalleryHeading,
   type ProductGalleryLocale,
   type LocalizedProductGalleryHeading,
   type ProductGalleryImage,
   type ProductGalleryHeroCopy,
   type ProductGalleryVideo,
+  type ProductVideoGallery,
 } from '@/lib/productGalleryContent'
 import {
   buildProductGalleryAdminPages,
@@ -48,6 +52,11 @@ import {
 import { runVerifiedSave, SaveVerificationError } from '@/lib/adminVerifiedSave'
 import { revalidateCmsPage } from './actions'
 import { createLocalPreview } from '@/lib/localCmsPreview'
+import {
+  isProductVideoGalleryPilot,
+  productVideoGalleryPilotHref,
+} from '@/lib/productVideoGalleryPilot'
+import ProductVideoGalleryAdmin from '@/components/admin/ProductVideoGalleryAdmin'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ''
 
@@ -462,6 +471,12 @@ const getDefaultProductGalleryVideo = (label: string): ProductGalleryVideo => ({
   description: `${label} sisteminin çalışma prensibini ve kullanım detaylarını videomuzda izleyebilirsiniz.`,
   youtubeUrl: '',
   enabled: false,
+})
+
+const getDefaultProductVideoGallery = (): ProductVideoGallery => ({
+  eyebrow: { ...defaultProductVideoGallery.eyebrow },
+  title: { ...defaultProductVideoGallery.title },
+  videos: [],
 })
 
 const emptyProductGalleryHeading: ProductGalleryHeading = {
@@ -929,6 +944,10 @@ const AdminPage = () => {
   const [productGalleryVideo, setProductGalleryVideo] = useState<ProductGalleryVideo>(
     getDefaultProductGalleryVideo('Ürün'),
   )
+  const [productVideoGallery, setProductVideoGallery] = useState<ProductVideoGallery>(
+    getDefaultProductVideoGallery(),
+  )
+  const [productVideoGalleryStored, setProductVideoGalleryStored] = useState(false)
   const [productGalleryHeading, setProductGalleryHeading] = useState<ProductGalleryHeading>(
     getDefaultProductGalleryHeading(),
   )
@@ -1334,6 +1353,11 @@ const AdminPage = () => {
           productGallerySection.contentJson,
           getDefaultProductGalleryVideo(loadedProductGalleryPage.label),
         ))
+        setProductVideoGallery(parseProductVideoGallery(
+          productGallerySection.contentJson,
+          getDefaultProductVideoGallery(),
+        ))
+        setProductVideoGalleryStored(hasStoredProductVideoGallery(productGallerySection.contentJson))
         setProductGalleryFallbackHeading(productGalleryFallback)
         setProductGalleryHeading(parseProductGalleryHeading(
           productGallerySection.contentJson,
@@ -1345,6 +1369,8 @@ const AdminPage = () => {
         setProductGalleryImages([])
         setProductGalleryHeroCopy(getDefaultProductGalleryHeroCopy(loadedProductGalleryPage.label))
         setProductGalleryVideo(getDefaultProductGalleryVideo(loadedProductGalleryPage.label))
+        setProductVideoGallery(getDefaultProductVideoGallery())
+        setProductVideoGalleryStored(false)
         setProductGalleryFallbackHeading(getDefaultProductGalleryHeading())
         setProductGalleryHeading(getDefaultProductGalleryHeading())
         setStoredProductGalleryHeading({})
@@ -2033,6 +2059,11 @@ const AdminPage = () => {
           section.contentJson,
           getDefaultProductGalleryVideo(activeProductGalleryPage.label),
         ))
+        setProductVideoGallery(parseProductVideoGallery(
+          section.contentJson,
+          getDefaultProductVideoGallery(),
+        ))
+        setProductVideoGalleryStored(hasStoredProductVideoGallery(section.contentJson))
         setProductGalleryHeading(parseProductGalleryHeading(
           section.contentJson,
           productGalleryFallbackHeading,
@@ -2481,6 +2512,9 @@ const AdminPage = () => {
           productGalleryHeroCopy,
           productGalleryVideo,
           getProductGalleryHeadingForWrite(),
+          isProductVideoGalleryPilot(pageAtSave.pageKey) || productVideoGalleryStored
+            ? productVideoGallery
+            : undefined,
         ),
         sortOrder: gallerySection.sortOrder,
         enabled: gallerySection.enabled,
@@ -3072,6 +3106,9 @@ const AdminPage = () => {
           productGalleryHeroCopy,
           productGalleryVideo,
           getProductGalleryHeadingForWrite(),
+          isProductVideoGalleryPilot(selectedPage.pageKey) || productVideoGalleryStored
+            ? productVideoGallery
+            : undefined,
         ),
       })) : false
     }
@@ -3131,6 +3168,9 @@ const AdminPage = () => {
         productGalleryHeroCopy,
         productGalleryVideo,
         getProductGalleryHeadingForWrite(),
+        isProductVideoGalleryPilot(selectedPage.pageKey) || productVideoGalleryStored
+          ? productVideoGallery
+          : undefined,
       ),
     })
     if (productDetailPanels.includes(activePanel)) patchSection('product.detail', {
@@ -3149,8 +3189,11 @@ const AdminPage = () => {
       sections,
     })
     if (!token) return
-    const separator = selectedPage.slug.includes('?') ? '&' : '?'
-    window.open(`${selectedPage.slug}${separator}__cmsPreview=${encodeURIComponent(token)}`, '_blank', 'noopener')
+    const previewHref = isProductVideoGalleryPilot(selectedPage.pageKey)
+      ? productVideoGalleryPilotHref
+      : selectedPage.slug
+    const separator = previewHref.includes('?') ? '&' : '?'
+    window.open(`${previewHref}${separator}__cmsPreview=${encodeURIComponent(token)}`, '_blank', 'noopener')
   }
   const selectedSeoResult = selectedPage ? publicSeoResults[selectedPage.pageKey] : undefined
   const selectedSeoState = seoDirty ? 'dirty' : (selectedSeoResult?.state || 'pending')
@@ -4464,6 +4507,14 @@ const AdminPage = () => {
         </div>
       </div>
 
+      {isProductVideoGalleryPilot(activeProductGalleryPage.pageKey) && (
+        <ProductVideoGalleryAdmin
+          value={productVideoGallery}
+          onChange={setProductVideoGallery}
+          locale={activeProductGalleryLocale}
+        />
+      )}
+
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -4499,7 +4550,10 @@ const AdminPage = () => {
 
         <div className="mt-5 grid gap-4">
           {productGalleryImages.map((image, index) => (
-            <div key={image.id} className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4">
+            <div
+              key={`${activeProductGalleryPage.pageKey}-${image.id}-${index}`}
+              className="rounded-md border border-[#e4dccf] bg-[#fbfaf7] p-4"
+            >
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[#3a342c]">Görsel {index + 1}</p>
                 <div className="flex flex-wrap items-center gap-3">
