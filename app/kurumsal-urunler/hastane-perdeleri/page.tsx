@@ -195,6 +195,8 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
+      <ProductContactCta />
+
       <section className="relative py-20 border-t border-white/5">
         <div className="container mx-auto px-6">
           <ProductGalleryHeading
@@ -381,9 +383,6 @@ export default function ModernPerdePage() {
           </div>
         </div>
       </section>
-
-
-      <ProductContactCta />
 
       <AnimatePresence>
         {lightboxOpen && (
