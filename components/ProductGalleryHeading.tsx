@@ -20,8 +20,6 @@ type ProductGalleryHeadingProps = {
 }
 
 export default function ProductGalleryHeading({
-  fallbackEyebrow,
-  fallbackTitle,
   className = 'text-center mb-16',
   eyebrowClassName = 'text-sm text-gray-500 uppercase tracking-[0.3em]',
   eyebrowTitleSpacingClassName = 'mb-4',
@@ -33,9 +31,9 @@ export default function ProductGalleryHeading({
     (section) => section.enabled && section.sectionKey === 'product.gallery',
   )?.contentJson
   const fallbackHeading = useMemo(() => ({
-    galleryEyebrow: fallbackEyebrow,
-    galleryTitle: fallbackTitle,
-  } satisfies ProductGalleryHeadingContent), [fallbackEyebrow, fallbackTitle])
+    galleryEyebrow: '',
+    galleryTitle: '',
+  } satisfies ProductGalleryHeadingContent), [])
   const initialHeading = useMemo(
     () => parseProductGalleryHeading(contentJson, fallbackHeading, locale),
     [contentJson, fallbackHeading, locale],
@@ -71,8 +69,8 @@ export default function ProductGalleryHeading({
     <div
       className={className}
       data-product-gallery-heading
-      data-gallery-fallback-eyebrow={fallbackEyebrow}
-      data-gallery-fallback-title={fallbackTitle}
+      data-gallery-fallback-eyebrow={fallbackHeading.galleryEyebrow}
+      data-gallery-fallback-title={fallbackHeading.galleryTitle}
       lang={locale}
     >
       {heading.galleryEyebrow && (

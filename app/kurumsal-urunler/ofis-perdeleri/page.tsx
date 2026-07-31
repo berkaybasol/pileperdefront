@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductEditorialSections from '@/components/ProductEditorialSections'
 
 const canonicalUrl = 'https://pileperde.com.tr/kurumsal-urunler/ofis-perdeleri'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -90,30 +91,6 @@ const defaultHeroCopy = {
   highlightedTitle: "Perdeleri",
   description: "Ofisler ve iş merkezleri için profesyonel perde çözümleri. Işık kontrolü, gürültü azaltma ve estetik tasarım ile çalışma verimliliğini artıran, makam odası ve bürolara özel perde sistemleri.",
 }
-
-const productAdvantages = [
-  'Ofis ve iş merkezlerine özel profesyonel perde çözümleri',
-  'Işık kontrolü ile çalışma verimliliği artırır',
-  'Dikey perde, stor perde, jaluzi perde seçenekleri',
-  'Motorlu sistemler ile kolay kullanım',
-  'Blackout (karartma) kumaşlar ile toplantı odaları için ideal',
-  'Alev almaz sertifikalı güvenli kumaşlar',
-  'Kurumsal fiyat avantajları ve toplu iş garantisi',
-  'Ses yalıtımı sağlayan özel kumaşlar',
-  'Kolay temizlenebilir ve dayanıklı yapı',
-  'Makam odası ve büro için özel tasarımlar'
-]
-
-const usageAreas = [
-  'Ofisler ve iş merkezleri',
-  'Makam odaları',
-  'Toplantı odaları',
-  'Çalışma alanları ve bürolar',
-  'Bankalar ve finans kuruluşları',
-  'Avukatlık ofisleri',
-  'Muhasebe ofisleri',
-  'Şirket merkezleri'
-]
 
 // Animation variants
 const fadeInVariants = {
@@ -307,133 +284,9 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className="relative py-16 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-8">
+      <ProductEditorialSections pageKey={PRODUCT_GALLERY_PAGE_KEY} />
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-white/10">
-              <h2 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-gray-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürün Özellikleri
-              </h2>
 
-              <div className="space-y-4">
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Ofis perdeleri, çalışma ortamının verimliliğini doğrudan etkileyen önemli elemanlardır. Işık kontrolü sağlayan perde
-                  sistemlerimiz ile göz yorgunluğunu azaltır, çalışma konforunu artırırız. Dikey perde, stor perde, jaluzi perde ve
-                  blackout seçenekleriyle her ofis ihtiyacına uygun çözümler sunuyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Makam odaları ve toplantı odaları için özel tasarlanmış perdelerimiz, profesyonel görünüm sağlarken gürültü azaltma
-                  özelliği ile konforlu çalışma ortamı yaratır. Motorlu sistemler ile uzaktan kumanda kolaylığı, blackout kumaşlar ile
-                  tam karartma imkanı sunarız.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Alev almaz sertifikalı kumaşlarımız ile ofis güvenlik standartlarını karşılıyoruz. Kolay temizlenebilir ve dayanıklı
-                  yapıya sahip perdelerimiz, uzun yıllar kullanılabilir. Hızlı montaj ve toplu iş garantisi ile zamanınızı koruyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Kurumsal fiyat avantajları ile ofis zincirleri ve iş merkezleri için ekonomik çözümler sunuyoruz. Profesyonel ekibimizle
-                  ofisinizin mimarisine uygun perde çözümleri geliştiriyor, çalışanlarınızın verimliliğini artırıyoruz.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-4">
-                {['Ofis', 'Dikey Perde', 'Jaluzi', 'Stor Perde', 'Blackout', 'Motorlu', 'Alev Almaz', 'Ses Yalıtımı'].map((feature) => (
-                  <span
-                    key={feature}
-                    className="px-2 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-400 backdrop-blur-sm"
-                  >
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 backdrop-blur-md border border-blue-500/20">
-              <h3 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                Fiyat Bilgisi
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                Ofis perde fiyatları, ofis büyüklüğü, perde tipi ve sistem seçimine göre değişiklik göstermektedir.
-                Pile Perde, ofis zincirleri ve iş merkezleri için kurumsal fiyat avantajları sunar. Hızlı montaj, garanti ve garanti
-                sonrası servis hizmetlerimizle ofisinizi kısa sürede hazır hale getiriyoruz. Profesyonel ekibimiz size özel çözümler sunar.
-              </p>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12">
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-md border border-green-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürünün Avantajları
-              </h3>
-
-              <ul className="space-y-4">
-                {productAdvantages.map((advantage, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    </div>
-                    {advantage}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-md border border-purple-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                Kullanım Alanları
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                Ofis perdelerimiz, iş dünyasının her alanında kullanılmak üzere tasarlanmıştır. Ofisler, iş merkezleri, makam odaları,
-                toplantı odaları, bankalar, avukatlık ofisleri ve şirket merkezlerinde profesyonel çözümler sunuyoruz. Işık kontrolü ve
-                ses yalıtımı ile çalışma verimliliğini artırıyoruz.
-              </p>
-
-              <ul className="space-y-4">
-                {usageAreas.map((area, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    </div>
-                    {area}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <AnimatePresence>
         {lightboxOpen && (

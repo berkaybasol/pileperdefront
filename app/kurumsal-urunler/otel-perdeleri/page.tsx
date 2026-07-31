@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductEditorialSections from '@/components/ProductEditorialSections'
 
 const canonicalUrl = 'https://pileperde.com.tr/kurumsal-urunler/otel-perdeleri'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -39,30 +40,6 @@ const defaultHeroCopy = {
   highlightedTitle: "Perdeleri",
   description: "Oteller ve iş merkezleri için profesyonel perde çözümleri. Işık kontrolü, gürültü azaltma ve estetik tasarım ile çalışma verimliliğini artıran, makam odası ve bürolara özel perde sistemleri.",
 }
-
-const productAdvantages = [
-  'Otel odaları ve suit odalar için lüks perde tasarımları',
-  'Blackout (karartma) kumaşlar ile tam karartma',
-  'Ses yalıtımı sağlayan özel akustik kumaşlar',
-  'Alev almaz sertifikalı güvenli kumaşlar',
-  'Motorlu perde sistemleri ile konfor',
-  'Kolay temizlenebilir ve hijyenik kumaşlar',
-  'Yıpranmaya dayanıklı otel kalitesi kumaşlar',
-  'Geniş renk ve desen seçenekleri',
-  'Toplu iş garantisi ve hızlı montaj',
-  'Kurumsal fiyat avantajları'
-]
-
-const usageAreas = [
-  'Otel odaları',
-  'Suit odalar',
-  'Butik oteller',
-  'Resort oteller',
-  'Şehir otelleri',
-  'Otel lobileri',
-  'Konferans salonları',
-  'Otel restoranları'
-]
 
 // Animation variants
 const fadeInVariants = {
@@ -256,135 +233,9 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className="relative py-16 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-8">
+      <ProductEditorialSections pageKey={PRODUCT_GALLERY_PAGE_KEY} />
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-white/10">
-              <h2 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-gray-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürün Özellikleri
-              </h2>
 
-              <div className="space-y-4">
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Otel perdeleri, misafir memnuniyetini doğrudan etkileyen önemli elemanlardır. Blackout (karartma) kumaşlar ile tam karartma
-                  sağlayan perdelerimiz, misafirlerinizin rahat uyumasını sağlar. Lüks tasarımlar ve kaliteli kumaşlar ile otel odalarınıza
-                  estetik ve konfor katıyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Suit odalar ve otel odaları için özel tasarlanmış perdelerimiz, ses yalıtımı sağlayan akustik kumaşlar ile konforlu bir
-                  konaklama deneyimi sunar. Motorlu perde sistemleri ile kolaylık, yıpranmaya dayanıklı otel kalitesi kumaşlar ile uzun
-                  ömürlü kullanım sağlıyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Alev almaz sertifikalı kumaşlarımız ile otel güvenlik standartlarını karşılıyoruz. Kolay temizlenebilir ve hijyenik
-                  yapıya sahip perdelerimiz, sık yıkamalara dayanıklıdır. Hızlı montaj ve toplu iş garantisi ile otelinizi zamanında
-                  açmaya hazır hale getiriyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Kurumsal fiyat avantajları ile otel zincirleri ve butik oteller için ekonomik çözümler sunuyoruz. Profesyonel ekibimizle
-                  otelinizin konseptine uygun perde çözümleri geliştiriyor, geniş renk ve desen seçenekleri ile misafir memnuniyetini
-                  artırıyoruz.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-4">
-                {['Otel', 'Suit Oda', 'Blackout', 'Ses Yalıtımı', 'Motorlu', 'Alev Almaz', 'Lüks', 'Dayanıklı'].map((feature) => (
-                  <span
-                    key={feature}
-                    className="px-2 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-400 backdrop-blur-sm"
-                  >
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 backdrop-blur-md border border-blue-500/20">
-              <h3 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                Fiyat Bilgisi
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                Otel perde fiyatları, otel kapasitesi, oda sayısı ve kumaş kalitesine göre değişiklik göstermektedir.
-                Pile Perde, otel zincirleri ve butik oteller için kurumsal fiyat avantajları sunar. Hızlı montaj, garanti ve garanti
-                sonrası servis hizmetlerimizle otelinizi zamanında açmaya hazır hale getiriyoruz. Profesyonel ekibimiz lüks çözümler sunar.
-              </p>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12">
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-md border border-green-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürünün Avantajları
-              </h3>
-
-              <ul className="space-y-4">
-                {productAdvantages.map((advantage, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    </div>
-                    {advantage}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-md border border-purple-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                Kullanım Alanları
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                Otel perdelerimiz, konaklama sektörünün her alanında kullanılmak üzere tasarlanmıştır. Otel odaları, suit odalar, butik oteller,
-                resort oteller, şehir otelleri, otel lobileri ve konferans salonlarında lüks ve konforlu çözümler sunuyoruz. Blackout kumaşlar
-                ve ses yalıtımı ile misafir memnuniyetini artırıyoruz.
-              </p>
-
-              <ul className="space-y-4">
-                {usageAreas.map((area, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    </div>
-                    {area}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <AnimatePresence>
         {lightboxOpen && (

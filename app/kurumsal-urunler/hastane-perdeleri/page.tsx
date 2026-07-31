@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
+import ProductEditorialSections from '@/components/ProductEditorialSections'
 
 const canonicalUrl = 'https://pileperde.com.tr/kurumsal-urunler/hastane-perdeleri'
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -38,30 +39,6 @@ const defaultHeroCopy = {
   highlightedTitle: "Perdeleri",
   description: "Hastaneler ve sağlık tesisleri için özel üretim antibakteriyel ve hijyenik perde çözümleri. Tıbbi standartlara uygun, alev almaz sertifikalı kumaşlar ile hasta mahremiyeti ve güvenliği sağlayan ray sistemleri.",
 }
-
-const productAdvantages = [
-  'Antibakteriyel ve hijyenik kumaş seçenekleri',
-  'Kolay temizlenebilir ve sterilize edilebilir yapı',
-  'Alev almaz sertifikalı güvenli kumaşlar',
-  'Hasta mahremiyeti için bölme perde rayları',
-  'Sessiz ve kolay kullanımlı ray sistemleri',
-  'Tıbbi standartlara uygun üretim',
-  'Çok yıkamalı kullanıma dayanıklı kumaşlar',
-  'Renk ve desen çeşitliliği ile estetik çözümler',
-  'Toplu iş garantisi ve hızlı montaj',
-  'Kurumsal fiyat avantajları'
-]
-
-const usageAreas = [
-  'Hastaneler ve tıp merkezleri',
-  'Poliklinikler ve muayenehaneler',
-  'Ameliyathaneler',
-  'Hasta odaları ve yoğun bakım',
-  'Röntgen ve radyoloji bölümleri',
-  'Sağlık ocakları',
-  'Özel klinikler',
-  'Tıbbi laboratuvarlar'
-]
 
 // Animation variants
 const fadeInVariants = {
@@ -255,134 +232,9 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className="relative py-16 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-8">
+      <ProductEditorialSections pageKey={PRODUCT_GALLERY_PAGE_KEY} />
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-white/10">
-              <h2 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-gray-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürün Özellikleri
-              </h2>
 
-              <div className="space-y-4">
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Hastane perdeleri, sağlık tesislerinin hijyen ve güvenlik standartlarına uygun olarak üretilen özel perde sistemleridir.
-                  Antibakteriyel kumaşlar ile hasta güvenliği sağlanırken, hasta mahremiyeti için bölme perde rayları ile pratik çözümler sunuyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Kolay temizlenebilir ve sterilize edilebilir yapıya sahip kumaşlarımız, çok yıkamalı kullanıma dayanıklıdır. Alev almaz
-                  sertifikalı kumaşlar ile güvenlik standartlarını karşılıyoruz. Tıbbi standartlara uygun üretim ile sağlık sektörüne
-                  profesyonel çözümler sunuyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Sessiz ve kolay kullanımlı ray sistemlerimiz, hasta konforunu ön planda tutar. Renk ve desen çeşitliliği ile hastane
-                  ortamına estetik katarken, fonksiyonellikten ödün vermiyoruz. Hasta odaları, ameliyathaneler ve tüm sağlık birimlerine
-                  uygun çözümler üretiyoruz.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Toplu iş garantisi ve hızlı montaj hizmetimizle projelerinizi zamanında teslim ediyoruz. Kurumsal fiyat avantajları
-                  ile hastaneler ve sağlık kuruluşlarına ekonomik çözümler sunuyoruz. Garanti ve garanti sonrası servis desteğimizle
-                  yanınızdayız.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-4">
-                {['Antibakteriyel', 'Hijyenik', 'Alev Almaz', 'Sterilize', 'Bölme Ray', 'Sessiz', 'Dayanıklı', 'Sertifikalı'].map((feature) => (
-                  <span
-                    key={feature}
-                    className="px-2 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-400 backdrop-blur-sm"
-                  >
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 backdrop-blur-md border border-blue-500/20">
-              <h3 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                Fiyat Bilgisi
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                Hastane perde fiyatları, proje büyüklüğü, kumaş seçimi ve ray sistemi türüne göre değişiklik göstermektedir.
-                Pile Perde, hastaneler için özel kurumsal fiyat avantajları sunar. Hızlı montaj, garanti ve garanti sonrası servis
-                hizmetlerimizle sağlık tesislerinizi kısa sürede hazır hale getiriyoruz. Tıbbi standartlara uygun çözümler sunuyoruz.
-              </p>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12">
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-md border border-green-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürünün Avantajları
-              </h3>
-
-              <ul className="space-y-4">
-                {productAdvantages.map((advantage, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    </div>
-                    {advantage}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-md border border-purple-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                Kullanım Alanları
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                Hastane perdelerimiz, sağlık sektörünün her alanında kullanılmak üzere tasarlanmıştır. Hastaneler, poliklinikler,
-                muayenehaneler, ameliyathaneler ve tıbbi laboratuvarlarda hijyen ve hasta mahremiyeti için ideal çözümler sunuyoruz.
-                Antibakteriyel ve sterilize edilebilir kumaşlarımızla sağlık standartlarını karşılıyoruz.
-              </p>
-
-              <ul className="space-y-4">
-                {usageAreas.map((area, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    </div>
-                    {area}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <AnimatePresence>
         {lightboxOpen && (

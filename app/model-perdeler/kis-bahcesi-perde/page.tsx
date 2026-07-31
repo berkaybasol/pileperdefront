@@ -8,7 +8,6 @@ import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import { parseProductGalleryHeroCopy } from '@/lib/productGalleryContent'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getPublicProductGallery, getPublicProductGalleryHeroCopy, getProductGalleryDefaultHeroCopy } from '@/lib/productGalleryContent'
@@ -16,6 +15,7 @@ import { BreadcrumbListJsonLd } from '@/components/BreadcrumbListJsonLd'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import type { BreadcrumbItem } from '@/lib/breadcrumbs'
 import styles from './page.module.css'
+import ProductEditorialSections from '@/components/ProductEditorialSections'
 
 const PRODUCT_GALLERY_PAGE_KEY = 'product-gallery-model-perdeler-kis-bahcesi-perde'
 
@@ -55,30 +55,6 @@ const productImages = [
   { id: 24, src: '/api/public/media/images/8853bdbc-1231-4989-9da5-91d7a1c8ab68/file', alt: 'Kış Bahçesi Perde modelleri Ankara', title: 'Kış Bahçesi Perde 24' },
   { id: 25, src: '/api/public/media/images/be83a1a9-c799-42ec-8ba6-41feecc35389/file', alt: 'Kış Bahçesi Perde modelleri Ankara', title: 'Kış Bahçesi Perde 25' },
   { id: 26, src: '/api/public/media/images/0b72f341-3192-4033-8572-3fea12b5a505/file', alt: 'Kış Bahçesi Perde modelleri Ankara', title: 'Kış Bahçesi Perde 26' }
-]
-
-const productAdvantages = [
-  'Motorlu, zincirli ve manuel uygulamalı perde sistemleri',
-  'Yuvarlak, oval, çokgen gibi asimetrik alanlara uyumlu',
-  'Ortam sıcaklığında denge ve enerji korunumu sağlar',
-  'Mobilyaları güneşin zararlı etkilerinden korur',
-  'Plise perde ve sun screen stor sistemleri',
-  'Her açıya ve eğime uygulanabilme özelliği',
-  'Çift renk seçenekleri ile fonksiyonellik',
-  'Kolay sökülüp takılabilen, temizlenebilen yapı',
-  'Alev almaz ve kir tutmaz kumaş seçenekleri',
-  'Blackout (karartma) ve alev almaz kumaşlar'
-]
-
-const usageAreas = [
-  'Kış bahçeleri (Winter Garden)',
-  'Çatı katı mekanlar',
-  'Otel lobileri ve balo salonları',
-  'Nikah ve düğün salonları',
-  'Restoran ve kafeler',
-  'Ofis mekanları',
-  'Teras ve balkonlar',
-  'Cam tavanlı mekanlar'
 ]
 
 // Animation variants
@@ -257,157 +233,9 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className={`relative py-16 border-t border-white/5 ${styles.infoSection}`}>
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-8">
+      <ProductEditorialSections pageKey={PRODUCT_GALLERY_PAGE_KEY} />
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-md border border-white/10">
-              <h2 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-gray-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürün Özellikleri
-              </h2>
 
-              <div className="space-y-4">
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Kış bahçeleri tavan ve yan yüzeylerinin asimetrik yapısından dolayı yuvarlak, oval, çokgen gibi alanlarda motorlu,
-                  zincirli ve manuel uygulamalı perde sistemleri ile uyumlu olarak çalıştırılmaktadır.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Ortam sıcaklığında denge ve enerji korunumu sağlamak ve iç mekan mobilyalarını güneşin zararlı etkilerinden sakınmakta
-                  etkilidir. Aynı zamanda mekan dekoruna renk ve estetik katarlar. Genellikle motorlu sistemler (somfy motorlar) tercih edilir
-                  ve uzaktan kumanda vasıtasıyla kontrol edilirler.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Plise perde ve sun screen stor perde sistemlerimiz de her koşulda iyi sonuç veren modern sistemlerimizdendir. Bu perdeler,
-                  her açıya ve eğime uygulanabilme özelliği ile öne çıkar.
-                </p>
-
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Çift renk olarak da düşünülebilecek kış bahçesi perde modellerimiz, bulunduğu ortamın havasını değiştirir ve fonksiyonellik
-                  katarak kış bahçenizden tam faydalanabileceğiniz işlevsel bir hale getirir. İlk montajdan sonra sökülmek istendiğinde geçmeli
-                  ayakları sayesinde kolayca sökülerek temizliği yapılabilen perde modellerimiz, güneş ısısına karşı üstün koruma sağlar.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-4">
-                {['Motorlu', 'Zincirli', 'Manuel', 'Plise', 'Sun Screen', 'Blackout', 'Alev Almaz', 'Somfy Motor'].map((feature) => (
-                  <span
-                    key={feature}
-                    className="px-2 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-400 backdrop-blur-sm"
-                  >
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 backdrop-blur-md border border-blue-500/20">
-              <h3 className="text-xl font-light text-white mb-4 flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                Fiyat Bilgisi
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                Kış bahçesi perde fiyatları, ürün cinsine ve türüne göre değişiklik göstermektedir. Pile Perde, rekabetçi fiyatları
-                ile projelerinizi sorunsuz şekilde tamamlamanızı sağlar. Dikiş, montaj, garanti ve garanti sonrası servis alabilirsiniz.
-                Profesyonel tasarım ekibimiz size daima en iyi çözümleri sunar.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="tel:+903122417272"
-                  className="group relative inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-black overflow-hidden transition-all duration-300 hover:gap-3 rounded-lg text-sm"
-                >
-                  <span className="relative z-10 font-medium">Hemen Arayın</span>
-                  <svg className="relative z-10 w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
-                </Link>
-
-                <Link
-                href="https://wa.me/905335127272"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-all duration-300 rounded-lg text-sm"
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                  </svg>
-                  <span className="font-medium">WhatsApp</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12">
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-md border border-green-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                Ürünün Avantajları
-              </h3>
-
-              <ul className="space-y-4">
-                {productAdvantages.map((advantage, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    </div>
-                    {advantage}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-md border border-purple-500/20">
-              <h3 className="text-2xl font-light text-white mb-8 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                Kullanım Alanları
-              </h3>
-
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                Yalancı katlamalı perde; katlamalı perdelerin bir başka modeli de yalan katlamalı perdelerdir. Bu perdelerde tül ile 
-                dikim yer almaz. Ayrıca satılır ve bunun yanında kornişe bağlı olan katlamalı perde özelliği taşır. Kış Bahçesi Perdelere 
-                benziyor olsa da bu perde modelleri içerik olarak katlamalı perde değildir.
-              </p>
-
-              <ul className="space-y-4">
-                {usageAreas.map((area, index) => (
-                  <li key={index} className="flex items-start gap-3 text-gray-300 font-light">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    </div>
-                    {area}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <AnimatePresence>
         {lightboxOpen && (

@@ -40,8 +40,10 @@ const renderHeading = (content: Record<string, unknown>) => {
 }
 
 describe('product gallery heading contract', () => {
-  it('uses the legacy fallback when locale fields are missing', () => {
-    expect(parseProductGalleryHeading('{}', fallbackHeading, 'tr')).toEqual(fallbackHeading)
+  it('keeps the shared optional heading empty when locale fields are missing', () => {
+    const html = renderHeading({})
+
+    expect(html).not.toContain('data-product-gallery-heading')
   })
 
   it('treats an explicitly stored empty string as a value and blocks fallback', () => {

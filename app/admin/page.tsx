@@ -59,6 +59,8 @@ import {
   productVideoGalleryPilotHref,
 } from '@/lib/productVideoGalleryPilot'
 import ProductVideoGalleryAdmin from '@/components/admin/ProductVideoGalleryAdmin'
+import PageEditorialAdmin from '@/components/admin/PageEditorialAdmin'
+import { pageEditorialPageKeys } from '@/lib/pageEditorialContent'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ''
 
@@ -484,32 +486,6 @@ const getDefaultProductVideoGallery = (): ProductVideoGallery => ({
 const emptyProductGalleryHeading: ProductGalleryHeading = {
   galleryEyebrow: '',
   galleryTitle: '',
-}
-
-const readPublicProductGalleryFallbackHeading = async (slug: string): Promise<ProductGalleryHeading | null> => {
-  if (!slug.startsWith('/')) {
-    return null
-  }
-
-  try {
-    const response = await fetch(slug, { cache: 'no-store' })
-    if (!response.ok) {
-      return null
-    }
-
-    const document = new DOMParser().parseFromString(await response.text(), 'text/html')
-    const marker = document.querySelector<HTMLElement>('[data-product-gallery-heading]')
-    if (!marker) {
-      return null
-    }
-
-    return {
-      galleryEyebrow: marker.dataset.galleryFallbackEyebrow ?? '',
-      galleryTitle: marker.dataset.galleryFallbackTitle ?? '',
-    }
-  } catch {
-    return null
-  }
 }
 
 const hasLocalizedValue = (
@@ -1301,9 +1277,7 @@ const AdminPage = () => {
       const blogSection = page.sections.find((section) => section.sectionKey === 'blog.list') || null
       const productDetailSection = page.sections.find((section) => section.sectionKey === 'product.detail') || null
       const productGallerySection = page.sections.find((section) => section.sectionKey === 'product.gallery') || null
-      const productGalleryFallback = productGallerySection
-        ? await readPublicProductGalleryFallbackHeading(page.slug) || getDefaultProductGalleryHeading()
-        : getDefaultProductGalleryHeading()
+      const productGalleryFallback = getDefaultProductGalleryHeading()
       if (requestId !== pageLoadRequestId.current) {
         return
       }
@@ -3550,6 +3524,14 @@ const AdminPage = () => {
         </button>
       </div>
       {renderPageSearchFields()}
+      {authHeader && (
+        <PageEditorialAdmin
+          apiBaseUrl={API_BASE_URL}
+          authorization={authHeader}
+          pageKey="home"
+          pageLabel="Ana sayfa FAQ"
+        />
+      )}
       {renderHeroStatsEditor()}
       {renderHeroSlideEditor()}
     </div>
@@ -4372,6 +4354,15 @@ const AdminPage = () => {
       </div>
 
       {renderPageSearchFields()}
+
+      {authHeader && selectedPage && pageEditorialPageKeys.includes(selectedPage.pageKey) && (
+        <PageEditorialAdmin
+          apiBaseUrl={API_BASE_URL}
+          authorization={authHeader}
+          pageKey={selectedPage.pageKey}
+          pageLabel={activeProductGalleryPage.displayLabel}
+        />
+      )}
 
       <div className="rounded-lg border border-[#ded5c7] bg-white p-5">
         <div>
