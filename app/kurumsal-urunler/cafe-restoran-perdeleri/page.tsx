@@ -195,6 +195,64 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
+      <section className="relative py-20 border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <ProductGalleryHeading
+            fallbackEyebrow="Ürün Galerisi"
+            fallbackTitle="Cafe & Restoran Perde Modelleri"
+            className="text-center mb-16"
+            eyebrowClassName="text-sm text-gray-500 uppercase tracking-[0.3em]"
+            eyebrowTitleSpacingClassName="mb-4"
+            titleClassName="text-3xl md:text-4xl font-extralight text-white"
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryImages.map((image, index) => (
+              <div
+                key={image.id}
+                className="group"
+              >
+                <div
+                  className="relative h-[400px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer"
+                  onClick={() => {
+                    setSelectedImage(image)
+                    setLightboxOpen(true)
+                  }}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-110 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <div className="flex items-end justify-between">
+                      <div></div>
+                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300 flex-shrink-0 ml-4">
+                        <svg
+                          className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300 group-hover:translate-x-0.5 transition-transform"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full filter blur-3xl" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="relative py-16 border-t border-white/5">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-8">
@@ -264,66 +322,6 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <ProductContactCta />
-
-      <section className="relative py-20 border-t border-white/5">
-        <div className="container mx-auto px-6">
-          <ProductGalleryHeading
-            fallbackEyebrow="Ürün Galerisi"
-            fallbackTitle="Cafe & Restoran Perde Modelleri"
-            className="text-center mb-16"
-            eyebrowClassName="text-sm text-gray-500 uppercase tracking-[0.3em]"
-            eyebrowTitleSpacingClassName="mb-4"
-            titleClassName="text-3xl md:text-4xl font-extralight text-white"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryImages.map((image, index) => (
-              <div
-                key={image.id}
-                className="group"
-              >
-                <div
-                  className="relative h-[400px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer"
-                  onClick={() => {
-                    setSelectedImage(image)
-                    setLightboxOpen(true)
-                  }}
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-110 transition-all duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-
-                  <div className="absolute inset-x-0 bottom-0 p-6">
-                    <div className="flex items-end justify-between">
-                      <div></div>
-                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300 flex-shrink-0 ml-4">
-                        <svg
-                          className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300 group-hover:translate-x-0.5 transition-transform"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full filter blur-3xl" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="relative py-20 border-t border-white/5">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12">
@@ -381,6 +379,8 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
+
+      <ProductContactCta />
 
       <AnimatePresence>
         {lightboxOpen && (
