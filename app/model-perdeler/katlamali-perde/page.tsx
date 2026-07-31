@@ -1,6 +1,7 @@
 'use client'
 
 import ProductGalleryHeading from '@/components/ProductGalleryHeading'
+import ProductContactCta from '@/components/ProductContactCta'
 
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import { parseProductGalleryHeroCopy, parseProductGalleryImages } from '@/lib/productGalleryContent'
@@ -262,31 +263,7 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className={`relative pb-14 ${styles.contactSection}`}>
-        <div className="container mx-auto px-6">
-          <div className="max-w-xl mx-auto text-center p-5 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/10">
-            <p className="text-sm text-gray-300 font-light mb-3">
-              Özel ölçü ve fiyat bilgisi için bize ulaşın.
-            </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
-              <Link
-                href="tel:+903122417272"
-                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-white/15 bg-white text-black text-sm font-medium transition-colors hover:bg-gray-200"
-              >
-                Hemen Arayın
-              </Link>
-              <Link
-                href="https://wa.me/905335127272"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center min-h-11 px-5 py-2.5 rounded-xl border border-emerald-400/20 bg-emerald-950/70 text-emerald-100 text-sm font-medium transition-colors hover:bg-emerald-900/80"
-              >
-                WhatsApp’tan Yazın
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProductContactCta />
 
       <section className={`relative py-20 border-t border-white/5 ${styles.gallerySection}`}>
         <div className="container mx-auto px-6">

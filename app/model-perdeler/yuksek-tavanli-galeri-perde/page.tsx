@@ -1,6 +1,7 @@
 'use client'
 
 import ProductGalleryHeading from '@/components/ProductGalleryHeading'
+import ProductContactCta from '@/components/ProductContactCta'
 
 import { useCmsSectionJson } from '@/components/CmsPageProvider'
 import { parseProductGalleryHeroCopy, parseProductGalleryImages } from '@/lib/productGalleryContent'
@@ -233,31 +234,7 @@ export default function ModernPerdePage() {
         </div>
       </section>
 
-      <section className="relative pb-7 sm:pb-8">
-        <div className="container mx-auto px-6">
-          <div className="max-w-2xl mx-auto text-center">
-            <p className="text-xs text-gray-400/80 font-light tracking-wide mb-3">
-              Özel ölçü ve fiyat bilgisi için bize ulaşın.
-            </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
-              <Link
-                href="tel:+903122417272"
-                className="inline-flex items-center justify-center min-h-11 min-w-40 px-5 py-2.5 rounded-xl border border-white/20 bg-white/90 text-black text-sm font-medium transition-colors hover:bg-gray-200"
-              >
-                Hemen Arayın
-              </Link>
-              <Link
-                href="https://wa.me/905335127272"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center min-h-11 min-w-40 px-5 py-2.5 rounded-xl border border-emerald-400/30 bg-emerald-950/40 text-emerald-100 text-sm font-medium transition-colors hover:bg-emerald-900/60"
-              >
-                WhatsApp’tan Yazın
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProductContactCta />
 
       <section className="relative py-8 sm:py-10 border-t border-white/5 bg-gradient-to-b from-white/[0.0125] to-transparent">
         <div className="container mx-auto px-6">
