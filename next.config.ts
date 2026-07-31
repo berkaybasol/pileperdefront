@@ -1,8 +1,12 @@
 import type { NextConfig } from "next";
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const deploymentId = process.env.NEXT_DEPLOYMENT_ID
+  || process.env.RAILWAY_GIT_COMMIT_SHA
+  || process.env.RAILWAY_DEPLOYMENT_ID;
 
 const nextConfig: NextConfig = {
+  ...(deploymentId ? { deploymentId } : {}),
   output: 'standalone',
   turbopack: {
     root: process.cwd(),
