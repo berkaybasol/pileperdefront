@@ -122,7 +122,7 @@ const Header = () => {
           { title: 'Katlamalı Perde Modelleri', image: '/api/public/media/images/2e01e3a6-79a2-4b09-87f3-48350370e150/file', href: '/model-perdeler/katlamali-perde' },
           { title: 'Yüksek Tavan Perde Modelleri', image: '/api/public/media/images/334ad8c7-98e2-411c-98e9-d3c74c5a8973/file', href: '/model-perdeler/yuksek-tavanli-galeri-perde' },
           { title: 'İp Perde', image: '/api/public/media/images/10c446e9-acdc-487b-8f12-2f962c3b5e37/file', href: '/model-perdeler/ip-perde' },
-          { title: 'Çocuk Perde', image: '/api/public/media/images/92d067f9-f14e-45da-89fb-901f775d61b3/file', href: '/model-perdeler/cocuk-perde' },
+          { title: 'Çocuk Perde Modelleri', image: '/api/public/media/images/92d067f9-f14e-45da-89fb-901f775d61b3/file', href: '/model-perdeler/cocuk-perde' },
           { title: 'Cibinlik Perde', image: '/api/public/media/images/66a8d307-6542-437e-9781-8626f3f2067e/file', href: '/model-perdeler/cibinlik-perde' },
           { title: 'Çatı Katı Perde', image: '/api/public/media/images/9bfdadba-520b-43d8-8ccb-c9256523b8a9/file', href: '/model-perdeler/cati-kati-perde' },
           { title: 'Kış Bahçesi Perde Modelleri', image: '/api/public/media/images/3f3e07b0-8d36-4b49-8b21-1f0f4d439d90/file', href: '/model-perdeler/kis-bahcesi-perde' },
