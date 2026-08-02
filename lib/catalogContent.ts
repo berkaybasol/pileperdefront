@@ -200,7 +200,7 @@ export const defaultModelItems: CatalogItem[] = [
   },
   {
     id: 9,
-    title: 'Çocuk Perde Modelleri',
+    title: 'Çocuk Odası Perde Modelleri',
     image: '/api/public/media/images/92d067f9-f14e-45da-89fb-901f775d61b3/file',
     href: '/model-perdeler/cocuk-perde',
     description: 'Renkli ve eğlenceli desenler',
